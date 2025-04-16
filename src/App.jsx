@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import IntroAnimation from './components/IntroAnimation';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer'; // Importing Footer
 import Home from './pages/Home';
 import Certificates from './pages/Certificates';
 import Projects from './pages/Projects';
@@ -24,7 +25,7 @@ function App() {
             <IntroAnimation onFinish={() => setShowContent(true)} />
           )}
         </AnimatePresence>
-        
+
         <AnimatePresence>
           {showContent && (
             <motion.div
@@ -55,6 +56,7 @@ function App() {
                         <Route path="/blog/:id" element={<BlogDetail />} />
                         <Route path="/whoiam" element={<WhoIAm />} />
                       </Routes>
+                      <Footer />
                     </>
                   }
                 />
