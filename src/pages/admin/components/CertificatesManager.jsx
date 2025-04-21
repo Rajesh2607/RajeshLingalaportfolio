@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/config';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { Award, Plus, Trash2, Edit2, Save, X } from 'lucide-react';
+import { Award, Plus, Trash2, Edit2, Save, X, ExternalLink } from 'lucide-react';
 
 const CertificatesManager = () => {
   const [certificates, setCertificates] = useState([]);
@@ -12,7 +12,8 @@ const CertificatesManager = () => {
     issuer: '',
     date: '',
     credentialId: '',
-    image: ''
+    image: '',
+    link: ''
   });
 
   useEffect(() => {
@@ -47,7 +48,8 @@ const CertificatesManager = () => {
         issuer: '',
         date: '',
         credentialId: '',
-        image: ''
+        image: '',
+        link: ''
       });
       setEditingId(null);
       fetchCertificates();
@@ -99,7 +101,6 @@ const CertificatesManager = () => {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
-              placeholder="e.g., AWS Certified Solutions Architect"
               required
             />
           </div>
@@ -110,7 +111,6 @@ const CertificatesManager = () => {
               value={formData.issuer}
               onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
               className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
-              placeholder="e.g., Amazon Web Services"
               required
             />
           </div>
@@ -121,7 +121,6 @@ const CertificatesManager = () => {
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
-              placeholder="e.g., March 2024"
               required
             />
           </div>
@@ -132,7 +131,6 @@ const CertificatesManager = () => {
               value={formData.credentialId}
               onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
               className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
-              placeholder="e.g., AWS-ASA-00000"
               required
             />
           </div>
@@ -145,7 +143,18 @@ const CertificatesManager = () => {
             value={formData.image}
             onChange={(e) => setFormData({ ...formData, image: e.target.value })}
             className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
-            placeholder="Enter certificate image URL"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-white text-sm font-medium mb-2">Certificate Link</label>
+          <input
+            type="url"
+            value={formData.link}
+            onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+            className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
+            placeholder="https://www.certificate-link.com"
             required
           />
         </div>
@@ -164,16 +173,24 @@ const CertificatesManager = () => {
       {/* Certificates List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {certificates.map((certificate) => (
-          <div
-            key={certificate.id}
-            className="bg-[#1d3a6e] p-4 rounded-lg"
-          >
+          <div key={certificate.id} className="bg-[#1d3a6e] p-4 rounded-lg">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-white">{certificate.title}</h3>
                 <p className="text-gray-400">{certificate.issuer}</p>
                 <p className="text-sm text-gray-400">{certificate.date}</p>
                 <p className="text-sm text-gray-400">ID: {certificate.credentialId}</p>
+                {certificate.link && (
+                  <a
+                    href={certificate.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[#17c0f8] flex items-center mt-2 hover:underline"
+                  >
+                    <ExternalLink size={16} className="mr-1" />
+                    View Certificate
+                  </a>
+                )}
               </div>
               <div className="flex space-x-2">
                 <button

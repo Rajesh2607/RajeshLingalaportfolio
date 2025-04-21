@@ -10,13 +10,17 @@ import {
   LogOut,
   User,
   Wrench,
+  Medal, // Add Medal icon for Achievements
 } from 'lucide-react';
 
 import AboutManager from './components/AboutManager';
 import ExperienceManager from './components/ExperienceManager';
 import CertificatesManager from './components/CertificatesManager';
 import ProjectsManager from './components/ProjectsManager';
-import SkillManager from './components/SkillManager.jsx'; // ✅ Import your SkillManager
+import SkillManager from './components/SkillManager.jsx';
+import AdminEducationForm from './components/AdminEducationForm.jsx';
+import AchievementsManager from './components/AchievementsManager'; // ✅ Import AchievementsManager
+import SocialMedia from '../../components/whoIam/SocialMedia.jsx';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('about');
@@ -44,8 +48,14 @@ const AdminDashboard = () => {
       case 'projects':
         return <ProjectsManager />;
       case 'skills':
-        return <SkillManager />; // ✅ New case for skills
-      default:
+        return <SkillManager />;
+      case 'education':
+        return <AdminEducationForm />;
+      case 'achievements': // ✅ New case for achievements
+        return <AchievementsManager />; // ✅ Render AchievementsManager
+      case 'socialMedia':
+        return <SocialMedia />;
+        default:
         return null;
     }
   };
@@ -89,10 +99,28 @@ const AdminDashboard = () => {
             onClick={() => setActiveSection('projects')}
           />
           <SidebarButton
+            label="Education"
+            icon={<BookOpen size={20} className="mr-3" />}
+            isActive={activeSection === 'education'}
+            onClick={() => setActiveSection('education')}
+          />
+          <SidebarButton
             label="Skills"
             icon={<Wrench size={20} className="mr-3" />}
             isActive={activeSection === 'skills'}
             onClick={() => setActiveSection('skills')}
+          />
+          <SidebarButton
+            label="Achievements" // ✅ New label for Achievements
+            icon={<Medal size={20} className="mr-3" />} // ✅ Icon for Achievements
+            isActive={activeSection === 'achievements'} // ✅ Check if Achievements is active
+            onClick={() => setActiveSection('achievements')} // ✅ Set active section to achievements
+          />
+          <SidebarButton
+            label="Social Media"
+            icon={<User size={20} className="mr-3" />}
+            isActive={activeSection === 'socialMedia'}
+            onClick={() => setActiveSection('socialMedia')}
           />
         </nav>
 
@@ -115,7 +143,7 @@ const AdminDashboard = () => {
   );
 };
 
-// 🔧 Sidebar Button Reusable Component
+// Sidebar Button Reusable Component
 const SidebarButton = ({ label, icon, isActive, onClick }) => (
   <button
     onClick={onClick}

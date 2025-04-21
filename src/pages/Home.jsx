@@ -5,6 +5,8 @@ import { db } from '../firebase/config'; // Import Firebase config
 import { doc, getDoc } from 'firebase/firestore'; // Firestore methods
 import Experience from '../components/Experience';
 import Skills from '../components/Skills';
+import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome'; // Skeleton loader component
+
 
 const Home = () => {
   const [about, setAbout] = useState({
@@ -34,8 +36,13 @@ const Home = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Optional: Display loading state
+    return (
+      <div className="min-h-screen bg-[#0a192f] p-4">
+        <SkeletonLoader />
+      </div>
+    );
   }
+  
 
   return (
     <div className="min-h-screen bg-[#0a192f]">
@@ -104,16 +111,20 @@ const Home = () => {
   viewport={{ once: true }}
   className="py-24 bg-[#112240] text-white"
 >
-  <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
+  <div className="max-w-8xl mx-auto ">
     <div className="flex items-center justify-center mb-12">
       <User size={24} className="text-[#17c0f8] mr-3 animate-pulse" />
-      <h2 className="text-3xl md:text-3xl font-extrabold text-white tracking-wide">About Me</h2>
+      <h2 className="text-3xl md:text-3xl font-extrabold text-white tracking-wide">
+      <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+        Short Bio About Me
+        </span>
+        </h2>
     </div>
-    <div className="bg-[#1b3a70] p-10 sm:p-14 md:p-20 rounded-3xl shadow-2xl border border-white/10 text-lg sm:text-xl md:text-2xl leading-relaxed text-white text-justify font-light tracking-wide max-w-5xl mx-auto">
+    <div className="bg-[#1b3a70] p-12 sm:p-16 md:p-24 rounded-3xl shadow-2xl border border-white/10 text-lg sm:text-xl md:text-2xl leading-relaxed text-white text-justify font-light tracking-wide max-w-6xl mx-auto">
     <p>
-              {about.description || "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
-            </p>
-    </div>
+      {about.description || "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
+    </p>
+  </div>
   </div>
 </motion.section>
 

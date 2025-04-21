@@ -43,7 +43,12 @@ const Skills = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center mb-12">
           <Code2 size={24} className="text-[#17c0f8] mr-2" />
-          <h2 className="text-3xl font-bold text-white">Skills</h2>
+          <h2 className="text-3xl font-bold text-white">
+          <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+
+          Skills
+          </span>
+          </h2>
         </div>
 
         {loading ? (
@@ -53,7 +58,8 @@ const Skills = () => {
             {Object.entries(skillsData).map(([category, skills], groupIndex) => (
               <div key={category}>
                 <h3 className="text-xl text-white font-semibold mb-4 text-center">{category.toUpperCase()}</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+                  
                   {skills.map((skill, index) => (
                     <motion.div
                       key={`${category}-${index}`}
@@ -67,6 +73,7 @@ const Skills = () => {
                     </motion.div>
                   ))}
                 </div>
+
               </div>
             ))}
           </div>

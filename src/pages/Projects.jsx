@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Github, ExternalLink, Star, GitFork } from 'lucide-react';
 import { db } from '../firebase/config';  // Import Firebase config
 import { collection, getDocs } from 'firebase/firestore';  // Firestore functions
+import ProjectSkeleton from '../components/skeleton/ProjectSkeleton';  // Skeleton loader component
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);  // State to store projects data
@@ -32,7 +33,7 @@ const Projects = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#17c0f8]"></div>
+          <ProjectSkeleton />;
       </div>
     );
   }
