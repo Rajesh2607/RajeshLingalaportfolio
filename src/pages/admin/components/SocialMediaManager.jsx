@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../../firebase/config'; // Import Firestore config
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { Github, Linkedin, Twitter, Youtube, Instagram, Facebook, FileText } from 'lucide-react'; // Add icons for other services
+import { db } from '../../../firebase/config';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Youtube,
+  Instagram,
+  Facebook,
+  FileText,
+} from 'lucide-react';
 
 const SocialMediaManager = () => {
   const [socialLinks, setSocialLinks] = useState([]);
@@ -13,7 +28,10 @@ const SocialMediaManager = () => {
     const fetchSocialLinks = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'socialLinks'));
-        const links = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        const links = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
         setSocialLinks(links);
       } catch (error) {
         console.error('Error fetching social media accounts:', error);
@@ -48,9 +66,11 @@ const SocialMediaManager = () => {
           name: editing.name,
           url: editing.url,
         });
-        setSocialLinks(socialLinks.map((link) =>
-          link.id === editing.id ? editing : link
-        ));
+        setSocialLinks(
+          socialLinks.map((link) =>
+            link.id === editing.id ? editing : link
+          )
+        );
         setEditing(null);
       } catch (error) {
         console.error('Error updating social media account:', error);
@@ -95,6 +115,8 @@ const SocialMediaManager = () => {
   return (
     <div className="min-h-screen bg-[#0a192f] p-8">
       <h2 className="text-3xl text-white mb-4">Manage Social Media Accounts</h2>
+
+      {/* Add New Account */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
         <h3 className="text-2xl mb-4">Add New Account</h3>
         <div className="flex flex-col space-y-4">
@@ -102,14 +124,30 @@ const SocialMediaManager = () => {
             type="text"
             placeholder="Account Name (e.g., GitHub)"
             value={newAccount.name}
-            onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
+            onChange={(e) =>
+              setNewAccount({ ...newAccount, name: e.target.value })
+            }
+            onKeyDown={(e) =>
+              e.key === 'Enter' &&
+              newAccount.name &&
+              newAccount.url &&
+              handleAddAccount()
+            }
             className="p-2 border border-gray-300 rounded"
           />
           <input
             type="url"
             placeholder="Account URL"
             value={newAccount.url}
-            onChange={(e) => setNewAccount({ ...newAccount, url: e.target.value })}
+            onChange={(e) =>
+              setNewAccount({ ...newAccount, url: e.target.value })
+            }
+            onKeyDown={(e) =>
+              e.key === 'Enter' &&
+              newAccount.name &&
+              newAccount.url &&
+              handleAddAccount()
+            }
             className="p-2 border border-gray-300 rounded"
           />
           <button
@@ -121,13 +159,19 @@ const SocialMediaManager = () => {
         </div>
       </div>
 
+      {/* Display Accounts */}
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h3 className="text-2xl mb-4">Current Accounts</h3>
         <div className="space-y-4">
           {socialLinks.map((link) => (
-            <div key={link.id} className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
+            <div
+              key={link.id}
+              className="flex items-center justify-between bg-gray-100 p-4 rounded-lg"
+            >
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-gray-800 rounded-lg">{getIcon(link.name)}</div>
+                <div className="p-3 bg-gray-800 rounded-lg">
+                  {getIcon(link.name)}
+                </div>
                 <div>
                   <h4 className="text-lg font-semibold">{link.name}</h4>
                   <p>{link.url}</p>
@@ -152,6 +196,7 @@ const SocialMediaManager = () => {
         </div>
       </div>
 
+      {/* Edit Account */}
       {editing && (
         <div className="bg-white p-6 rounded-lg shadow-lg mt-8">
           <h3 className="text-2xl mb-4">Edit Account</h3>
@@ -159,13 +204,29 @@ const SocialMediaManager = () => {
             <input
               type="text"
               value={editing.name}
-              onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+              onChange={(e) =>
+                setEditing({ ...editing, name: e.target.value })
+              }
+              onKeyDown={(e) =>
+                e.key === 'Enter' &&
+                editing.name &&
+                editing.url &&
+                handleEditAccount()
+              }
               className="p-2 border border-gray-300 rounded"
             />
             <input
               type="url"
               value={editing.url}
-              onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+              onChange={(e) =>
+                setEditing({ ...editing, url: e.target.value })
+              }
+              onKeyDown={(e) =>
+                e.key === 'Enter' &&
+                editing.name &&
+                editing.url &&
+                handleEditAccount()
+              }
               className="p-2 border border-gray-300 rounded"
             />
             <button

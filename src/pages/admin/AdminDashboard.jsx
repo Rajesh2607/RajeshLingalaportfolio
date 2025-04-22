@@ -20,7 +20,7 @@ import ProjectsManager from './components/ProjectsManager';
 import SkillManager from './components/SkillManager.jsx';
 import AdminEducationForm from './components/AdminEducationForm.jsx';
 import AchievementsManager from './components/AchievementsManager'; // ✅ Import AchievementsManager
-import SocialMedia from '../../components/whoIam/SocialMedia.jsx';
+import SocialMediaManager from './components/SocialMediaManager';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('about');
@@ -54,8 +54,8 @@ const AdminDashboard = () => {
       case 'achievements': // ✅ New case for achievements
         return <AchievementsManager />; // ✅ Render AchievementsManager
       case 'socialMedia':
-        return <SocialMedia />;
-        default:
+        return <SocialMediaManager />;
+      default:
         return null;
     }
   };

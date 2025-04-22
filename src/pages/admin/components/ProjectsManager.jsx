@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
-import { db } from '../../../firebase/config';  // Import Firebase config
-import { collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';  // Firestore functions
-import { Github, ExternalLink, Trash } from 'lucide-react';  // For Icons
+import React, { useState, useEffect } from 'react';
+import { db, storage } from '../../../firebase/config';
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc,
+  getDocs,
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { Github, ExternalLink, Trash } from 'lucide-react';
 
 const ProjectManager = () => {
   const [title, setTitle] = useState('');
@@ -9,10 +17,15 @@ const ProjectManager = () => {
   const [technologies, setTechnologies] = useState('');
   const [github, setGithub] = useState('');
   const [live, setLive] = useState('');
-  const [image, setImage] = useState('');
-  const [projects, setProjects] = useState([]);  // To store fetched projects
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
-  // Fetch existing projects from Firestore
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   const fetchProjects = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'projects'));
@@ -26,153 +39,127 @@ const ProjectManager = () => {
     }
   };
 
-  // Adding a new project to Firestore
-  const addProject = async (e) => {
+  const uploadImage = async (file) => {
+    const imageRef = ref(storage, `project_images/${file.name}_${Date.now()}`);
+    await uploadBytes(imageRef, file);
+    return await getDownloadURL(imageRef);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'projects'), {
+      let imageUrl = '';
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      const projectData = {
         title,
         description,
         technologies: technologies.split(',').map((tech) => tech.trim()),
         github,
         live,
-        image,
-      });
-      fetchProjects();  // Reload the projects after adding
-      clearForm();  // Clear the form
+        image: imageUrl || imagePreview,
+      };
+
+      if (editingId) {
+        await updateDoc(doc(db, 'projects', editingId), projectData);
+      } else {
+        await addDoc(collection(db, 'projects'), projectData);
+      }
+
+      fetchProjects();
+      clearForm();
     } catch (error) {
-      console.error('Error adding project:', error);
+      console.error('Error submitting project:', error);
     }
   };
 
-  // Delete a project
-  const deleteProject = async (id) => {
+  const deleteProject = async (id, imageUrl) => {
     try {
       await deleteDoc(doc(db, 'projects', id));
-      fetchProjects();  // Reload the projects after deleting
+      if (imageUrl) {
+        const imageRef = ref(storage, imageUrl);
+        await deleteObject(imageRef).catch(() => {});
+      }
+      fetchProjects();
     } catch (error) {
       console.error('Error deleting project:', error);
     }
   };
 
-  // Update a project (just an example with title)
-  const updateProject = async (id) => {
-    try {
-      const projectRef = doc(db, 'projects', id);
-      await updateDoc(projectRef, {
-        title: 'Updated Project Title',  // Update with new data
-      });
-      fetchProjects();  // Reload after updating
-    } catch (error) {
-      console.error('Error updating project:', error);
-    }
+  const startUpdate = (project) => {
+    setTitle(project.title);
+    setDescription(project.description);
+    setTechnologies(project.technologies.join(', '));
+    setGithub(project.github);
+    setLive(project.live);
+    setImagePreview(project.image || '');
+    setEditingId(project.id);
   };
 
-  // Clear the form
   const clearForm = () => {
     setTitle('');
     setDescription('');
     setTechnologies('');
     setGithub('');
     setLive('');
-    setImage('');
+    setImageFile(null);
+    setImagePreview(null);
+    setEditingId(null);
   };
 
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold text-white mb-6">Manage Projects</h1>
 
-      {/* Add New Project Form */}
-      <form onSubmit={addProject} className="bg-[#1d3a6e] p-6 rounded-lg mb-8">
-        <h2 className="text-2xl font-semibold text-white mb-4">Add New Project</h2>
-        <div className="mb-4">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Project Title"
-            className="w-full p-3 text-black rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Project Description"
-            className="w-full p-3 text-black rounded"
-            rows="4"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <input
-            type="text"
-            value={technologies}
-            onChange={(e) => setTechnologies(e.target.value)}
-            placeholder="Technologies (comma separated)"
-            className="w-full p-3 text-black rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <input
-            type="url"
-            value={github}
-            onChange={(e) => setGithub(e.target.value)}
-            placeholder="GitHub Link"
-            className="w-full p-3 text-black rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <input
-            type="url"
-            value={live}
-            onChange={(e) => setLive(e.target.value)}
-            placeholder="Live Demo Link"
-            className="w-full p-3 text-black rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <input
-            type="url"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            placeholder="Project Image URL"
-            className="w-full p-3 text-black rounded"
-            required
-          />
-        </div>
-        <button type="submit" className="w-full bg-[#17c0f8] p-3 text-white rounded">
-          Add Project
+      <form onSubmit={handleSubmit} className="bg-[#1d3a6e] p-6 rounded-lg mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-4">
+          {editingId ? 'Update Project' : 'Add New Project'}
+        </h2>
+
+        <input className="w-full p-3 text-black rounded mb-4" type="text" placeholder="Project Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea className="w-full p-3 text-black rounded mb-4" rows="4" placeholder="Project Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <input className="w-full p-3 text-black rounded mb-4" type="text" placeholder="Technologies (comma separated)" value={technologies} onChange={(e) => setTechnologies(e.target.value)} />
+        <input className="w-full p-3 text-black rounded mb-4" type="url" placeholder="GitHub Link" value={github} onChange={(e) => setGithub(e.target.value)} />
+        <input className="w-full p-3 text-black rounded mb-4" type="url" placeholder="Live Demo Link" value={live} onChange={(e) => setLive(e.target.value)} />
+
+        <input className="w-full p-3 bg-white rounded mb-2" type="file" onChange={handleImageChange} />
+        {imagePreview && <img src={imagePreview} alt="Preview" className="w-64 mt-2 rounded shadow-md border-2 border-white" />}
+
+        <button type="submit" className="w-full mt-4 bg-[#17c0f8] p-3 text-white rounded">
+          {editingId ? 'Update Project' : 'Add Project'}
         </button>
+        {editingId && (
+          <button type="button" onClick={clearForm} className="w-full mt-2 bg-gray-500 p-3 text-white rounded">
+            Cancel Edit
+          </button>
+        )}
       </form>
 
-      {/* Displaying existing projects */}
       <h2 className="text-3xl font-semibold text-white mb-4">Existing Projects</h2>
       <div className="space-y-4">
         {projects.map((project) => (
-          <div key={project.id} className="bg-[#112240] p-6 rounded-lg flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-white">{project.title}</h3>
-              <p className="text-gray-400">{project.description}</p>
-            </div>
-            <div className="flex space-x-4">
-              <button
-                onClick={() => updateProject(project.id)}
-                className="text-white hover:text-[#17c0f8] flex items-center"
-              >
-                <span>Update</span>
-              </button>
-              <button
-                onClick={() => deleteProject(project.id)}
-                className="text-red-500 hover:text-red-400 flex items-center"
-              >
-                <Trash size={20} />
-                <span>Delete</span>
-              </button>
+          <div key={project.id} className="bg-[#112240] p-6 rounded-lg">
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white">{project.title}</h3>
+                <p className="text-gray-400">{project.description}</p>
+                {project.image && <img src={project.image} alt={project.title} className="mt-2 w-64 rounded" />}
+              </div>
+              <div className="flex space-x-4 mt-4 md:mt-0">
+                <button onClick={() => startUpdate(project)} className="text-white hover:text-[#17c0f8]">Update</button>
+                <button onClick={() => deleteProject(project.id, project.image)} className="text-red-500 hover:text-red-400 flex items-center">
+                  <Trash size={20} />
+                  <span className="ml-1">Delete</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}

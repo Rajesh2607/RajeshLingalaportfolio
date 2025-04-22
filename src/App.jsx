@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import IntroAnimation from './components/IntroAnimation';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer'; // Importing Footer
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import Certificates from './pages/Certificates';
 import Projects from './pages/Projects';
 import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail';
+import BlogDetail from './pages/Blog'; // Blog details fetched from Firebase
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -34,6 +35,7 @@ function App() {
               transition={{ duration: 1 }}
             >
               <Routes>
+                {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route
                   path="/admin/*"
@@ -43,6 +45,8 @@ function App() {
                     </AdminProtectedRoute>
                   }
                 />
+
+                {/* Public Routes */}
                 <Route
                   path="*"
                   element={
@@ -53,7 +57,7 @@ function App() {
                         <Route path="/certificates" element={<Certificates />} />
                         <Route path="/projects" element={<Projects />} />
                         <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:id" element={<BlogDetail />} />
+                        <Route path="/blog/:id" element={<BlogDetail />} /> {/* Firebase blog detail */}
                         <Route path="/whoiam" element={<WhoIAm />} />
                       </Routes>
                       <Footer />

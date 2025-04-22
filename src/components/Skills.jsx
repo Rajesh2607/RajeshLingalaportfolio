@@ -57,23 +57,30 @@ const Skills = () => {
           <div className="space-y-12">
             {Object.entries(skillsData).map(([category, skills], groupIndex) => (
               <div key={category}>
-                <h3 className="text-xl text-white font-semibold mb-4 text-center">{category.toUpperCase()}</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
-                  
-                  {skills.map((skill, index) => (
-                    <motion.div
-                      key={`${category}-${index}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.05 }}
-                      className="bg-[#112240] rounded-lg p-6 text-center hover:bg-[#1d3a6e] transition-colors"
-                    >
-                      <p className="font-medium text-gray-300">{skill}</p>
-                    </motion.div>
-                  ))}
-                </div>
+                <h3 className="text-xl sm:text-2xl text-white font-semibold mb-6 text-center">
+                  {category.toUpperCase()}
+                </h3>
 
+                <div className="w-full flex justify-center">
+                  <div className="flex flex-wrap gap-4 sm:gap-6 justify-center max-w-6xl">
+                    {skills.map((skill, index) => (
+                      <motion.div
+                        key={`${category}-${index}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-[#112240] rounded-xl 
+                                  px-4 py-3 text-sm 
+                                  sm:px-6 sm:py-4 sm:text-base 
+                                  md:px-8 md:py-5 md:text-lg 
+                                  text-center hover:bg-[#1d3a6e] transition-colors min-w-[140px] sm:min-w-[160px] md:min-w-[180px]"
+                      >
+                        <p className="font-semibold text-gray-300">{skill}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

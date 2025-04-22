@@ -11,7 +11,7 @@ const Navbar = () => {
     `flex items-center space-x-1 ${isActive ? 'text-[#17c0f8]' : 'hover:text-[#17c0f8]'}`;
 
   return (
-    <nav className="bg-black text-white p-4">
+    <nav className="bg-black text-white p-6 sticky top-0 z-50 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">LINGALA RAJESH</div>
 

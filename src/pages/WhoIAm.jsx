@@ -5,7 +5,19 @@ import Achievements from '../components/whoIam/Achievements';
 import Education from '../components/whoIam/Education';
 import SocialMedia from '../components/whoIam/SocialMedia';
 import About from '../components/whoIam/About';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+
 const WhoIAm = () => {
+  const location = useLocation();
+
+useEffect(() => {
+  if (location.hash === '#connect') {
+    const section = document.getElementById('connect');
+    section?.scrollIntoView({ behavior: 'smooth' });
+  }
+}, [location]);
   return (
     <><div className="min-h-screen bg-[#0a192f] text-white flex items-center justify-center px-6 py-12">
       <motion.div
@@ -26,8 +38,9 @@ const WhoIAm = () => {
         <div className="container mx-auto px-6">
           <Hero />
           <About />
-      
+          <div id="connect">
           <SocialMedia />
+          </div>
           <Achievements />
           <Education />
 
