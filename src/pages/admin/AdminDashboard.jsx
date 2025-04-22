@@ -21,6 +21,7 @@ import SkillManager from './components/SkillManager.jsx';
 import AdminEducationForm from './components/AdminEducationForm.jsx';
 import AchievementsManager from './components/AchievementsManager'; // ✅ Import AchievementsManager
 import SocialMediaManager from './components/SocialMediaManager';
+import HeroManager from './components/HeroManager.jsx';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('about');
@@ -55,6 +56,8 @@ const AdminDashboard = () => {
         return <AchievementsManager />; // ✅ Render AchievementsManager
       case 'socialMedia':
         return <SocialMediaManager />;
+      case 'hero':
+        return <HeroManager />;
       default:
         return null;
     }
@@ -109,6 +112,12 @@ const AdminDashboard = () => {
             icon={<Wrench size={20} className="mr-3" />}
             isActive={activeSection === 'skills'}
             onClick={() => setActiveSection('skills')}
+          />
+          <SidebarButton
+            label="Hero"
+            icon={<User size={20} className="mr-3" />}
+            isActive={activeSection === 'hero'}
+            onClick={() => setActiveSection('hero')}
           />
           <SidebarButton
             label="Achievements" // ✅ New label for Achievements
