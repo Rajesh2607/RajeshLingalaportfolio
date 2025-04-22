@@ -5,6 +5,7 @@ import { db } from '../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 import Experience from '../components/Experience';
 import Skills from '../components/Skills';
+import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome';
 
 const Home = () => {
   const [about, setAbout] = useState({
@@ -34,7 +35,9 @@ const Home = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>
+      <SkeletonLoader />
+    </div>;
   }
 
   return (
