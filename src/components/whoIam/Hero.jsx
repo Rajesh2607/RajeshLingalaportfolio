@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const Hero = () => {
@@ -9,14 +9,19 @@ const Hero = () => {
 
   useEffect(() => {
     const fetchHeroData = async () => {
-      const q = query(collection(db, 'hero'), orderBy('timestamp', 'desc'));
-      const snapshot = await getDocs(q);
+      try {
+        const personalSnap = await getDoc(doc(db, 'hero', 'Personal'));
+        const professionalSnap = await getDoc(doc(db, 'hero', 'Professional'));
 
-      const personalDoc = snapshot.docs.find(doc => doc.data().section === 'personal');
-      const professionalDoc = snapshot.docs.find(doc => doc.data().section === 'professional');
-
-      if (personalDoc) setPersonal({ id: personalDoc.id, ...personalDoc.data() });
-      if (professionalDoc) setProfessional({ id: professionalDoc.id, ...professionalDoc.data() });
+        if (personalSnap.exists()) {
+          setPersonal({ id: 'Personal', ...personalSnap.data() });
+        }
+        if (professionalSnap.exists()) {
+          setProfessional({ id: 'Professional', ...professionalSnap.data() });
+        }
+      } catch (error) {
+        console.error('Error fetching hero data:', error);
+      }
     };
 
     fetchHeroData();
@@ -24,7 +29,6 @@ const Hero = () => {
 
   return (
     <section className="min-h-screen pt-20 bg-gradient-to-b from-midnight to-navy relative overflow-hidden scroll-smooth">
-      {/* Blur background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-purple-600 filter blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-blue-600 filter blur-3xl"></div>
@@ -42,7 +46,7 @@ const Hero = () => {
               transition={{ duration: 1, delay: 0.2 }}
             >
               <h1 className="text-5xl md:text-7xl font-bold mb-8 text-white">
-                my personal story
+                My Personal Story
               </h1>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div>

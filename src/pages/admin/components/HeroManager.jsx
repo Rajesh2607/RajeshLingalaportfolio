@@ -1,117 +1,112 @@
-import React, { useState } from 'react';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { db,storage } from '../../../firebase/config';
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { db, storage } from '../../../firebase/config';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const HeroManager = () => {
-  const [formData, setFormData] = useState({
-    section: 'personal', // 'personal' or 'professional'
-    heading: '',
-    description: '',
-    image: null,
-  });
-
+  const [currentSection, setCurrentSection] = useState('Personal');
+  const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [newImage, setNewImage] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  const handleChange = (e) => {
-    if (e.target.name === 'image') {
-      const file = e.target.files[0];
-      setFormData({ ...formData, image: file });
+  const fetchData = async () => {
+    try {
+      const docRef = doc(db, 'hero', currentSection);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setDescription(data.description || '');
+        setImageUrl(data.imageUrl || '');
+        setPreview(null);
+        setNewImage(null);
+      }
+    } catch (error) {
+      console.error('Error fetching document:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [currentSection]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewImage(file);
       setPreview(URL.createObjectURL(file));
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.heading || !formData.description || !formData.image) {
-      alert('All fields are required');
-      return;
-    }
-
     try {
-      const storageRef = ref(storage, `hero-images/${Date.now()}-${formData.image.name}`);
-      await uploadBytes(storageRef, formData.image);
-      const downloadURL = await getDownloadURL(storageRef);
+      let finalImageUrl = imageUrl;
 
-      await addDoc(collection(db, 'hero'), {
-        section: formData.section,
-        heading: formData.heading,
-        description: formData.description,
-        imageUrl: downloadURL,
-        timestamp: new Date()
+      if (newImage) {
+        const storageRef = ref(storage, `hero-images/${Date.now()}-${newImage.name}`);
+        await uploadBytes(storageRef, newImage);
+        finalImageUrl = await getDownloadURL(storageRef);
+      }
+
+      const docRef = doc(db, 'hero', currentSection);
+      await updateDoc(docRef, {
+        description,
+        imageUrl: finalImageUrl
       });
 
-      alert('Hero content added successfully!');
-      setFormData({
-        section: 'personal',
-        heading: '',
-        description: '',
-        image: null,
-      });
-      setPreview(null);
+      alert(`${currentSection} section updated successfully.`);
+      fetchData(); // refresh after update
     } catch (error) {
-      console.error('Error uploading data: ', error);
-      alert('Error uploading data.');
+      console.error('Error updating document:', error);
+      alert('Failed to update document.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a1a33] text-white p-8">
-      <h1 className="text-3xl font-bold mb-6">Hero Manager (Admin)</h1>
+    <div className="min-h-screen bg-[#0a1a33] text-white p-8 max-w-3xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Update Hero Section</h1>
 
-      <form onSubmit={handleSubmit} className="bg-[#112244] p-6 rounded-xl shadow-lg max-w-2xl">
-        <div className="mb-4">
-          <label className="block text-sm mb-2">Section</label>
-          <select
-            name="section"
-            value={formData.section}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-[#1c2a45] text-white"
+      <div className="flex gap-4 mb-6">
+        {['Personal', 'Professional'].map((section) => (
+          <button
+            key={section}
+            onClick={() => setCurrentSection(section)}
+            className={`px-4 py-2 rounded ${currentSection === section ? 'bg-cyan-500' : 'bg-[#1c2a45]'}`}
           >
-            <option value="personal">Personal Story</option>
-            <option value="professional">Professional Story</option>
-          </select>
-        </div>
+            {section}
+          </button>
+        ))}
+      </div>
 
-        <div className="mb-4">
-          <label className="block text-sm mb-2">Heading</label>
-          <input
-            type="text"
-            name="heading"
-            value={formData.heading}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-[#1c2a45] text-white"
-            placeholder="Enter heading"
-          />
-        </div>
-
+      <form onSubmit={handleSubmit} className="bg-[#112244] p-6 rounded-xl shadow-lg">
         <div className="mb-4">
           <label className="block text-sm mb-2">Description</label>
           <textarea
             name="description"
-            value={formData.description}
-            onChange={handleChange}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             rows={5}
             className="w-full p-2 rounded bg-[#1c2a45] text-white"
-            placeholder="Enter description"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm mb-2">Image</label>
+          <label className="block text-sm mb-2">Change Image (optional)</label>
           <input
             type="file"
-            name="image"
             accept="image/*"
-            onChange={handleChange}
+            onChange={handleImageChange}
             className="w-full p-2 bg-[#1c2a45] rounded text-white"
           />
-          {preview && (
+          {(preview || imageUrl) && (
             <div className="mt-4">
               <p className="text-sm mb-2">Preview:</p>
-              <img src={preview} alt="Preview" className="rounded-lg w-full max-w-sm" />
+              <img
+                src={preview || imageUrl}
+                alt="Preview"
+                className="rounded-lg w-full max-w-sm"
+              />
             </div>
           )}
         </div>
@@ -120,7 +115,7 @@ const HeroManager = () => {
           type="submit"
           className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-2 rounded"
         >
-          Upload
+          Update {currentSection}
         </button>
       </form>
     </div>
