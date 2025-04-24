@@ -9,7 +9,7 @@ import Home from './pages/Home';
 import Certificates from './pages/Certificates';
 import Projects from './pages/Projects';
 import Blog from './pages/Blog';
-import BlogDetail from './pages/Blog'; // Blog details fetched from Firebase
+import BlogDetail from './pages/BlogDetail'; // Blog details fetched from Firebase
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';

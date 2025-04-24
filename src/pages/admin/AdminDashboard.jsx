@@ -22,6 +22,8 @@ import AdminEducationForm from './components/AdminEducationForm.jsx';
 import AchievementsManager from './components/AchievementsManager'; // ✅ Import AchievementsManager
 import SocialMediaManager from './components/SocialMediaManager';
 import HeroManager from './components/HeroManager.jsx';
+import AdminBlogManager from './components/AdminBlogManager.jsx'; // Import AdminBlogManager
+
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('about');
@@ -58,6 +60,8 @@ const AdminDashboard = () => {
         return <SocialMediaManager />;
       case 'hero':
         return <HeroManager />;
+      case 'adminBlog':
+        return <AdminBlogManager />;
       default:
         return null;
     }
@@ -90,12 +94,6 @@ const AdminDashboard = () => {
             onClick={() => setActiveSection('certificates')}
           />
           <SidebarButton
-            label="Blogs"
-            icon={<BookOpen size={20} className="mr-3" />}
-            isActive={activeSection === 'blogs'}
-            onClick={() => setActiveSection('blogs')}
-          />
-          <SidebarButton
             label="Projects"
             icon={<Code2 size={20} className="mr-3" />}
             isActive={activeSection === 'projects'}
@@ -107,6 +105,12 @@ const AdminDashboard = () => {
             isActive={activeSection === 'education'}
             onClick={() => setActiveSection('education')}
           />
+          <SidebarButton
+            label="Blog"
+            icon={<BookOpen size={20} className="mr-3" />}
+            isActive={activeSection === 'adminBlog'}
+            onClick={() => setActiveSection('adminBlog')}
+          />              
           <SidebarButton
             label="Skills"
             icon={<Wrench size={20} className="mr-3" />}
@@ -165,7 +169,5 @@ const SidebarButton = ({ label, icon, isActive, onClick }) => (
   </button>
 );
 
-// Placeholder for BlogsManager
-const BlogsManager = () => <div className="text-white">Blogs Manager (Coming Soon)</div>;
 
 export default AdminDashboard;
