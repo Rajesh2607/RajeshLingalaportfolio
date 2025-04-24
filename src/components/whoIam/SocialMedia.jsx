@@ -50,7 +50,37 @@ const SocialMedia = () => {
   };
 
   if (loading) {
-    return <div className="text-center text-white py-20">Loading...</div>;
+    return (
+      <section className="py-20 bg-midnight text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                Connect With Me
+              </span>
+            </h2>
+  
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="animate-pulse bg-navy bg-opacity-50 rounded-xl p-6"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gray-800 rounded-lg" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-gray-700 rounded w-3/4" />
+                      <div className="h-3 bg-gray-800 rounded w-1/2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  
   }
 
   return (

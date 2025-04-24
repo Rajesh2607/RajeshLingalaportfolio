@@ -3,6 +3,8 @@ import { Award, Bookmark, Medal, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { db } from '../../firebase/config'; // Make sure to import your Firestore instance
 import { collection, getDocs } from 'firebase/firestore';
+import 'react-loading-skeleton/dist/skeleton.css';
+
 
 const Achievements = () => {
   const [achievementData, setAchievementData] = useState([]);
@@ -31,9 +33,38 @@ const Achievements = () => {
   // Loading spinner while fetching data
   if (loading) {
     return (
-      <div className="h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
-      </div>
+      <section id="achievements" className="py-20 bg-midnight text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                Achievements
+              </span>
+            </h2>
+  
+            <div className="grid grid-cols-1 gap-8">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="animate-pulse bg-navy bg-opacity-70 rounded-xl p-6 md:p-8 shadow-xl border-l-4 border-purple-400"
+                >
+                  <div className="flex flex-col md:flex-row">
+                    <div className="mb-4 md:mb-0 md:mr-6 flex items-start">
+                      <div className="w-12 h-12 bg-purple-400 bg-opacity-20 rounded-lg" />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <div className="h-4 bg-gray-600 rounded w-1/2" />
+                      <div className="h-3 bg-gray-700 rounded w-1/3" />
+                      <div className="h-3 bg-gray-700 rounded w-full" />
+                      <div className="h-3 bg-gray-800 rounded w-5/6" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     );
   }
 
