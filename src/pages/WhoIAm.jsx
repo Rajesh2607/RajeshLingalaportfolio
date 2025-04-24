@@ -18,13 +18,18 @@ const WhoIAm = () => {
       setLoading(false);
     }, 1000);
 
-    if (location.hash === '#connect') {
-      const section = document.getElementById('connect');
-      section?.scrollIntoView({ behavior: 'smooth' });
-    }
-
     return () => clearTimeout(timer);
-  }, [location]);
+  }, []);
+
+  // Handle hash-based scroll after loading is done
+  useEffect(() => {
+    if (!loading && location.hash === '#connect') {
+      setTimeout(() => {
+        const section = document.getElementById('connect');
+        section?.scrollIntoView({ behavior: 'smooth' });
+      }, 300); // Adjust delay if needed
+    }
+  }, [loading, location]);
 
   if (loading) return <SkeletonLoaderForWhoIAm />;
 
@@ -50,11 +55,11 @@ const WhoIAm = () => {
         <div className="container mx-auto px-6 space-y-20">
           <Hero />
           <About />
+          <Education />
+          <Achievements />
           <div id="connect">
             <SocialMedia />
           </div>
-          <Achievements />
-          <Education />
         </div>
       </section>
     </>
