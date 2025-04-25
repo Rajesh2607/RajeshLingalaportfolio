@@ -14,9 +14,6 @@ export default {
   plugins: [
     require('tailwind-scrollbar'),
     require('tailwind-scrollbar-hide'),
-    require('tailwindcss-animate'),
-    require('tailwindcss-animate-presets'),
-    require('tailwindcss-animate-delay'),
     require('tailwindcss-animate-on-scroll'),
     require('tailwindcss-animate-on-scroll-presets'),
     require('tailwind-scrollbar-hide'),
