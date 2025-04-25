@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, Calendar, MapPin } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config'; // Import your Firebase configuration
+import { db } from '../firebase/config';
 
-// Variants for animations
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -29,14 +28,13 @@ const itemVariants = {
 const ExperienceCard = ({ experience, index }) => {
   return (
     <motion.div
-      key={experience.id}
       variants={itemVariants}
       className={`relative flex flex-col md:flex-row gap-8 mb-12 ${
         index % 2 === 0 ? 'md:flex-row-reverse' : ''
       }`}
     >
       {/* Timeline Node */}
-      <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-4 h-4">
+      <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 z-10">
         <div className="w-4 h-4 bg-[#17c0f8] rounded-full" />
         <div className="absolute w-8 h-8 bg-[#17c0f8] rounded-full -m-2 animate-ping opacity-20" />
       </div>
@@ -50,7 +48,6 @@ const ExperienceCard = ({ experience, index }) => {
               {experience.company}
             </span>
           </div>
-
           <div className="flex items-center gap-4 text-gray-400 mb-4">
             <div className="flex items-center">
               <Calendar size={16} className="mr-1" />
@@ -61,12 +58,8 @@ const ExperienceCard = ({ experience, index }) => {
               {experience.location}
             </div>
           </div>
-
           <ul className="space-y-2">
-            {(Array.isArray(experience.description)
-              ? experience.description
-              : [experience.description] // fallback to an array
-            ).map((item, i) => (
+            {(Array.isArray(experience.description) ? experience.description : [experience.description]).map((item, i) => (
               <li key={i} className="text-gray-300 flex items-start">
                 <span className="mr-2 text-[#17c0f8]">•</span>
                 {item}
@@ -75,8 +68,6 @@ const ExperienceCard = ({ experience, index }) => {
           </ul>
         </div>
       </div>
-
-      {/* Spacer for timeline alignment */}
       <div className="hidden md:block flex-1" />
     </motion.div>
   );
@@ -85,12 +76,14 @@ const ExperienceCard = ({ experience, index }) => {
 const Experience = () => {
   const [experiences, setExperiences] = useState([]);
 
-  // Fetch experience data from Firestore
   useEffect(() => {
     const fetchExperienceData = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'experiences'));
-        const experienceList = querySnapshot.docs.map((doc) => doc.data());
+        const experienceList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setExperiences(experienceList);
       } catch (error) {
         console.error('Error fetching experience data: ', error);
@@ -120,11 +113,13 @@ const Experience = () => {
           className="relative"
         >
           {/* Vertical Line */}
-          <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-1 bg-gradient-to-b from-[#17c0f8] to-[#0a192f]" />
+          <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-[#17c0f8] to-[#0a192f]" />
 
-          {experiences.map((experience, index) => (
-            <ExperienceCard key={experience.id} experience={experience} index={index} />
-          ))}
+          {experiences
+            .sort((a, b) => a.order - b.order)
+            .map((experience, index) => (
+              <ExperienceCard key={experience.id} experience={experience} index={index} />
+            ))}
         </motion.div>
       </div>
     </section>

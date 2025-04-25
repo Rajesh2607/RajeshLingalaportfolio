@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/config';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { Briefcase, Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 
 const ExperienceManager = () => {
@@ -13,6 +13,7 @@ const ExperienceManager = () => {
     location: '',
     period: '',
     description: [],
+    order: 0,
   });
 
   useEffect(() => {
@@ -21,10 +22,11 @@ const ExperienceManager = () => {
 
   const fetchExperiences = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'experiences'));
+      const q = query(collection(db, 'experiences'), orderBy('order', 'asc'));
+      const querySnapshot = await getDocs(q);
       const experienceData = querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       setExperiences(experienceData);
     } catch (error) {
@@ -48,6 +50,7 @@ const ExperienceManager = () => {
         location: '',
         period: '',
         description: [],
+        order: 0,
       });
       setEditingId(null);
       fetchExperiences();
@@ -70,14 +73,21 @@ const ExperienceManager = () => {
   };
 
   const handleEdit = (experience) => {
-    setFormData(experience);
+    setFormData({
+      ...experience,
+      description: Array.isArray(experience.description)
+        ? experience.description
+        : experience.description
+        ? [experience.description]
+        : [],
+    });
     setEditingId(experience.id);
   };
 
   const addDescriptionPoint = () => {
     setFormData({
       ...formData,
-      description: [...formData.description, '']
+      description: [...formData.description, ''],
     });
   };
 
@@ -86,14 +96,14 @@ const ExperienceManager = () => {
     newDescription[index] = value;
     setFormData({
       ...formData,
-      description: newDescription
+      description: newDescription,
     });
   };
 
   const removeDescriptionPoint = (index) => {
     setFormData({
       ...formData,
-      description: formData.description.filter((_, i) => i !== index)
+      description: formData.description.filter((_, i) => i !== index),
     });
   };
 
@@ -159,6 +169,17 @@ const ExperienceManager = () => {
               required
             />
           </div>
+          <div>
+            <label className="block text-white text-sm font-medium mb-2">Order</label>
+            <input
+              type="number"
+              value={formData.order}
+              onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
+              className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
+              placeholder="e.g., 1"
+              required
+            />
+          </div>
         </div>
 
         {/* Description Points */}
@@ -208,35 +229,39 @@ const ExperienceManager = () => {
         {experiences.map((experience) => (
           <div
             key={experience.id}
-            className="bg-[#1d3a6e] p-4 rounded-lg"
+            className="bg-[#1d3a6e] p-4 rounded-lg text-white border border-gray-600"
           >
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-center mb-2">
               <div>
-                <h3 className="text-lg font-medium text-white">{experience.title}</h3>
-                <p className="text-gray-400">{experience.company}</p>
-                <p className="text-sm text-gray-400">{experience.location} • {experience.period}</p>
+                <h3 className="text-lg font-bold">{experience.title}</h3>
+                <p className="text-sm text-gray-300">
+                  {experience.company} • {experience.location}
+                </p>
+                <p className="text-sm text-gray-400">{experience.period}</p>
               </div>
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleEdit(experience)}
-                  className="p-2 text-[#17c0f8] hover:text-[#17c0f8]/80"
+                  className="text-yellow-400 hover:text-yellow-300"
                 >
-                  <Edit2 size={20} />
+                  <Edit2 size={18} />
                 </button>
                 <button
                   onClick={() => handleDelete(experience.id)}
-                  className="p-2 text-red-400 hover:text-red-300"
+                  className="text-red-400 hover:text-red-300"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>
-            <ul className="list-disc list-inside text-gray-300 space-y-1">
-  {(Array.isArray(experience.description) ? experience.description : []).map((point, index) => (
-    <li key={index}>{point}</li>
-  ))}
-</ul>
-
+            <ul className="list-disc list-inside text-sm text-gray-200">
+              {(Array.isArray(experience.description)
+                ? experience.description
+                : [experience.description]
+              ).map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
