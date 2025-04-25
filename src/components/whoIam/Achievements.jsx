@@ -38,7 +38,7 @@ const Achievements = () => {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
               <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-                Achievements
+                Activities & Achievements
               </span>
             </h2>
   
@@ -74,7 +74,7 @@ const Achievements = () => {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
             <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-              Achievements
+            Activities & Achievements
             </span>
           </h2>
 

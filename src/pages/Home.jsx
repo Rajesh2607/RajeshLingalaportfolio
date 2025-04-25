@@ -159,6 +159,12 @@ const AboutSection = ({ about }) => (
           {about.description ||
             "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
         </p>
+        <a href="/whoiam#" className="relative group inline-block mt-6">
+  <div className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white px-6 py-2 rounded-full shadow-lg transition-all duration-300 ease-in-out">
+    <MoreHorizontal size={20} />
+    <span className="text-sm sm:text-base font-semibold">see more about me </span>
+  </div>
+</a>
       </div>
     </div>
   </motion.section>
