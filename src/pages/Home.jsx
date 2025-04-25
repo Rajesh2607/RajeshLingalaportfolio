@@ -6,6 +6,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import Experience from '../components/Experience';
 import Skills from '../components/Skills';
 import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome';
+import ContactSection from '../components/Contact';
+
 
 const Home = () => {
   const [about, setAbout] = useState({
@@ -53,6 +55,11 @@ const Home = () => {
 
       {/* Experience Section */}
       <Experience />
+
+      {/* Contact Section */}
+      <ContactSection />
+
+      {/* Footer */}
     </div>
   );
 };
