@@ -47,6 +47,7 @@ const Projects = () => {
       >
         <h1 className="text-4xl font-bold text-white mb-4">Featured Projects</h1>
         <p className="text-gray-400">A showcase of my technical projects and contributions</p>
+        <p className="text-gray-300">click on project you will see the links option</p>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
