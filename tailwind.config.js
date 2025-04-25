@@ -4,9 +4,21 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        backgroundImage: {
+          'gradient-to-b': 'linear-gradient(to bottom, var(--tw-gradient-stops))',
+        },
         sans: ['Inter', 'sans-serif'], // or 'Poppins', etc.
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+    require('tailwind-scrollbar-hide'),
+    require('tailwindcss-animate'),
+    require('tailwindcss-animate-presets'),
+    require('tailwindcss-animate-delay'),
+    require('tailwindcss-animate-on-scroll'),
+    require('tailwindcss-animate-on-scroll-presets'),
+    require('tailwind-scrollbar-hide'),
+  ],
 };

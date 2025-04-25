@@ -83,9 +83,14 @@ const Hero = () => {
                     My Personal Story
                   </h1>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div>
-                      <p className="text-lg text-gray-300 mb-6">{personal.description}</p>
-                    </div>
+                  <div className="max-h-[450px] overflow-y-auto pr-3 
+                  scrollbar-thin scrollbar-thumb-[#1e293b] 
+                  scrollbar-track-transparent hover:scrollbar-thumb-[#334155] 
+                  scrollbar-thumb-rounded-md transition-all duration-300">
+    <p className="text-lg text-gray-300 leading-relaxed">
+      {personal.description}
+    </p>
+  </div>
                     <motion.div 
                       className="relative"
                       initial={{ opacity: 0, x: 50 }} 
@@ -129,14 +134,22 @@ const Hero = () => {
                         className="rounded-xl w-full relative z-10"
                       />
                     </motion.div>
-                    <motion.div 
-                      className="order-1 md:order-2"
-                      initial={{ opacity: 0, y: 50 }} 
-                      animate={{ opacity: 1, y: 0 }} 
-                      transition={{ duration: 1, delay: 1 }}
-                    >
-                      <p className="text-lg text-gray-300">{professional.description}</p>
-                    </motion.div>
+                    <motion.div
+  className="order-1 md:order-2 h-64 overflow-y-auto pr-2 rounded 
+             scrollbar-thin scrollbar-track-transparent 
+             scrollbar-thumb-gradient-to-b from-purple-500 via-cyan-400 to-blue-500 
+             scrollbar-thumb-rounded-lg scrollbar-track-rounded-full 
+             transition-all duration-300 text-lg text-gray-300"
+  initial={{ opacity: 0, y: 50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1, delay: 1 }}
+>
+  <div className="pr-2">
+    {professional.description}
+  </div>
+</motion.div>
+
+
                   </div>
                 </motion.div>
               )}
