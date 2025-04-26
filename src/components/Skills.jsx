@@ -40,6 +40,7 @@ const Skills = () => {
       viewport={{ once: true }}
       className="py-20 bg-[#0a192f]"
     >
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-blue-500/10 rounded-lg blur-3xl"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center mb-12">
           <Code2 size={24} className="text-[#17c0f8] mr-2" />

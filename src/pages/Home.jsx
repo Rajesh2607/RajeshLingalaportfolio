@@ -67,6 +67,7 @@ const HeroSection = ({ about }) => {
       aria-label="Hero Section with profile introduction"
       className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8"
     >
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-blue-500/10 rounded-lg blur-3xl"></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -74,21 +75,40 @@ const HeroSection = ({ about }) => {
         className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight"
-          >
-            Lingala Rajesh
-          </motion.h1>
+        <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.15 }}
+        className="relative inline-block"
+      >
+        <motion.p
+          className="text-4xl md:text-5xl font-bold tracking-tight"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        >
+          <span className="relative">
+            <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-400/20 via-cyan-400/20 to-blue-400/20 blur-lg"></span>
+            <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
+              Hi Myself,
+            </span>
+          </span>
+        </motion.p>
+      </motion.div>
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight mt-4"
+      >
+        Lingala Rajesh
+      </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-2xl sm:text-3xl font-semibold tracking-wide text-gray-300 mb-8"
           >
-            {about.title || 'Cloud & DevOps Engineer'}
+            An {about.title || 'Cloud & DevOps Engineer'}
           </motion.p>
           <div className="flex flex-col items-start gap-4">
             <motion.div
