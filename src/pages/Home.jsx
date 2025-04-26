@@ -54,6 +54,7 @@ const Home = () => {
 };
 
 // Hero Section Component
+// Hero Section Component
 const HeroSection = ({ about }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -74,14 +75,14 @@ const HeroSection = ({ about }) => {
         className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4 overflow-hidden"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
-        <motion.h1
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6, delay: 0.2 }}
-  className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight"
->
-  {about.name || 'Lingala Rajesh'}
-</motion.h1>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight"
+          >
+            {about.name || 'Lingala Rajesh'}
+          </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,7 +126,7 @@ const HeroSection = ({ about }) => {
           )}
           <img
             src={about.profilePic || 'https://via.placeholder.com/400'}
-            alt="Profile of Lingala Rajesh"
+            alt={`Profile of ${about.name || 'Lingala Rajesh'}`}
             className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 object-cover ${
               isImageLoading ? 'invisible' : 'visible'
             }`}
@@ -138,6 +139,7 @@ const HeroSection = ({ about }) => {
     </section>
   );
 };
+
 
 // Social Links Component
 const SocialLinks = () => (
