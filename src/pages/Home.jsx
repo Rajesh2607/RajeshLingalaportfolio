@@ -14,7 +14,6 @@ const Home = () => {
     title: '',
     profilePic: '',
     description: '',
-    resume: '',
   });
   const [loading, setLoading] = useState(true);
 
@@ -66,13 +65,13 @@ const HeroSection = ({ about }) => {
     <section
       id="hero"
       aria-label="Hero Section with profile introduction"
-      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 overflow-x-hidden"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8"
+        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4 overflow-hidden"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
           <motion.h1
@@ -117,7 +116,7 @@ const HeroSection = ({ about }) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative w-64 h-64 md:w-96 md:h-96 lg:w-[450px] lg:h-[450px] flex-shrink-0"
+          className="relative w-[250px] h-[250px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px]"
         >
           {isImageLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full border-4 border-[#17c0f8] shadow-lg">
@@ -125,9 +124,9 @@ const HeroSection = ({ about }) => {
             </div>
           )}
           <img
-            src={about.profilePic || 'https://via.placeholder.com/450'}
+            src={about.profilePic || 'https://via.placeholder.com/400'}
             alt="Profile of Lingala Rajesh"
-            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl object-cover transition-all duration-300 ${
+            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 object-cover ${
               isImageLoading ? 'invisible' : 'visible'
             }`}
             onLoad={handleImageLoad}
@@ -182,24 +181,24 @@ const AboutSection = ({ about }) => (
   <section
     id="about"
     aria-label="About Section"
-    className="py-24 bg-[#112240] text-white overflow-hidden"
+    className="py-24 bg-[#112240] text-white overflow-x-hidden"
   >
     <motion.div
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      className="max-w-8xl mx-auto"
     >
       <div className="flex items-center justify-center mb-12">
         <User size={24} className="text-[#17c0f8] mr-3 animate-pulse" />
-        <h2 className="text-3xl md:text-4xl font-extrabold tracking-wide">
+        <h2 className="text-3xl md:text-3xl font-extrabold tracking-wide">
           <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
             Short Bio About Me
           </span>
         </h2>
       </div>
-      <article className="bg-[#1b3a70] p-8 sm:p-12 md:p-16 rounded-3xl shadow-2xl border border-white/10 text-lg sm:text-xl md:text-2xl leading-relaxed text-justify font-light tracking-wide max-w-5xl mx-auto">
+      <article className="bg-[#1b3a70] p-12 sm:p-16 md:p-24 rounded-3xl shadow-2xl border border-white/10 text-lg sm:text-xl md:text-2xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
         <p>
           {about.description ||
             "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
