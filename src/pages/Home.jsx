@@ -44,11 +44,13 @@ const Home = () => {
 
   return (
     <main className="min-h-screen bg-[#0a192f]">
+      <div className="overflow-x-hidden">
       <HeroSection about={about} />
       <AboutSection about={about} />
       <Skills />
       <Experience />
       <ContactSection />
+      </div>
     </main>
   );
 };
