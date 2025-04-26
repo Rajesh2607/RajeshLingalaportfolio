@@ -59,12 +59,12 @@ const SocialMedia = () => {
                 Connect With Me
               </span>
             </h2>
-  
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
               {Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="animate-pulse bg-navy bg-opacity-50 rounded-xl p-6"
+                  className="animate-pulse bg-navy bg-opacity-50 rounded-xl p-6 min-h-[160px]"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gray-800 rounded-lg" />
@@ -80,7 +80,6 @@ const SocialMedia = () => {
         </div>
       </section>
     );
-  
   }
 
   return (
@@ -100,7 +99,7 @@ const SocialMedia = () => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group bg-navy bg-opacity-50 rounded-xl p-6 transition-all duration-300 hover:bg-opacity-70 hover:transform hover:scale-105"
+                className="group bg-navy bg-opacity-50 rounded-xl p-6 transition-all duration-300 hover:bg-opacity-70 hover:transform hover:scale-105 flex flex-col justify-center min-h-[160px]"
               >
                 <div className="flex items-center space-x-4">
                   <div className="p-3 bg-gray-800 rounded-lg group-hover:bg-gray-700">
@@ -108,7 +107,7 @@ const SocialMedia = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold">{link.name}</h3>
-                    <p className="text-gray-400">Follow me on {link.name}</p>
+                    <p className="text-gray-400 text-sm">Follow me on {link.name}</p>
                   </div>
                 </div>
               </a>

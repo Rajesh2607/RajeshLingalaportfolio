@@ -64,6 +64,7 @@ const WhoIAm = () => {
       </section>
     </div>
   );
+
 };
 
 export default WhoIAm;
