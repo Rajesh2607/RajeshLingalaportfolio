@@ -74,14 +74,14 @@ const HeroSection = ({ about }) => {
         className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4 overflow-hidden"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight"
-          >
-            Lingala Rajesh
-          </motion.h1>
+        <motion.h1
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, delay: 0.2 }}
+  className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight"
+>
+  {about.name || 'Lingala Rajesh'}
+</motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
