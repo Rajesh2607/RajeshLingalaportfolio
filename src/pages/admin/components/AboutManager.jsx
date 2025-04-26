@@ -9,6 +9,7 @@ const AboutManager = () => {
     title: '',
     description: '',
     profilePic: '',
+    resume: '', // ➔ Added resume field
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -136,6 +137,18 @@ const AboutManager = () => {
             rows={6}
             className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
             placeholder="Enter your professional description..."
+          />
+        </div>
+
+        {/* Resume URL */}
+        <div>
+          <label className="block text-white text-sm font-medium mb-2">Resume URL</label>
+          <input
+            type="text"
+            value={about.resume}
+            onChange={(e) => setAbout({ ...about, resume: e.target.value })}
+            className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
+            placeholder="e.g., https://yourdomain.com/your-resume.pdf"
           />
         </div>
 
