@@ -14,6 +14,7 @@ const Home = () => {
     title: '',
     profilePic: '',
     description: '',
+    resume: ''
   });
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +37,7 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div>
+      <div className="min-h-screen bg-[#0a192f]">
         <SkeletonLoader />
       </div>
     );
@@ -54,7 +55,6 @@ const Home = () => {
 };
 
 // Hero Section Component
-// Hero Section Component
 const HeroSection = ({ about }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -66,28 +66,28 @@ const HeroSection = ({ about }) => {
     <section
       id="hero"
       aria-label="Hero Section with profile introduction"
-      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 overflow-x-hidden"
+      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 w-full max-w-[100vw] overflow-hidden"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4 overflow-hidden"
+        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 px-4"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight"
           >
-            {about.name || 'Lingala Rajesh'}
+            Lingala Rajesh
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-2xl sm:text-3xl font-semibold tracking-wide text-gray-300 mb-8"
+            className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-wide text-gray-300 mb-6 sm:mb-8"
           >
             {about.title || 'Cloud & DevOps Engineer'}
           </motion.p>
@@ -117,7 +117,7 @@ const HeroSection = ({ about }) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative w-[250px] h-[250px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px]"
+          className="relative w-[250px] h-[250px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px] mx-auto"
         >
           {isImageLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full border-4 border-[#17c0f8] shadow-lg">
@@ -125,9 +125,9 @@ const HeroSection = ({ about }) => {
             </div>
           )}
           <img
-            src={about.profilePic || 'https://via.placeholder.com/400'}
-            alt={`Profile of ${about.name || 'Lingala Rajesh'}`}
-            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 object-cover ${
+            src={about.profilePic || 'https://via.placeholder.com/450'}
+            alt="Profile of Lingala Rajesh"
+            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 ${
               isImageLoading ? 'invisible' : 'visible'
             }`}
             onLoad={handleImageLoad}
@@ -139,7 +139,6 @@ const HeroSection = ({ about }) => {
     </section>
   );
 };
-
 
 // Social Links Component
 const SocialLinks = () => (
@@ -183,24 +182,24 @@ const AboutSection = ({ about }) => (
   <section
     id="about"
     aria-label="About Section"
-    className="py-24 bg-[#112240] text-white overflow-x-hidden"
+    className="py-16 sm:py-20 lg:py-24 bg-[#112240] text-white w-full overflow-hidden"
   >
     <motion.div
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
-      className="max-w-8xl mx-auto"
+      className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8"
     >
-      <div className="flex items-center justify-center mb-12">
+      <div className="flex items-center justify-center mb-8 sm:mb-12">
         <User size={24} className="text-[#17c0f8] mr-3 animate-pulse" />
-        <h2 className="text-3xl md:text-3xl font-extrabold tracking-wide">
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-wide">
           <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
             Short Bio About Me
           </span>
         </h2>
       </div>
-      <article className="bg-[#1b3a70] p-12 sm:p-16 md:p-24 rounded-3xl shadow-2xl border border-white/10 text-lg sm:text-xl md:text-2xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
+      <article className="bg-[#1b3a70] p-6 sm:p-10 md:p-12 lg:p-16 rounded-3xl shadow-2xl border border-white/10 text-base sm:text-lg md:text-xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
         <p>
           {about.description ||
             "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
