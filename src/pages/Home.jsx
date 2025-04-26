@@ -18,6 +18,9 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Disable horizontal scroll
+    document.body.style.overflowX = 'hidden';
+
     const fetchAboutData = async () => {
       try {
         const docRef = doc(db, 'content', 'about');
@@ -32,6 +35,11 @@ const Home = () => {
       }
     };
     fetchAboutData();
+
+    // Cleanup function to reset overflow
+    return () => {
+      document.body.style.overflowX = 'auto'; // Reset on component unmount
+    };
   }, []);
 
   if (loading) {
@@ -45,11 +53,11 @@ const Home = () => {
   return (
     <main className="min-h-screen bg-[#0a192f]">
       <div className="overflow-x-hidden">
-      <HeroSection about={about} />
-      <AboutSection about={about} />
-      <Skills />
-      <Experience />
-      <ContactSection />
+        <HeroSection about={about} />
+        <AboutSection about={about} />
+        <Skills />
+        <Experience />
+        <ContactSection />
       </div>
     </main>
   );
@@ -69,7 +77,7 @@ const HeroSection = ({ about }) => {
       aria-label="Hero Section with profile introduction"
       className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 overflow-x-hidden"
     >
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-blue-500/10 rounded-lg blur-3xl"></div>
+      <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-blue-500/10 rounded-lg blur-3xl"></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,33 +85,33 @@ const HeroSection = ({ about }) => {
         className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
-        <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.15 }}
-        className="relative inline-block"
-      >
-        <motion.p
-          className="text-4xl md:text-5xl font-bold tracking-tight"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        >
-          <span className="relative">
-            <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-400/20 via-cyan-400/20 to-blue-400/20 blur-lg"></span>
-            <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
-              Hi Myself,
-            </span>
-          </span>
-        </motion.p>
-      </motion.div>
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight mt-4"
-      >
-        Lingala Rajesh
-      </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="relative inline-block"
+          >
+            <motion.p
+              className="text-4xl md:text-5xl font-bold tracking-tight"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <span className="relative">
+                <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-400/20 via-cyan-400/20 to-blue-400/20 blur-lg"></span>
+                <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
+                  Hi Myself,
+                </span>
+              </span>
+            </motion.p>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight mt-4"
+          >
+            Lingala Rajesh
+          </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,16 +130,15 @@ const HeroSection = ({ about }) => {
               <SocialLinks />
             </motion.div>
             <motion.a
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  href={about.resume || '/resume.pdf'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 mt-6 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold"
-                >
-                  View My Resume/CV
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              href={about.resume || '/resume.pdf'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 mt-6 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold"
+            >
+              View My Resume/CV
             </motion.a>
-
           </div>
         </header>
 
