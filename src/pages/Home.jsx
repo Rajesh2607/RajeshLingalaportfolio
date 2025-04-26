@@ -8,17 +8,16 @@ import Skills from '../components/Skills';
 import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome';
 import ContactSection from '../components/Contact';
 
-// Main Home Component
 const Home = () => {
   const [about, setAbout] = useState({
     title: '',
     profilePic: '',
     description: '',
+    resume: '',
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Disable horizontal scroll
     document.body.style.overflowX = 'hidden';
 
     const fetchAboutData = async () => {
@@ -36,9 +35,8 @@ const Home = () => {
     };
     fetchAboutData();
 
-    // Cleanup function to reset overflow
     return () => {
-      document.body.style.overflowX = 'auto'; // Reset on component unmount
+      document.body.style.overflowX = 'auto';
     };
   }, []);
 
@@ -63,7 +61,6 @@ const Home = () => {
   );
 };
 
-// Hero Section Component
 const HeroSection = ({ about }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -85,25 +82,15 @@ const HeroSection = ({ about }) => {
         className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 md:gap-4"
       >
         <header className="flex-1 text-center md:text-left max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="relative inline-block"
+          <motion.p
+            className="text-4xl md:text-5xl font-bold tracking-tight"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <motion.p
-              className="text-4xl md:text-5xl font-bold tracking-tight"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <span className="relative">
-                <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-400/20 via-cyan-400/20 to-blue-400/20 blur-lg"></span>
-                <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
-                  Hi Myself,
-                </span>
-              </span>
-            </motion.p>
-          </motion.div>
+            <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
+              Hi Myself,
+            </span>
+          </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -129,16 +116,18 @@ const HeroSection = ({ about }) => {
             >
               <SocialLinks />
             </motion.div>
-            <motion.a
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href={about.resume || '/resume.pdf'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 mt-6 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold"
-            >
-              View My Resume/CV
-            </motion.a>
+            {about.resume && (
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href={about.resume}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 mt-6 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold"
+              >
+                View My Resume/CV
+              </motion.a>
+            )}
           </div>
         </header>
 
@@ -156,9 +145,7 @@ const HeroSection = ({ about }) => {
           <img
             src={about.profilePic || 'https://via.placeholder.com/450'}
             alt="Profile of Lingala Rajesh"
-            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 ${
-              isImageLoading ? 'invisible' : 'visible'
-            }`}
+            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 ${isImageLoading ? 'invisible' : 'visible'}`}
             onLoad={handleImageLoad}
             loading="lazy"
           />
@@ -169,7 +156,6 @@ const HeroSection = ({ about }) => {
   );
 };
 
-// Social Links Component
 const SocialLinks = () => (
   <nav aria-label="Social Links" className="flex items-center space-x-4">
     <a
@@ -206,7 +192,6 @@ const SocialLinks = () => (
   </nav>
 );
 
-// About Section Component
 const AboutSection = ({ about }) => (
   <section
     id="about"
@@ -218,32 +203,19 @@ const AboutSection = ({ about }) => (
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
-      className="max-w-8xl mx-auto"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
     >
       <div className="flex items-center justify-center mb-12">
         <User size={24} className="text-[#17c0f8] mr-3 animate-pulse" />
-        <h2 className="text-3xl md:text-3xl font-extrabold tracking-wide">
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-wide">
           <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
             Short Bio About Me
           </span>
         </h2>
       </div>
-      <article className="bg-[#1b3a70] p-12 sm:p-16 md:p-24 rounded-3xl shadow-2xl border border-white/10 text-lg sm:text-xl md:text-2xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
-        <p>
-          {about.description ||
-            "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
-        </p>
-        <a
-          href="/whoiam#"
-          aria-label="See more about Lingala Rajesh"
-          className="relative group inline-block mt-6"
-        >
-          <div className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white px-6 py-2 rounded-full shadow-lg transition-all duration-300 ease-in-out">
-            <MoreHorizontal size={20} />
-            <span className="text-sm sm:text-base font-semibold">See more about me</span>
-          </div>
-        </a>
-      </article>
+      <p className="text-lg sm:text-xl leading-relaxed text-gray-300 text-center max-w-4xl mx-auto">
+        {about.description || 'I am passionate about building scalable cloud and DevOps solutions with a strong focus on automation and efficiency.'}
+      </p>
     </motion.div>
   </section>
 );
