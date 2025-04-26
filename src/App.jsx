@@ -20,6 +20,7 @@ function App() {
 
   return (
     <Router>
+       <div className="bg-[#0a0f24] text-white overflow-x-hidden">
       <div className="min-h-screen bg-[#0a192f]">
         <AnimatePresence>
           {!showContent && (
@@ -68,6 +69,7 @@ function App() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
       </div>
     </Router>
   );
