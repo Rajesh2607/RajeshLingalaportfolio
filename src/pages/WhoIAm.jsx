@@ -34,7 +34,7 @@ const WhoIAm = () => {
   if (loading) return <SkeletonLoaderForWhoIAm />;
 
   return (
-    <>
+    <div className="overflow-x-hidden">
       <div className="min-h-screen bg-[#0a192f] text-white flex items-center justify-center px-6 py-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -50,7 +50,7 @@ const WhoIAm = () => {
           </p>
         </motion.div>
       </div>
-
+  
       <section className="bg-[#0a192f] py-20">
         <div className="container mx-auto px-6 space-y-20">
           <Hero />
@@ -62,7 +62,7 @@ const WhoIAm = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
