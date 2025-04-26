@@ -12,7 +12,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-black text-white p-6 sticky top-0 z-50 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-between items-center overflow-x-hidden">
         <div className="text-xl font-bold">LINGALA RAJESH</div>
 
         {/* Mobile menu toggle */}

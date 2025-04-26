@@ -67,7 +67,7 @@ const HeroSection = ({ about }) => {
     <section
       id="hero"
       aria-label="Hero Section with profile introduction"
-      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8"
+      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 overflow-x-hidden"
     >
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-blue-500/10 rounded-lg blur-3xl"></div>
       <motion.div
@@ -204,7 +204,7 @@ const AboutSection = ({ about }) => (
   <section
     id="about"
     aria-label="About Section"
-    className="py-24 bg-[#112240] text-white"
+    className="py-24 bg-[#112240] text-white overflow-x-hidden"
   >
     <motion.div
       initial={{ opacity: 0 }}

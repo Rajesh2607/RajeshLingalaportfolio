@@ -26,7 +26,7 @@ const ContactSection = () => {
   };
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#0a192f] text-white">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#0a192f] text-white overflow-x-hidden">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-center">
           <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
