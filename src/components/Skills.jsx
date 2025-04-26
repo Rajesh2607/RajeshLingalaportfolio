@@ -52,7 +52,45 @@ const Skills = () => {
         </div>
 
         {loading ? (
-          <div className="text-white">Loading skills...</div>
+              <motion.section
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-20 bg-[#0a192f]"
+            >
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-center mb-12">
+                  <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse mr-2" />
+                  <div className="h-6 w-32 bg-gray-700 rounded animate-pulse" />
+                </div>
+        
+                <div className="space-y-12">
+                  {[1, 2, 3].map((group) => (
+                    <div key={group}>
+                      <div className="text-center mb-6">
+                        <div className="h-6 w-48 bg-gray-700 rounded mx-auto animate-pulse" />
+                      </div>
+        
+                      <div className="w-full flex justify-center">
+                        <div className="flex flex-wrap gap-4 sm:gap-6 justify-center max-w-6xl">
+                          {[1, 2, 3].map((item) => (
+                            <motion.div
+                              key={item}
+                              className="bg-[#112240] rounded-xl 
+                                         px-4 py-3 text-sm 
+                                         sm:px-6 sm:py-4 sm:text-base 
+                                         md:px-8 md:py-5 md:text-lg 
+                                         min-w-[140px] sm:min-w-[160px] md:min-w-[180px] 
+                                         h-12 sm:h-14 md:h-16 
+                                         animate-pulse"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.section>
         ) : (
           <div className="space-y-12">
             {Object.entries(skillsData).map(([category, skills], groupIndex) => (
