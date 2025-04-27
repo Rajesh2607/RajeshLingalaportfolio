@@ -10,9 +10,10 @@ const AchievementsManager = () => {
     organization: '',
     year: '',
     description: '',
-    icon: 'Trophy' // Default icon
+    icon: 'Trophy'
   });
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null); // <-- New state to track editing
 
   // Fetch data from Firestore
   useEffect(() => {
@@ -40,22 +41,40 @@ const AchievementsManager = () => {
     });
   };
 
-  // Add a new achievement
-  const handleAddAchievement = async (e) => {
+  // Add or Edit Achievement
+  const handleAddOrEditAchievement = async (e) => {
     e.preventDefault();
-    try {
-      await addDoc(collection(db, 'achievements'), newAchievement);
-      setAchievements([...achievements, newAchievement]);
-      setNewAchievement({
-        title: '',
-        organization: '',
-        year: '',
-        description: '',
-        icon: 'Trophy' // Reset to default icon
-      });
-    } catch (error) {
-      console.error('Error adding achievement:', error);
+    if (editingId) {
+      // Editing existing achievement
+      const updatedAchievement = { ...newAchievement };
+      try {
+        const achievementRef = doc(db, 'achievements', editingId);
+        await updateDoc(achievementRef, updatedAchievement);
+        setAchievements(
+          achievements.map((ach) => (ach.id === editingId ? { ...ach, ...updatedAchievement } : ach))
+        );
+        setEditingId(null);
+      } catch (error) {
+        console.error('Error updating achievement:', error);
+      }
+    } else {
+      // Adding new achievement
+      try {
+        const docRef = await addDoc(collection(db, 'achievements'), newAchievement);
+        setAchievements([...achievements, { ...newAchievement, id: docRef.id }]);
+      } catch (error) {
+        console.error('Error adding achievement:', error);
+      }
     }
+
+    // Reset form after add/edit
+    setNewAchievement({
+      title: '',
+      organization: '',
+      year: '',
+      description: '',
+      icon: 'Trophy'
+    });
   };
 
   // Delete an achievement
@@ -69,29 +88,16 @@ const AchievementsManager = () => {
     }
   };
 
-  // Update an achievement
-  const handleUpdateAchievement = async (id) => {
-    const updatedAchievement = {
-      ...newAchievement,
-      id: undefined // Don't update the ID
-    };
-
-    try {
-      const achievementRef = doc(db, 'achievements', id);
-      await updateDoc(achievementRef, updatedAchievement);
-      setAchievements(
-        achievements.map((ach) => (ach.id === id ? { ...ach, ...updatedAchievement } : ach))
-      );
-      setNewAchievement({
-        title: '',
-        organization: '',
-        year: '',
-        description: '',
-        icon: 'Trophy'
-      });
-    } catch (error) {
-      console.error('Error updating achievement:', error);
-    }
+  // Handle clicking on Edit button
+  const handleEditAchievement = (achievement) => {
+    setNewAchievement({
+      title: achievement.title,
+      organization: achievement.organization,
+      year: achievement.year,
+      description: achievement.description,
+      icon: achievement.icon || 'Trophy'
+    });
+    setEditingId(achievement.id);
   };
 
   if (loading) {
@@ -108,9 +114,11 @@ const AchievementsManager = () => {
             </span>
           </h2>
 
-          {/* Form for Adding/Updating Achievements */}
-          <form onSubmit={handleAddAchievement} className="bg-navy p-6 rounded-xl mb-12 shadow-xl">
-            <h3 className="text-2xl font-semibold mb-4">Add New Achievement</h3>
+          {/* Form for Adding/Editing Achievements */}
+          <form onSubmit={handleAddOrEditAchievement} className="bg-navy p-6 rounded-xl mb-12 shadow-xl">
+            <h3 className="text-2xl font-semibold mb-4">
+              {editingId ? 'Edit Achievement' : 'Add New Achievement'}
+            </h3>
             <div className="space-y-4">
               <input
                 type="text"
@@ -158,19 +166,22 @@ const AchievementsManager = () => {
                 </select>
               </div>
               <button type="submit" className="mt-4 p-3 bg-cyan-400 text-white rounded-lg">
-                Add Achievement
+                {editingId ? 'Save Changes' : 'Add Achievement'}
               </button>
             </div>
           </form>
 
-          {/* Displaying Current Achievements */}
+          {/* Displaying Achievements */}
           <div className="space-y-8">
             {achievements.map((achievement) => (
               <div key={achievement.id} className="bg-navy bg-opacity-70 rounded-xl p-6 shadow-xl border-l-4 border-purple-400">
                 <div className="flex flex-col md:flex-row">
                   <div className="mb-4 md:mb-0 md:mr-6 flex items-start">
                     <div className="p-3 bg-purple-400 bg-opacity-20 rounded-lg">
-                      {React.createElement(achievement.icon || Trophy, { size: 28, className: 'text-purple-400' })}
+                      {React.createElement(
+                        { Trophy, Award, Bookmark, Medal }[achievement.icon] || Trophy,
+                        { size: 28, className: 'text-purple-400' }
+                      )}
                     </div>
                   </div>
                   <div>
@@ -188,10 +199,10 @@ const AchievementsManager = () => {
                         Delete
                       </button>
                       <button
-                        onClick={() => handleUpdateAchievement(achievement.id)}
+                        onClick={() => handleEditAchievement(achievement)}
                         className="p-2 bg-blue-600 text-white rounded-lg"
                       >
-                        Update
+                        Edit
                       </button>
                     </div>
                   </div>

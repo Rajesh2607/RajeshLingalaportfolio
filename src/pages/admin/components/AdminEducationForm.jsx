@@ -11,7 +11,7 @@ const AdminEducationForm = () => {
   const [endYear, setEndYear] = useState('');
   const [message, setMessage] = useState('');
   const [educationList, setEducationList] = useState([]);
-  const [editId, setEditId] = useState(null); // To track editing mode
+  const [editId, setEditId] = useState(null);
 
   const fetchEducationData = async () => {
     try {
@@ -49,7 +49,6 @@ const AdminEducationForm = () => {
         setMessage('Education added successfully!');
       }
 
-      // Reset form
       setInstitution('');
       setDegree('');
       setFieldOfStudy('');
@@ -57,7 +56,7 @@ const AdminEducationForm = () => {
       setEndYear('');
       setEditId(null);
 
-      fetchEducationData(); // Refresh list
+      fetchEducationData();
     } catch (error) {
       console.error('Error saving education:', error);
       setMessage('Error saving education details.');
@@ -75,78 +74,84 @@ const AdminEducationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-midnight to-navy py-16">
+    <div className="min-h-screen bg-[#0f172a] py-16">
       <motion.div
         className="container mx-auto px-4"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">
+        <div className="max-w-4xl mx-auto bg-[#162138] rounded-2xl shadow-2xl p-10">
+          <h1 className="text-4xl font-bold mb-8 text-center text-cyan-400">
             {editId ? 'Edit Education Details' : 'Add Education Details'}
           </h1>
 
           <form onSubmit={handleSubmit}>
-            {/* Inputs */}
-            <div className="mb-4">
-              <label htmlFor="institution" className="block text-lg text-gray-700">Institution</label>
-              <input type="text" id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} className="w-full p-3 mt-2 border border-gray-300 rounded-md" required />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="degree" className="block text-lg text-gray-700">Degree</label>
-              <input type="text" id="degree" value={degree} onChange={(e) => setDegree(e.target.value)} className="w-full p-3 mt-2 border border-gray-300 rounded-md" required />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="fieldOfStudy" className="block text-lg text-gray-700">Field of Study</label>
-              <input type="text" id="fieldOfStudy" value={fieldOfStudy} onChange={(e) => setFieldOfStudy(e.target.value)} className="w-full p-3 mt-2 border border-gray-300 rounded-md" required />
-            </div>
-
-            <div className="mb-4 grid grid-cols-2 gap-4">
+            <div className="space-y-6">
               <div>
-                <label htmlFor="startYear" className="block text-lg text-gray-700">Start Year</label>
-                <input type="number" id="startYear" value={startYear} onChange={(e) => setStartYear(e.target.value)} className="w-full p-3 mt-2 border border-gray-300 rounded-md" required />
+                <label htmlFor="institution" className="block text-lg font-medium text-cyan-300">Institution</label>
+                <input type="text" id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)}
+                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
               </div>
 
               <div>
-                <label htmlFor="endYear" className="block text-lg text-gray-700">End Year</label>
-                <input type="number" id="endYear" value={endYear} onChange={(e) => setEndYear(e.target.value)} className="w-full p-3 mt-2 border border-gray-300 rounded-md" required />
+                <label htmlFor="degree" className="block text-lg font-medium text-cyan-300">Degree</label>
+                <input type="text" id="degree" value={degree} onChange={(e) => setDegree(e.target.value)}
+                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
               </div>
-            </div>
 
-            <div className="mb-4">
-              <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-300">
+              <div>
+                <label htmlFor="fieldOfStudy" className="block text-lg font-medium text-cyan-300">Field of Study</label>
+                <input type="text" id="fieldOfStudy" value={fieldOfStudy} onChange={(e) => setFieldOfStudy(e.target.value)}
+                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="startYear" className="block text-lg font-medium text-cyan-300">Start Year</label>
+                  <input type="number" id="startYear" value={startYear} onChange={(e) => setStartYear(e.target.value)}
+                    className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                </div>
+
+                <div>
+                  <label htmlFor="endYear" className="block text-lg font-medium text-cyan-300">End Year</label>
+                  <input type="number" id="endYear" value={endYear} onChange={(e) => setEndYear(e.target.value)}
+                    className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                </div>
+              </div>
+
+              <button type="submit" className="w-full py-3 bg-cyan-400 hover:bg-cyan-500 text-[#0f172a] font-semibold rounded-lg transition duration-300">
                 {editId ? 'Update Education' : 'Add Education'}
               </button>
             </div>
           </form>
 
           {message && (
-            <div className="mt-4 text-center">
-              <p className={`text-lg ${message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>
+            <div className="mt-6 text-center">
+              <p className={`text-lg font-medium ${message.includes('success') ? 'text-green-400' : 'text-red-400'}`}>
+                {message}
+              </p>
             </div>
           )}
 
-          <hr className="my-8" />
+          <hr className="my-10 border-cyan-700" />
 
-          {/* Education List */}
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">Existing Education</h2>
+          <h2 className="text-3xl font-bold mb-6 text-cyan-300">Existing Education</h2>
+
           {educationList.length === 0 ? (
-            <p className="text-gray-600">No education details available.</p>
+            <p className="text-cyan-200 text-center">No education details available.</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {educationList.map((edu) => (
-                <div key={edu.id} className="p-4 bg-gray-100 rounded-md shadow-sm flex flex-col md:flex-row md:items-center md:justify-between">
+                <div key={edu.id} className="p-6 bg-[#0f172a] rounded-xl border border-cyan-700 flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h3 className="font-semibold text-lg">{edu.degree} in {edu.fieldOfStudy}</h3>
-                    <p className="text-gray-700">{edu.institution}</p>
-                    <p className="text-gray-500 text-sm">{edu.startYear} - {edu.endYear}</p>
+                    <h3 className="font-semibold text-xl text-white">{edu.degree} in {edu.fieldOfStudy}</h3>
+                    <p className="text-cyan-300">{edu.institution}</p>
+                    <p className="text-cyan-500 text-sm">{edu.startYear} - {edu.endYear}</p>
                   </div>
                   <button
                     onClick={() => handleEdit(edu)}
-                    className="mt-3 md:mt-0 bg-cyan-600 text-white px-4 py-2 rounded-md hover:bg-cyan-700"
+                    className="mt-4 md:mt-0 bg-cyan-400 hover:bg-cyan-500 text-[#0f172a] px-6 py-2 rounded-lg font-medium transition duration-300"
                   >
                     Edit
                   </button>

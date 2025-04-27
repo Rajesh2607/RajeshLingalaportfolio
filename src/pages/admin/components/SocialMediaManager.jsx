@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/config';
-import {
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import {
   Github,
   Linkedin,
@@ -15,7 +8,7 @@ import {
   Youtube,
   Instagram,
   Facebook,
-  FileText,
+  FileText
 } from 'lucide-react';
 
 const SocialMediaManager = () => {
@@ -90,103 +83,92 @@ const SocialMediaManager = () => {
   const getIcon = (name) => {
     switch (name.toLowerCase()) {
       case 'github':
-        return <Github className="w-8 h-8 text-white" />;
+        return <Github className="w-8 h-8 text-purple-400" />;
       case 'linkedin':
-        return <Linkedin className="w-8 h-8 text-white" />;
+        return <Linkedin className="w-8 h-8 text-purple-400" />;
       case 'twitter':
-        return <Twitter className="w-8 h-8 text-white" />;
+        return <Twitter className="w-8 h-8 text-purple-400" />;
       case 'youtube':
-        return <Youtube className="w-8 h-8 text-white" />;
+        return <Youtube className="w-8 h-8 text-purple-400" />;
       case 'instagram':
-        return <Instagram className="w-8 h-8 text-white" />;
+        return <Instagram className="w-8 h-8 text-purple-400" />;
       case 'facebook':
-        return <Facebook className="w-8 h-8 text-white" />;
-      case 'adobe':
-        return <FileText className="w-8 h-8 text-white" />;
+        return <Facebook className="w-8 h-8 text-purple-400" />;
       default:
-        return <FileText className="w-8 h-8 text-white" />;
+        return <FileText className="w-8 h-8 text-purple-400" />;
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="h-64 flex items-center justify-center text-white">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#0a192f] p-8">
-      <h2 className="text-3xl text-white mb-4">Manage Social Media Accounts</h2>
+    <section className="min-h-screen py-20 bg-midnight text-white overflow-x-hidden">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+          <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+            Manage Social Media Accounts
+          </span>
+        </h2>
 
-      {/* Add New Account */}
-      <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-        <h3 className="text-2xl mb-4">Add New Account</h3>
-        <div className="flex flex-col space-y-4">
+        {/* Add New Account */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddAccount();
+          }}
+          className="bg-navy p-6 rounded-xl mb-12 shadow-xl space-y-4"
+        >
+          <h3 className="text-2xl font-semibold mb-4">Add New Account</h3>
           <input
             type="text"
             placeholder="Account Name (e.g., GitHub)"
             value={newAccount.name}
-            onChange={(e) =>
-              setNewAccount({ ...newAccount, name: e.target.value })
-            }
-            onKeyDown={(e) =>
-              e.key === 'Enter' &&
-              newAccount.name &&
-              newAccount.url &&
-              handleAddAccount()
-            }
-            className="p-2 border border-gray-300 rounded"
+            onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
+            className="w-full p-3 rounded-lg bg-gray-800 text-white"
           />
           <input
             type="url"
             placeholder="Account URL"
             value={newAccount.url}
-            onChange={(e) =>
-              setNewAccount({ ...newAccount, url: e.target.value })
-            }
-            onKeyDown={(e) =>
-              e.key === 'Enter' &&
-              newAccount.name &&
-              newAccount.url &&
-              handleAddAccount()
-            }
-            className="p-2 border border-gray-300 rounded"
+            onChange={(e) => setNewAccount({ ...newAccount, url: e.target.value })}
+            className="w-full p-3 rounded-lg bg-gray-800 text-white"
           />
           <button
-            onClick={handleAddAccount}
-            className="p-2 bg-blue-600 text-white rounded"
+            type="submit"
+            className="w-full p-3 bg-cyan-400 hover:bg-cyan-500 rounded-lg text-white"
           >
             Add Account
           </button>
-        </div>
-      </div>
+        </form>
 
-      {/* Display Accounts */}
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h3 className="text-2xl mb-4">Current Accounts</h3>
-        <div className="space-y-4">
+        {/* Display Accounts */}
+        <div className="space-y-6">
           {socialLinks.map((link) => (
             <div
               key={link.id}
-              className="flex items-center justify-between bg-gray-100 p-4 rounded-lg"
+              className="flex flex-col md:flex-row items-start md:items-center justify-between bg-navy p-6 rounded-xl shadow-xl space-y-4 md:space-y-0"
             >
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-gray-800 rounded-lg">
+                <div className="p-3 bg-purple-400 bg-opacity-20 rounded-lg">
                   {getIcon(link.name)}
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold">{link.name}</h4>
-                  <p>{link.url}</p>
+                  <h4 className="text-xl font-semibold">{link.name}</h4>
+                  <p className="text-gray-400 break-words">{link.url}</p>
                 </div>
               </div>
-              <div className="space-x-2">
+              <div className="flex space-x-4">
                 <button
                   onClick={() => setEditing(link)}
-                  className="bg-yellow-500 text-white p-2 rounded"
+                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteAccount(link.id)}
-                  className="bg-red-500 text-white p-2 rounded"
+                  className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
                 >
                   Delete
                 </button>
@@ -194,57 +176,41 @@ const SocialMediaManager = () => {
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Edit Account */}
-      {editing && (
-        <div className="bg-white p-6 rounded-lg shadow-lg mt-8">
-          <h3 className="text-2xl mb-4">Edit Account</h3>
-          <div className="flex flex-col space-y-4">
+        {/* Edit Account Form */}
+        {editing && (
+          <div className="bg-navy p-6 rounded-xl shadow-xl mt-12 space-y-4">
+            <h3 className="text-2xl font-semibold mb-4">Edit Account</h3>
             <input
               type="text"
               value={editing.name}
-              onChange={(e) =>
-                setEditing({ ...editing, name: e.target.value })
-              }
-              onKeyDown={(e) =>
-                e.key === 'Enter' &&
-                editing.name &&
-                editing.url &&
-                handleEditAccount()
-              }
-              className="p-2 border border-gray-300 rounded"
+              onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+              className="w-full p-3 rounded-lg bg-gray-800 text-white"
             />
             <input
               type="url"
               value={editing.url}
-              onChange={(e) =>
-                setEditing({ ...editing, url: e.target.value })
-              }
-              onKeyDown={(e) =>
-                e.key === 'Enter' &&
-                editing.name &&
-                editing.url &&
-                handleEditAccount()
-              }
-              className="p-2 border border-gray-300 rounded"
+              onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+              className="w-full p-3 rounded-lg bg-gray-800 text-white"
             />
-            <button
-              onClick={handleEditAccount}
-              className="p-2 bg-green-600 text-white rounded"
-            >
-              Save Changes
-            </button>
-            <button
-              onClick={() => setEditing(null)}
-              className="p-2 bg-gray-600 text-white rounded"
-            >
-              Cancel
-            </button>
+            <div className="flex space-x-4">
+              <button
+                onClick={handleEditAccount}
+                className="p-3 w-full bg-green-600 hover:bg-green-700 text-white rounded-lg"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={() => setEditing(null)}
+                className="p-3 w-full bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </section>
   );
 };
 
