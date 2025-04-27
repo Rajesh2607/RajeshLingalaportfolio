@@ -4,11 +4,13 @@ import { db } from '../../../firebase/config';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 
 const AdminEducationForm = () => {
-  const [institution, setInstitution] = useState('');
-  const [degree, setDegree] = useState('');
-  const [fieldOfStudy, setFieldOfStudy] = useState('');
-  const [startYear, setStartYear] = useState('');
-  const [endYear, setEndYear] = useState('');
+  const [formData, setFormData] = useState({
+    institution: '',
+    degree: '',
+    fieldOfStudy: '',
+    startYear: '',
+    endYear: '',
+  });
   const [message, setMessage] = useState('');
   const [educationList, setEducationList] = useState([]);
   const [editId, setEditId] = useState(null);
@@ -31,11 +33,11 @@ const AdminEducationForm = () => {
     e.preventDefault();
 
     const educationData = {
-      institution,
-      degree,
-      fieldOfStudy,
-      startYear,
-      endYear,
+      institution: formData.institution,
+      degree: formData.degree,
+      fieldOfStudy: formData.fieldOfStudy,
+      startYear: formData.startYear,
+      endYear: formData.endYear,
       timestamp: new Date(),
     };
 
@@ -49,13 +51,14 @@ const AdminEducationForm = () => {
         setMessage('Education added successfully!');
       }
 
-      setInstitution('');
-      setDegree('');
-      setFieldOfStudy('');
-      setStartYear('');
-      setEndYear('');
+      setFormData({
+        institution: '',
+        degree: '',
+        fieldOfStudy: '',
+        startYear: '',
+        endYear: '',
+      });
       setEditId(null);
-
       fetchEducationData();
     } catch (error) {
       console.error('Error saving education:', error);
@@ -64,13 +67,24 @@ const AdminEducationForm = () => {
   };
 
   const handleEdit = (education) => {
+    console.log('Editing education:', education); // Debug log
     setEditId(education.id);
-    setInstitution(education.institution);
-    setDegree(education.degree);
-    setFieldOfStudy(education.fieldOfStudy);
-    setStartYear(education.startYear);
-    setEndYear(education.endYear);
+    setFormData({
+      institution: education.institution || '',
+      degree: education.degree || '',
+      fieldOfStudy: education.fieldOfStudy || '',
+      startYear: education.startYear?.toString() || '',
+      endYear: education.endYear?.toString() || '',
+    });
     setMessage('');
+  };
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
   };
 
   return (
@@ -90,37 +104,70 @@ const AdminEducationForm = () => {
             <div className="space-y-6">
               <div>
                 <label htmlFor="institution" className="block text-lg font-medium text-cyan-300">Institution</label>
-                <input type="text" id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)}
-                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                <input
+                  type="text"
+                  id="institution"
+                  value={formData.institution}
+                  onChange={handleChange}
+                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  required
+                />
               </div>
 
               <div>
                 <label htmlFor="degree" className="block text-lg font-medium text-cyan-300">Degree</label>
-                <input type="text" id="degree" value={degree} onChange={(e) => setDegree(e.target.value)}
-                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                <input
+                  type="text"
+                  id="degree"
+                  value={formData.degree}
+                  onChange={handleChange}
+                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  required
+                />
               </div>
 
               <div>
                 <label htmlFor="fieldOfStudy" className="block text-lg font-medium text-cyan-300">Field of Study</label>
-                <input type="text" id="fieldOfStudy" value={fieldOfStudy} onChange={(e) => setFieldOfStudy(e.target.value)}
-                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                <input
+                  type="text"
+                  id="fieldOfStudy"
+                  value={formData.fieldOfStudy}
+                  onChange={handleChange}
+                  className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="startYear" className="block text-lg font-medium text-cyan-300">Start Year</label>
-                  <input type="number" id="startYear" value={startYear} onChange={(e) => setStartYear(e.target.value)}
-                    className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                  <input
+                    type="number"
+                    id="startYear"
+                    value={formData.startYear}
+                    onChange={handleChange}
+                    className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    required
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="endYear" className="block text-lg font-medium text-cyan-300">End Year</label>
-                  <input type="number" id="endYear" value={endYear} onChange={(e) => setEndYear(e.target.value)}
-                    className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" required />
+                  <input
+                    type="number"
+                    id="endYear"
+                    value={formData.endYear}
+                    onChange={handleChange}
+                    className="mt-2 w-full p-3 border border-cyan-600 rounded-lg bg-[#0f172a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    required
+                  />
                 </div>
               </div>
 
-              <button type="submit" className="w-full py-3 bg-cyan-400 hover:bg-cyan-500 text-[#0f172a] font-semibold rounded-lg transition duration-300">
+              <button
+                type="submit"
+                className="w-full py-3 bg-cyan-400 hover:bg-cyan-500 text-[#0f172a] font-semibold rounded-lg transition duration-300"
+              >
                 {editId ? 'Update Education' : 'Add Education'}
               </button>
             </div>

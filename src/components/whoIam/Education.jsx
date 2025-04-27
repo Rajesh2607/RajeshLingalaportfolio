@@ -108,7 +108,11 @@ const Education = () => {
                 className="education-item opacity-0 translate-y-10 transition-all duration-700 ease-out"
               >
                 <div className="absolute left-0 w-4 h-4 bg-cyan-400 rounded-full transform -translate-x-2 mt-1.5"></div>
-                <div className="bg-midnight bg-opacity-70 rounded-xl p-6 md:p-8 shadow-xl">
+                <div className="relative bg-navy rounded-lg p-6 md:p-8 shadow-lg border border-gray-600 hover:border-cyan-400 transition-colors duration-300
+  before:absolute before:top-0 before:bottom-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-purple-400 before:to-cyan-400 before:rounded-full
+  after:absolute after:top-0 after:bottom-0 after:right-0 after:w-1 after:bg-gradient-to-b after:from-purple-400 after:to-cyan-400 after:rounded-full
+">
+
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div className="text-xl font-semibold text-purple-300">{edu.institution}</div>
                     <div className="flex items-center text-cyan-400 mt-2 md:mt-0">
