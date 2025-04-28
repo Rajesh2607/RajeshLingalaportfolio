@@ -7,11 +7,11 @@ import Experience from '../components/home/Experience';
 import Skills from '../components/home/Skills';
 import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome';
 import ContactSection from '../components/home/Contact';
+import { Typewriter } from 'react-simple-typewriter';
 
-// Main Home Component
 const Home = () => {
   const [about, setAbout] = useState({
-    title: '',
+    title: [],
     profilePic: '',
     description: '',
     resume: ''
@@ -19,25 +19,34 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true; // ✅ To avoid memory leaks
+
     const fetchAboutData = async () => {
       try {
         const docRef = doc(db, 'content', 'about');
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
+        if (docSnap.exists() && isMounted) {
           setAbout(docSnap.data());
         }
       } catch (error) {
         console.error('Error fetching about data:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
+
     fetchAboutData();
+
+    return () => {
+      isMounted = false; // ✅ Cleanup when component unmounts
+    };
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a192f]">
+      <div className="min-h-screen bg-[#0a192f] overflow-hidden">
         <SkeletonLoader />
       </div>
     );
@@ -54,7 +63,6 @@ const Home = () => {
   );
 };
 
-// Hero Section Component
 const HeroSection = ({ about }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -66,69 +74,98 @@ const HeroSection = ({ about }) => {
     <section
       id="hero"
       aria-label="Hero Section with profile introduction"
-      className="min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 w-full max-w-[100vw] overflow-hidden"
+      className="min-h-[90vh] flex items-center justify-center pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 lg:px-8 w-full overflow-hidden"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 px-4"
+        transition={{ duration: 0.7 }}
+        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12"
       >
+        {/* Text Content */}
         <header className="flex-1 text-center md:text-left max-w-2xl">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight"
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-3 leading-snug"
+          >
+            <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
+              Hi Myself,
+            </span>
+          </motion.h1>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight"
           >
             Lingala Rajesh
           </motion.h1>
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-wide text-gray-300 mb-6 sm:mb-8"
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="text-base sm:text-lg md:text-2xl font-medium text-gray-300 mb-6 h-[50px] sm:h-[60px] overflow-hidden"
           >
-            {about.title || 'Cloud & DevOps Engineer'}
+            I'm{' '}
+            <span className="text-cyan-400">
+              <Typewriter
+                words={Array.isArray(about.title) && about.title.length > 0
+                  ? about.title
+                  : ['Cloud & DevOps Engineer', 'UI/UX Designer', 'Full Stack Developer', 'Problem Solver']}
+                loop={true}
+                cursor
+                cursorStyle="_"
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1500}
+              />
+            </span>
           </motion.p>
-          <div className="flex flex-col items-start gap-4">
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 sm:gap-6 mb-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex items-center gap-6"
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="flex items-center justify-center gap-6"
             >
               <SocialLinks />
             </motion.div>
-            <motion.a
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href={about.resume || '/resume.pdf'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 mt-6 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold"
-            >
-              View My Resume/CV
-            </motion.a>
           </div>
+
+          <motion.a
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            href={about.resume || '/resume.pdf'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold"
+          >
+            View Resume/CV
+          </motion.a>
         </header>
 
+        {/* Profile Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          className="relative w-[250px] h-[250px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px] mx-auto"
+          transition={{ duration: 0.7 }}
+          className="relative w-72 h-72 sm:w-96 sm:h-96 flex-shrink-0 mb-8 md:mb-0"
         >
           {isImageLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full border-4 border-[#17c0f8] shadow-lg">
-              <div className="w-10 h-10 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
             </div>
           )}
           <img
             src={about.profilePic || 'https://via.placeholder.com/450'}
             alt="Profile of Lingala Rajesh"
-            className={`w-full h-full rounded-full border-4 border-[#17c0f8] shadow-2xl transition-all duration-300 ${
-              isImageLoading ? 'invisible' : 'visible'
+            className={`w-full h-full object-cover rounded-full border-4 border-[#17c0f8] shadow-2xl transition-opacity duration-500 ${
+              isImageLoading ? 'opacity-0' : 'opacity-100'
             }`}
             onLoad={handleImageLoad}
             loading="lazy"
@@ -140,7 +177,6 @@ const HeroSection = ({ about }) => {
   );
 };
 
-// Social Links Component
 const SocialLinks = () => (
   <nav aria-label="Social Links" className="flex items-center space-x-4">
     <a
@@ -177,7 +213,6 @@ const SocialLinks = () => (
   </nav>
 );
 
-// About Section Component
 const AboutSection = ({ about }) => (
   <section
     id="about"
@@ -199,7 +234,7 @@ const AboutSection = ({ about }) => (
           </span>
         </h2>
       </div>
-      <article className="bg-[#1b3a70] p-6 sm:p-10 md:p-12 lg:p-16 rounded-3xl shadow-2xl border border-white/10 text-base sm:text-lg md:text-xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
+      <article className="bg-[#1b3a70] p-6 sm:p-10 md:p-12 lg:p-16 rounded-3xl shadow-2xl border border-white/10 text-base sm:text-lg md:text-xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto overflow-hidden">
         <p>
           {about.description ||
             "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
