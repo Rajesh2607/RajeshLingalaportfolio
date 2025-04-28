@@ -17,6 +17,7 @@ const ProjectManager = () => {
   const [technologies, setTechnologies] = useState('');
   const [github, setGithub] = useState('');
   const [live, setLive] = useState('');
+  const [category, setCategory] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -66,6 +67,7 @@ const ProjectManager = () => {
         github,
         live,
         image: imageUrl || imagePreview,
+        category,
       };
 
       if (editingId) {
@@ -101,6 +103,7 @@ const ProjectManager = () => {
     setGithub(project.github);
     setLive(project.live);
     setImagePreview(project.image || '');
+    setCategory(project.category || '');
     setEditingId(project.id);
   };
 
@@ -110,6 +113,7 @@ const ProjectManager = () => {
     setTechnologies('');
     setGithub('');
     setLive('');
+    setCategory('');
     setImageFile(null);
     setImagePreview(null);
     setEditingId(null);
@@ -124,38 +128,119 @@ const ProjectManager = () => {
           {editingId ? 'Update Project' : 'Add New Project'}
         </h2>
 
-        <input className="w-full p-3 text-black rounded mb-4" type="text" placeholder="Project Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <textarea className="w-full p-3 text-black rounded mb-4" rows="4" placeholder="Project Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <input className="w-full p-3 text-black rounded mb-4" type="text" placeholder="Technologies (comma separated)" value={technologies} onChange={(e) => setTechnologies(e.target.value)} />
-        <input className="w-full p-3 text-black rounded mb-4" type="url" placeholder="GitHub Link" value={github} onChange={(e) => setGithub(e.target.value)} />
-        <input className="w-full p-3 text-black rounded mb-4" type="url" placeholder="Live Demo Link" value={live} onChange={(e) => setLive(e.target.value)} />
+        <input
+          className="w-full p-3 text-black rounded mb-4"
+          type="text"
+          placeholder="Project Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-        <input className="w-full p-3 bg-white rounded mb-2" type="file" onChange={handleImageChange} />
-        {imagePreview && <img src={imagePreview} alt="Preview" className="w-64 mt-2 rounded shadow-md border-2 border-white" />}
+        <textarea
+          className="w-full p-3 text-black rounded mb-4"
+          rows="4"
+          placeholder="Project Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <input
+          className="w-full p-3 text-black rounded mb-4"
+          type="text"
+          placeholder="Category (e.g., Web App, Mobile App)"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+
+        <input
+          className="w-full p-3 text-black rounded mb-4"
+          type="text"
+          placeholder="Technologies (comma separated)"
+          value={technologies}
+          onChange={(e) => setTechnologies(e.target.value)}
+        />
+
+        <input
+          className="w-full p-3 text-black rounded mb-4"
+          type="url"
+          placeholder="GitHub Link"
+          value={github}
+          onChange={(e) => setGithub(e.target.value)}
+        />
+
+        <input
+          className="w-full p-3 text-black rounded mb-4"
+          type="url"
+          placeholder="Live Demo Link"
+          value={live}
+          onChange={(e) => setLive(e.target.value)}
+        />
+
+        <input
+          className="w-full p-3 bg-white rounded mb-2"
+          type="file"
+          onChange={handleImageChange}
+        />
+
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-64 mt-2 rounded shadow-md border-2 border-white"
+          />
+        )}
 
         <button type="submit" className="w-full mt-4 bg-[#17c0f8] p-3 text-white rounded">
           {editingId ? 'Update Project' : 'Add Project'}
         </button>
+
         {editingId && (
-          <button type="button" onClick={clearForm} className="w-full mt-2 bg-gray-500 p-3 text-white rounded">
+          <button
+            type="button"
+            onClick={clearForm}
+            className="w-full mt-2 bg-gray-500 p-3 text-white rounded"
+          >
             Cancel Edit
           </button>
         )}
       </form>
 
       <h2 className="text-3xl font-semibold text-white mb-4">Existing Projects</h2>
+
       <div className="space-y-4">
         {projects.map((project) => (
           <div key={project.id} className="bg-[#112240] p-6 rounded-lg">
             <div className="flex flex-col md:flex-row md:items-center justify-between">
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-white">{project.title}</h3>
+
+                {project.category && (
+                  <p className="text-sm text-[#17c0f8] mb-2">Category: {project.category}</p>
+                )}
+
                 <p className="text-gray-400">{project.description}</p>
-                {project.image && <img src={project.image} alt={project.title} className="mt-2 w-64 rounded" />}
+
+                {project.image && (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="mt-2 w-64 rounded"
+                  />
+                )}
               </div>
+
               <div className="flex space-x-4 mt-4 md:mt-0">
-                <button onClick={() => startUpdate(project)} className="text-white hover:text-[#17c0f8]">Update</button>
-                <button onClick={() => deleteProject(project.id, project.image)} className="text-red-500 hover:text-red-400 flex items-center">
+                <button
+                  onClick={() => startUpdate(project)}
+                  className="text-white hover:text-[#17c0f8]"
+                >
+                  Update
+                </button>
+
+                <button
+                  onClick={() => deleteProject(project.id, project.image)}
+                  className="text-red-500 hover:text-red-400 flex items-center"
+                >
                   <Trash size={20} />
                   <span className="ml-1">Delete</span>
                 </button>

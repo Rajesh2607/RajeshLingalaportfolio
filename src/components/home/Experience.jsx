@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, Calendar, MapPin } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db } from '../../firebase/config';
 
+// Animation Variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -25,6 +26,8 @@ const itemVariants = {
   },
 };
 
+// Experience Card Component
+// Experience Card Component
 const ExperienceCard = ({ experience, index }) => {
   return (
     <motion.div
@@ -34,16 +37,20 @@ const ExperienceCard = ({ experience, index }) => {
       }`}
     >
       {/* Timeline Node */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 z-10">
-        <div className="w-4 h-4 bg-[#17c0f8] rounded-full" />
-        <div className="absolute w-8 h-8 bg-[#17c0f8] rounded-full -m-2 animate-ping opacity-20" />
+      <div className="absolute left-1/2 top-0 transform -translate-x-1/2 translate-y-5 w-8 h-8 z-10">
+        {/* Ping Animation */}
+        <div className="absolute inset-0 w-full h-full bg-[#17c0f8] rounded-full animate-ping opacity-20" />
+        
+        {/* Static Small Dot */}
+        <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-[#17c0f8] rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 group-hover:scale-110" />
       </div>
 
-      {/* Content */}
-      <div className={`flex-1 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
-        <div className="bg-[#1d3a6e] p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
+      {/* Experience Content */}
+      <div className={`flex-1 pt-6 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
+        <div className="bg-[#1d3a6e] p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 group">
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <h3 className="text-xl font-bold text-white">{experience.title}</h3>
+            
             <span className="px-3 py-1 bg-[#17c0f8]/10 text-[#17c0f8] rounded-full text-sm">
               {experience.company}
             </span>
@@ -68,11 +75,15 @@ const ExperienceCard = ({ experience, index }) => {
           </ul>
         </div>
       </div>
+
+      {/* Spacer for Alignment */}
       <div className="hidden md:block flex-1" />
     </motion.div>
   );
 };
 
+
+// Main Experience Section
 const Experience = () => {
   const [experiences, setExperiences] = useState([]);
 
@@ -94,36 +105,39 @@ const Experience = () => {
   }, []);
 
   return (
-    <div className=' overflow-x-hidden'>
-    <section className="py-20 bg-[#112240] overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center mb-12">
-          <Briefcase size={24} className="text-[#17c0f8] mr-2" />
-          <h2 className="text-3xl font-bold text-white">
-            <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-              Experience
-            </span>
-          </h2>
+    <div className="overflow-x-hidden">
+      <section className="py-20 bg-[#112240] overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Heading */}
+          <div className="flex items-center justify-center mb-12">
+            <Briefcase size={24} className="text-[#17c0f8] mr-2" />
+            <h2 className="text-3xl font-bold text-white">
+              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                Experience
+              </span>
+            </h2>
+          </div>
+
+          {/* Timeline and Cards */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="relative"
+          >
+            {/* Vertical Line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-[#17c0f8] to-[#0a192f]" />
+
+            {/* Experience Cards */}
+            {experiences
+              .sort((a, b) => a.order - b.order)
+              .map((experience, index) => (
+                <ExperienceCard key={experience.id} experience={experience} index={index} />
+              ))}
+          </motion.div>
         </div>
-
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="relative"
-        >
-          {/* Vertical Line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-[#17c0f8] to-[#0a192f]" />
-
-          {experiences
-            .sort((a, b) => a.order - b.order)
-            .map((experience, index) => (
-              <ExperienceCard key={experience.id} experience={experience} index={index} />
-            ))}
-        </motion.div>
-      </div>
-    </section>
+      </section>
     </div>
   );
 };

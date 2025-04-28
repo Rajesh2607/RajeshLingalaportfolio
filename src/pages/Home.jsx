@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { Github, Linkedin, MoreHorizontal, User } from 'lucide-react';
 import { db } from '../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
-import Experience from '../components/Experience';
-import Skills from '../components/Skills';
+import Experience from '../components/home/Experience';
+import Skills from '../components/home/Skills';
 import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome';
-import ContactSection from '../components/Contact';
+import ContactSection from '../components/home/Contact';
 
 // Main Home Component
 const Home = () => {

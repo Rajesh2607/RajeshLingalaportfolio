@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Code2 } from 'lucide-react';
-import { db } from '../firebase/config';
+import { db } from '../../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 
 const Skills = () => {
