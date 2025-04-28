@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { db, storage } from '../../../firebase/config';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { User, Upload, Save } from 'lucide-react';
+import { User, Upload, Save, X } from 'lucide-react';
 
 const AboutManager = () => {
   const [about, setAbout] = useState({
-    title: '',
+    title: [],
     description: '',
     profilePic: '',
-    resume: '', // ➔ Added resume field
+    resume: '',
   });
+  const [newTitle, setNewTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [file, setFile] = useState(null);
@@ -25,8 +26,12 @@ const AboutManager = () => {
       const docRef = doc(db, 'content', 'about');
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setAbout(docSnap.data());
-        setPreviewUrl(docSnap.data().profilePic);
+        const data = docSnap.data();
+        setAbout({
+          ...data,
+          title: Array.isArray(data.title) ? data.title : [data.title],
+        });
+        setPreviewUrl(data.profilePic);
       }
     } catch (error) {
       console.error('Error fetching about data:', error);
@@ -69,6 +74,18 @@ const AboutManager = () => {
     }
   };
 
+  const handleAddTitle = () => {
+    if (newTitle.trim() !== '') {
+      setAbout({ ...about, title: [...about.title, newTitle.trim()] });
+      setNewTitle('');
+    }
+  };
+
+  const handleRemoveTitle = (index) => {
+    const updatedTitles = about.title.filter((_, i) => i !== index);
+    setAbout({ ...about, title: updatedTitles });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -86,9 +103,9 @@ const AboutManager = () => {
 
       <div className="space-y-6">
         {/* Profile Picture Upload */}
-        <div>
+        <div className="flex flex-col md:flex-row md:items-center">
           <label className="block text-white text-sm font-medium mb-2">Profile Picture</label>
-          <div className="flex items-start space-x-4">
+          <div className="flex items-start space-x-4 md:w-1/2">
             <div className="w-32 h-32 relative rounded-lg overflow-hidden bg-[#1d3a6e]">
               {previewUrl ? (
                 <img src={previewUrl} alt="Profile Preview" className="w-full h-full object-cover" />
@@ -116,16 +133,39 @@ const AboutManager = () => {
           </div>
         </div>
 
-        {/* Title */}
+        {/* Title Array Input */}
         <div>
-          <label className="block text-white text-sm font-medium mb-2">Title</label>
-          <input
-            type="text"
-            value={about.title}
-            onChange={(e) => setAbout({ ...about, title: e.target.value })}
-            className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
-            placeholder="e.g., UI Designer || Cloud And DevOps Engineer"
-          />
+          <label className="block text-white text-sm font-medium mb-2">Titles</label>
+          <div className="flex space-x-2 mb-2">
+            <input
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className="flex-1 px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
+              placeholder="Add new title"
+            />
+            <button
+              type="button"
+              onClick={handleAddTitle}
+              className="px-4 py-2 bg-[#17c0f8] text-black rounded-md hover:bg-[#17c0f8]/90"
+            >
+              Add
+            </button>
+          </div>
+          <div className="space-y-2">
+            {about.title.map((t, index) => (
+              <div key={index} className="flex items-center bg-[#1d3a6e] p-2 rounded-md">
+                <span className="flex-1 text-white">{t}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTitle(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Description */}

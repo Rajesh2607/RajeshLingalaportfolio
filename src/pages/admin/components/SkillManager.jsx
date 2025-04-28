@@ -67,7 +67,7 @@ const SkillManager = () => {
     <div className="p-8 bg-[#0a192f] min-h-screen text-white">
       <h1 className="text-3xl font-bold mb-6 text-center">🛠️ Admin Skill Manager</h1>
 
-      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <h2 className="text-xl mb-2">➕ Add New Category</h2>
           <input
@@ -79,7 +79,7 @@ const SkillManager = () => {
           />
           <button
             onClick={handleAddCategory}
-            className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 w-full sm:w-auto"
           >
             Add Category
           </button>
@@ -108,7 +108,7 @@ const SkillManager = () => {
           />
           <button
             onClick={handleAddSkill}
-            className="bg-green-600 px-4 py-2 rounded hover:bg-green-700"
+            className="bg-green-600 px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto"
           >
             Add Skill
           </button>
