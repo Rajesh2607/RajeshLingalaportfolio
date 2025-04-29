@@ -5,7 +5,7 @@ import { db } from '../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 import Experience from '../components/home/Experience';
 import Skills from '../components/home/Skills';
-import SkeletonLoader from '../components/skeleton/SkeletonLoaderForhome';
+import SkeletonLoaderForhome from '../components/skeleton/SkeletonLoaderForhome';
 import ContactSection from '../components/home/Contact';
 import { Typewriter } from 'react-simple-typewriter';
 
@@ -47,7 +47,7 @@ const Home = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a192f] overflow-hidden">
-        <SkeletonLoader />
+        <SkeletonLoaderForhome />
       </div>
     );
   }
