@@ -29,6 +29,7 @@ const ProjectManager = () => {
   const [mediaType, setMediaType] = useState(null);
   const [projects, setProjects] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [mediaPath, setMediaPath] = useState(null);
 
   useEffect(() => {
     fetchProjects();
@@ -49,9 +50,12 @@ const ProjectManager = () => {
 
   const uploadMedia = async (file) => {
     const ext = file.name.split('.').pop();
-    const mediaRef = ref(storage, `project_media/${file.name}_${Date.now()}.${ext}`);
+    const fileName = `${file.name}_${Date.now()}.${ext}`;
+    const mediaStoragePath = `project_media/${fileName}`;
+    const mediaRef = ref(storage, mediaStoragePath);
     await uploadBytes(mediaRef, file);
-    return await getDownloadURL(mediaRef);
+    const downloadUrl = await getDownloadURL(mediaRef);
+    return { downloadUrl, mediaStoragePath };
   };
 
   const handleMediaChange = (e) => {
@@ -68,8 +72,12 @@ const ProjectManager = () => {
     e.preventDefault();
     try {
       let mediaUrl = '';
+      let mediaStoragePath = '';
+
       if (mediaFile) {
-        mediaUrl = await uploadMedia(mediaFile);
+        const upload = await uploadMedia(mediaFile);
+        mediaUrl = upload.downloadUrl;
+        mediaStoragePath = upload.mediaStoragePath;
       }
 
       const projectData = {
@@ -82,6 +90,7 @@ const ProjectManager = () => {
         domain,
         media: mediaUrl || mediaPreview,
         mediaType,
+        mediaPath: mediaStoragePath || mediaPath || '', // include existing if updating
       };
 
       if (editingId) {
@@ -97,11 +106,11 @@ const ProjectManager = () => {
     }
   };
 
-  const deleteProject = async (id, mediaUrl) => {
+  const deleteProject = async (id, mediaPath) => {
     try {
       await deleteDoc(doc(db, 'projects', id));
-      if (mediaUrl) {
-        const mediaRef = ref(storage, mediaUrl);
+      if (mediaPath) {
+        const mediaRef = ref(storage, mediaPath);
         await deleteObject(mediaRef).catch(() => {});
       }
       fetchProjects();
@@ -121,6 +130,7 @@ const ProjectManager = () => {
     setMediaPreview(project.media || '');
     setMediaType(project.mediaType || null);
     setEditingId(project.id);
+    setMediaPath(project.mediaPath || '');
   };
 
   const clearForm = () => {
@@ -135,6 +145,7 @@ const ProjectManager = () => {
     setMediaPreview(null);
     setMediaType(null);
     setEditingId(null);
+    setMediaPath(null);
   };
 
   return (
@@ -269,7 +280,7 @@ const ProjectManager = () => {
                   Update
                 </button>
                 <button
-                  onClick={() => deleteProject(project.id, project.media)}
+                  onClick={() => deleteProject(project.id, project.mediaPath)}
                   className="text-red-500 hover:text-red-400 flex items-center"
                 >
                   <Trash size={20} />

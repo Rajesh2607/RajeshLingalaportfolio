@@ -10,7 +10,7 @@ const Projects = () => {
   const [groupedByDomain, setGroupedByDomain] = useState({});
   const [activeDomain, setActiveDomain] = useState('All');
   const [loading, setLoading] = useState(true);
-  const [imageLoadStates, setImageLoadStates] = useState({});
+  const [mediaLoadStates, setMediaLoadStates] = useState({});
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -22,7 +22,6 @@ const Projects = () => {
         }));
         setProjects(projectData);
 
-        // Group by domain
         const domainGroups = {};
         projectData.forEach(project => {
           const domain = project.domain || 'Others';
@@ -43,8 +42,8 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  const handleImageLoad = (id) => {
-    setImageLoadStates(prev => ({ ...prev, [id]: true }));
+  const handleMediaLoad = (id) => {
+    setMediaLoadStates(prev => ({ ...prev, [id]: true }));
   };
 
   const domainNames = ['All', ...Object.keys(groupedByDomain)];
@@ -119,47 +118,52 @@ const Projects = () => {
                       {project.category}
                     </div>
                   )}
+
+                  {/* Media Section */}
                   <div className="relative h-56 overflow-hidden group">
-  {!imageLoadStates[project.id] && (
-    <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-md border-4 border-[#17c0f8] shadow-lg z-10">
-      <div className="w-8 h-8 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
-    </div>
-  )}
+                    {!mediaLoadStates[project.id] && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-md border-4 border-[#17c0f8] shadow-lg z-10">
+                        <div className="w-8 h-8 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+                      </div>
+                    )}
 
-  {project.video ? (
-    <video
-      src={project.video}
-      className="w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-110 group-hover:blur-md"
-      autoPlay
-      loop
-      muted
-      playsInline
-    />
-  ) : (
-    <img
-      src={project.image}
-      alt={project.title}
-      loading="lazy"
-      className={`w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-110 group-hover:blur-md ${
-        imageLoadStates[project.id] ? 'opacity-100' : 'opacity-0'
-      }`}
-      onLoad={() => handleImageLoad(project.id)}
-    />
-  )}
+                    {project.mediaType === 'video' ? (
+                      <video
+                        src={project.media}
+                        className="w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-110 group-hover:blur-md"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        onLoadedData={() => handleMediaLoad(project.id)}
+                      />
+                    ) : (
+                      <img
+                        src={project.media}
+                        alt={project.title}
+                        loading="lazy"
+                        className={`w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-110 group-hover:blur-md ${
+                          mediaLoadStates[project.id] ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        onLoad={() => handleMediaLoad(project.id)}
+                        onError={() => handleMediaLoad(project.id)}
+                      />
+                    )}
 
-  <div className="absolute inset-0 bg-black bg-opacity-0 flex items-center justify-center opacity-0 group-hover:bg-opacity-50 group-hover:opacity-100 transition-all duration-700 ease-in-out">
-    <div className="flex space-x-5">
-      <a href={project.github} className="text-white hover:text-[#17c0f8]" target="_blank" rel="noopener noreferrer">
-        <Github size={24} />
-      </a>
-      <a href={project.live} className="text-white hover:text-[#17c0f8]" target="_blank" rel="noopener noreferrer">
-        <ExternalLink size={24} />
-      </a>
-    </div>
-  </div>
-</div>
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black bg-opacity-0 flex items-center justify-center opacity-0 group-hover:bg-opacity-50 group-hover:opacity-100 transition-all duration-700 ease-in-out">
+                      <div className="flex space-x-5">
+                        <a href={project.github} className="text-white hover:text-[#17c0f8]" target="_blank" rel="noopener noreferrer">
+                          <Github size={24} />
+                        </a>
+                        <a href={project.live} className="text-white hover:text-[#17c0f8]" target="_blank" rel="noopener noreferrer">
+                          <ExternalLink size={24} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
 
-                  
+                  {/* Text Section */}
                   <div className="p-6">
                     <h2 className="text-2xl font-semibold text-white mb-3">{project.title}</h2>
                     <p className="text-gray-400 text-sm leading-relaxed mb-4">{project.description}</p>
