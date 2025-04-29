@@ -8,8 +8,13 @@ import {
   updateDoc,
   getDocs,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { Github, ExternalLink, Trash } from 'lucide-react';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'firebase/storage';
+import { Trash } from 'lucide-react';
 
 const ProjectManager = () => {
   const [title, setTitle] = useState('');
@@ -18,8 +23,10 @@ const ProjectManager = () => {
   const [github, setGithub] = useState('');
   const [live, setLive] = useState('');
   const [category, setCategory] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [domain, setDomain] = useState('');
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
+  const [mediaType, setMediaType] = useState(null);
   const [projects, setProjects] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
@@ -40,24 +47,29 @@ const ProjectManager = () => {
     }
   };
 
-  const uploadImage = async (file) => {
-    const imageRef = ref(storage, `project_images/${file.name}_${Date.now()}`);
-    await uploadBytes(imageRef, file);
-    return await getDownloadURL(imageRef);
+  const uploadMedia = async (file) => {
+    const ext = file.name.split('.').pop();
+    const mediaRef = ref(storage, `project_media/${file.name}_${Date.now()}.${ext}`);
+    await uploadBytes(mediaRef, file);
+    return await getDownloadURL(mediaRef);
   };
 
-  const handleImageChange = (e) => {
+  const handleMediaChange = (e) => {
     const file = e.target.files[0];
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    if (file) {
+      const type = file.type.startsWith('video') ? 'video' : 'image';
+      setMediaType(type);
+      setMediaFile(file);
+      setMediaPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let imageUrl = '';
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
+      let mediaUrl = '';
+      if (mediaFile) {
+        mediaUrl = await uploadMedia(mediaFile);
       }
 
       const projectData = {
@@ -66,8 +78,10 @@ const ProjectManager = () => {
         technologies: technologies.split(',').map((tech) => tech.trim()),
         github,
         live,
-        image: imageUrl || imagePreview,
         category,
+        domain,
+        media: mediaUrl || mediaPreview,
+        mediaType,
       };
 
       if (editingId) {
@@ -83,12 +97,12 @@ const ProjectManager = () => {
     }
   };
 
-  const deleteProject = async (id, imageUrl) => {
+  const deleteProject = async (id, mediaUrl) => {
     try {
       await deleteDoc(doc(db, 'projects', id));
-      if (imageUrl) {
-        const imageRef = ref(storage, imageUrl);
-        await deleteObject(imageRef).catch(() => {});
+      if (mediaUrl) {
+        const mediaRef = ref(storage, mediaUrl);
+        await deleteObject(mediaRef).catch(() => {});
       }
       fetchProjects();
     } catch (error) {
@@ -102,8 +116,10 @@ const ProjectManager = () => {
     setTechnologies(project.technologies.join(', '));
     setGithub(project.github);
     setLive(project.live);
-    setImagePreview(project.image || '');
     setCategory(project.category || '');
+    setDomain(project.domain || '');
+    setMediaPreview(project.media || '');
+    setMediaType(project.mediaType || null);
     setEditingId(project.id);
   };
 
@@ -114,8 +130,10 @@ const ProjectManager = () => {
     setGithub('');
     setLive('');
     setCategory('');
-    setImageFile(null);
-    setImagePreview(null);
+    setDomain('');
+    setMediaFile(null);
+    setMediaPreview(null);
+    setMediaType(null);
     setEditingId(null);
   };
 
@@ -155,6 +173,14 @@ const ProjectManager = () => {
         <input
           className="w-full p-3 text-black rounded mb-4"
           type="text"
+          placeholder="Domain (e.g., EdTech, HealthTech)"
+          value={domain}
+          onChange={(e) => setDomain(e.target.value)}
+        />
+
+        <input
+          className="w-full p-3 text-black rounded mb-4"
+          type="text"
           placeholder="Technologies (comma separated)"
           value={technologies}
           onChange={(e) => setTechnologies(e.target.value)}
@@ -179,15 +205,18 @@ const ProjectManager = () => {
         <input
           className="w-full p-3 bg-white rounded mb-2"
           type="file"
-          onChange={handleImageChange}
+          accept="image/*,video/*"
+          onChange={handleMediaChange}
         />
 
-        {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Preview"
-            className="w-64 mt-2 rounded shadow-md border-2 border-white"
-          />
+        {mediaPreview && (
+          <div className="mt-2">
+            {mediaType === 'image' ? (
+              <img src={mediaPreview} alt="Preview" className="w-64 rounded border-2 border-white" />
+            ) : (
+              <video src={mediaPreview} controls className="w-64 rounded border-2 border-white" />
+            )}
+          </div>
         )}
 
         <button type="submit" className="w-full mt-4 bg-[#17c0f8] p-3 text-white rounded">
@@ -213,19 +242,22 @@ const ProjectManager = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between">
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-white">{project.title}</h3>
-
                 {project.category && (
-                  <p className="text-sm text-[#17c0f8] mb-2">Category: {project.category}</p>
+                  <p className="text-sm text-[#17c0f8] mb-1">Category: {project.category}</p>
                 )}
-
+                {project.domain && (
+                  <p className="text-sm text-[#17c0f8] mb-2">Domain: {project.domain}</p>
+                )}
                 <p className="text-gray-400">{project.description}</p>
 
-                {project.image && (
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="mt-2 w-64 rounded"
-                  />
+                {project.media && (
+                  <div className="mt-2">
+                    {project.mediaType === 'image' ? (
+                      <img src={project.media} alt={project.title} className="w-64 rounded" />
+                    ) : (
+                      <video src={project.media} controls className="w-64 rounded" />
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -236,9 +268,8 @@ const ProjectManager = () => {
                 >
                   Update
                 </button>
-
                 <button
-                  onClick={() => deleteProject(project.id, project.image)}
+                  onClick={() => deleteProject(project.id, project.media)}
                   className="text-red-500 hover:text-red-400 flex items-center"
                 >
                   <Trash size={20} />
