@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/config';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { Award, Plus, Trash2, Edit2, Save, X, ExternalLink } from 'lucide-react';
+import { Award, Plus, Trash2, Edit2, Save, ExternalLink } from 'lucide-react';
 
 const CertificatesManager = () => {
   const [certificates, setCertificates] = useState([]);
@@ -13,7 +13,8 @@ const CertificatesManager = () => {
     date: '',
     credentialId: '',
     image: '',
-    link: ''
+    link: '',
+    domain: ''  // New field
   });
 
   useEffect(() => {
@@ -49,7 +50,8 @@ const CertificatesManager = () => {
         date: '',
         credentialId: '',
         image: '',
-        link: ''
+        link: '',
+        domain: ''
       });
       setEditingId(null);
       fetchCertificates();
@@ -134,6 +136,16 @@ const CertificatesManager = () => {
               required
             />
           </div>
+          <div>
+            <label className="block text-white text-sm font-medium mb-2">Domain</label>
+            <input
+              type="text"
+              value={formData.domain}
+              onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+              className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
+              required
+            />
+          </div>
         </div>
 
         <div>
@@ -180,6 +192,7 @@ const CertificatesManager = () => {
                 <p className="text-gray-400">{certificate.issuer}</p>
                 <p className="text-sm text-gray-400">{certificate.date}</p>
                 <p className="text-sm text-gray-400">ID: {certificate.credentialId}</p>
+                <p className="text-sm text-[#17c0f8]">Domain: {certificate.domain}</p>
                 {certificate.link && (
                   <a
                     href={certificate.link}

@@ -6,6 +6,9 @@ import { db } from '../firebase/config';
 
 const Certificates = () => {
   const [certificates, setCertificates] = useState([]);
+  const [filteredCertificates, setFilteredCertificates] = useState([]);
+  const [domains, setDomains] = useState([]);
+  const [selectedDomain, setSelectedDomain] = useState('All');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +20,10 @@ const Certificates = () => {
           ...doc.data(),
         }));
         setCertificates(certs);
+
+        const domainList = ['All', ...new Set(certs.map(cert => cert.domain).filter(Boolean))];
+        setDomains(domainList);
+        setFilteredCertificates(certs);
       } catch (error) {
         console.error("Error fetching certificates:", error);
       } finally {
@@ -26,6 +33,15 @@ const Certificates = () => {
 
     fetchCertificates();
   }, []);
+
+  useEffect(() => {
+    if (selectedDomain === 'All') {
+      setFilteredCertificates(certificates);
+    } else {
+      const filtered = certificates.filter(cert => cert.domain === selectedDomain);
+      setFilteredCertificates(filtered);
+    }
+  }, [selectedDomain, certificates]);
 
   const SkeletonCard = () => (
     <div className="bg-[#112240] rounded-lg overflow-hidden animate-pulse">
@@ -50,10 +66,29 @@ const Certificates = () => {
         <p className="text-gray-400">A collection of my professional certifications and achievements</p>
       </motion.div>
 
+      {/* Filter Buttons */}
+      <div className="flex flex-wrap gap-4 justify-center mb-10">
+        {domains.map((domain, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedDomain(domain)}
+            className={`px-4 py-2 rounded-md border text-sm font-medium ${
+              selectedDomain === domain
+                ? 'border-[#17c0f8] bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text'
+                : 'border-[#17c0f8] text-[#17c0f8] hover:bg-[#17c0f8] hover:text-white transition'
+            }`}
+            
+          >
+            {domain}
+          </button>
+        ))}
+      </div>
+
+      {/* Certificates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-          : certificates.map((cert, index) => (
+          : filteredCertificates.map((cert, index) => (
               <motion.div
                 key={cert.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -76,7 +111,9 @@ const Certificates = () => {
                   <div className="text-gray-400 mb-4">
                     {cert.issuer && <p>Issued by {cert.issuer}</p>}
                     {cert.date && <p>Date: {cert.date}</p>}
-                    {cert.credentialId && <p className="text-sm">Credential ID: {cert.credentialId}</p>}
+                    {cert.credentialId && (
+                      <p className="text-sm">Credential ID: {cert.credentialId}</p>
+                    )}
                   </div>
                   {cert.link && (
                     <a
