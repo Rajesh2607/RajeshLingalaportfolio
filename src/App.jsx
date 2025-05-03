@@ -53,6 +53,7 @@ function App() {
                   element={
                     <>
                       <Navbar />
+                      <div className="pt-16"> 
                       <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/certificates" element={<Certificates />} />
@@ -61,6 +62,8 @@ function App() {
                         <Route path="/blog/:id" element={<BlogDetail />} /> {/* Firebase blog detail */}
                         <Route path="/whoiam" element={<WhoIAm />} />
                       </Routes>
+                      </div>
+                      {/* Footer */}
                       <Footer />
                     </>
                   }
