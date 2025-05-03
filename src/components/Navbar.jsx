@@ -1,28 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, Award, Briefcase, BookOpen, User, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const navLinkClass = ({ isActive }) =>
     `flex items-center space-x-1 ${isActive ? 'text-[#17c0f8]' : 'hover:text-[#17c0f8]'}`;
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setShowNavbar(false); // Scrolling down
+      } else {
+        setShowNavbar(true); // Scrolling up
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   return (
-    <nav className="bg-black text-white p-6 sticky top-0 z-50 shadow-md">
+    <nav
+      className={`bg-black text-white p-6 fixed top-0 left-0 right-0 z-50 shadow-md transition-transform duration-300 ${
+        showNavbar ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
       <div className="container mx-auto flex justify-between items-center overflow-x-hidden">
         <div className="text-xl font-bold">LINGALA RAJESH</div>
 
-        {/* Mobile menu toggle */}
         <div className="md:hidden">
           <button onClick={toggleMenu} className="focus:outline-none">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
-        {/* Desktop menu */}
         <div className="hidden md:flex space-x-6">
           <NavLink to="/" className={navLinkClass}>
             <Home size={20} />
@@ -47,7 +69,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden mt-4 space-y-4">
           <NavLink to="/" className={navLinkClass} onClick={toggleMenu}>
