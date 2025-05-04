@@ -8,6 +8,7 @@ import Skills from '../components/home/Skills';
 import SkeletonLoaderForhome from '../components/skeleton/SkeletonLoaderForhome';
 import ContactSection from '../components/home/Contact';
 import { Typewriter } from 'react-simple-typewriter';
+import Note from '../components/home/Note';
 
 const Home = () => {
   const [about, setAbout] = useState({
@@ -59,6 +60,7 @@ const Home = () => {
       <Skills />
       <Experience />
       <ContactSection />
+      <Note />
     </main>
   );
 };

@@ -14,6 +14,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import WhoIAm from './pages/WhoIAm';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   const [showContent, setShowContent] = useState(false);
@@ -54,6 +55,7 @@ function App() {
                     <>
                       <Navbar />
                       <div className="pt-16"> 
+                        <ScrollToTop />
                       <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/certificates" element={<Certificates />} />

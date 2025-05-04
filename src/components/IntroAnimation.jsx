@@ -47,7 +47,7 @@ const IntroAnimation = ({ onFinish }) => {
             >
               <div className="w-24 h-24 mx-auto rounded-full border-4 border-white overflow-hidden">
                 <img 
-                  src="/images/WhatsApp Image 2025-04-20 at 18.48.10_4a2d17cb.jpg"
+                  src="/images/Profile.jpg"
                   alt="Rajesh Lingala"
                   className="w-full h-full object-cover"
                 />
