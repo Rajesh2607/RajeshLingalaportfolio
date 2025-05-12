@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Github, Linkedin, MoreHorizontal, User } from 'lucide-react';
+import { FaBehance } from 'react-icons/fa';
 import { db } from '../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 import Experience from '../components/home/Experience';
@@ -200,11 +201,20 @@ const SocialLinks = () => (
       <Linkedin size={24} />
     </a>
     <a
+  href="https://www.behance.net/lingalarajesh"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="hover:scale-110 transition-transform"
+>
+  <FaBehance className="w-6 h-6 text-white" />
+</a>
+
+    <a
       href="/whoiam#connect"
       aria-label="Connect with Lingala Rajesh"
       className="relative group"
     >
-      <div className="flex items-center gap-2 bg-[#112240] hover:bg-[#1d3a6e] text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-md cursor-pointer">
+      <div className="flex items-center gap-2 hover:bg-[#1d3a6e] text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-md cursor-pointer">
         <MoreHorizontal size={24} />
         <span className="text-base sm:text-lg font-medium">More</span>
       </div>
