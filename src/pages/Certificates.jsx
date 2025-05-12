@@ -101,6 +101,7 @@ const Certificates = () => {
                     src={cert.image}
                     alt={cert.title}
                     className="w-full h-full object-cover"
+                    loading='lazy'
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                     <Award className="w-16 h-16 text-[#17c0f8]" />

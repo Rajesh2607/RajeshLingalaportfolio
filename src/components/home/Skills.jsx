@@ -1,8 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Code2 } from 'lucide-react';
+import {
+  Code2,
+  Server,
+  Cpu,
+  Settings,
+  GitBranch,
+  FileCode,
+  Package,
+  Terminal,
+} from 'lucide-react';
 import { db } from '../../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
+
+// Use a known-safe icon per category name
+const categoryIconMap = {
+  frontend: Cpu,
+  backend: Server,
+  devops: Settings,
+  tools: Package,
+  versioncontrol: GitBranch,
+  programming: FileCode,
+  scripting: Terminal,
+};
+
+// Return an icon component based on category name
+const getCategoryIcon = (category) => {
+  const key = category.toLowerCase();
+  for (const name in categoryIconMap) {
+    if (key.includes(name)) {
+      return categoryIconMap[name];
+    }
+  }
+  return Code2; // Fallback icon
+};
 
 const Skills = () => {
   const [skillsData, setSkillsData] = useState({});
@@ -13,7 +44,7 @@ const Skills = () => {
       const querySnapshot = await getDocs(collection(db, 'skills'));
       const skills = {};
 
-      querySnapshot.forEach(doc => {
+      querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (Array.isArray(data.items)) {
           skills[doc.id] = data.items;
@@ -69,30 +100,34 @@ const Skills = () => {
           </div>
         ) : (
           <div className="space-y-12 w-full">
-            {Object.entries(skillsData).map(([category, skills]) => (
-              <div key={category} className="w-full">
-                <h3 className="text-lg sm:text-xl text-white font-semibold mb-4 sm:mb-6 text-center">
-                  {category.toUpperCase()}
-                </h3>
+            {Object.entries(skillsData).map(([category, skills]) => {
+              const Icon = getCategoryIcon(category);
+              return (
+                <div key={category} className="w-full">
+                  <h3 className="text-lg sm:text-xl text-white font-semibold mb-4 sm:mb-6 text-center flex items-center justify-center gap-2">
+                    <Icon size={18} className="text-[#17c0f8]" />
+                    {category.toUpperCase()}
+                  </h3>
 
-                <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full">
-                  {skills.map((skill, index) => (
-                    <motion.div
-                      key={`${category}-${index}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.05 }}
-                      className="bg-[#112240] rounded-lg px-4 py-3 text-sm sm:text-base text-center hover:bg-[#1d3a6e] transition-colors w-[140px] sm:w-[160px]"
-                    >
-                      <p className="font-medium text-gray-300 truncate" title={skill}>
-                        {skill}
-                      </p>
-                    </motion.div>
-                  ))}
+                  <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full">
+                    {skills.map((skill, index) => (
+                      <motion.div
+                        key={`${category}-${index}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-[#112240] rounded-lg px-4 py-3 text-sm sm:text-base text-center hover:bg-[#1d3a6e] transition-colors w-[140px] sm:w-[160px]"
+                      >
+                        <p className="font-medium text-gray-300 truncate" title={skill}>
+                          {skill}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
