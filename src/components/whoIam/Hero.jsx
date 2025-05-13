@@ -135,7 +135,7 @@ const Hero = () => {
                       />
                     </motion.div>
                     <motion.div
-                    className="order-1 md:order-2 h-64 overflow-y-auto pr-2 rounded 
+                    className="order-1 md:order-2 max-h-[450px] overflow-y-auto pr-2 rounded 
                               scrollbar-thin scrollbar-track-transparent 
                               scrollbar-thumb-gradient-to-b from-purple-500 via-cyan-400 to-blue-500 
                               scrollbar-thumb-rounded-lg scrollbar-track-rounded-full 

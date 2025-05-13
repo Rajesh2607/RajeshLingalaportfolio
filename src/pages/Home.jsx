@@ -21,8 +21,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true; // ✅ To avoid memory leaks
-
+    let isMounted = true;
     const fetchAboutData = async () => {
       try {
         const docRef = doc(db, 'content', 'about');
@@ -40,22 +39,21 @@ const Home = () => {
     };
 
     fetchAboutData();
-
     return () => {
-      isMounted = false; // ✅ Cleanup when component unmounts
+      isMounted = false;
     };
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a192f] overflow-hidden">
+      <div className=" bg-[#0a192f]">
         <SkeletonLoaderForhome />
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#0a192f] overflow-x-hidden">
+    <main className="bg-[#0a192f] overflow-x-hidden">
       <HeroSection about={about} />
       <AboutSection about={about} />
       <Skills />
@@ -69,15 +67,12 @@ const Home = () => {
 const HeroSection = ({ about }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
-  const handleImageLoad = () => {
-    setIsImageLoading(false);
-  };
+  const handleImageLoad = () => setIsImageLoading(false);
 
   return (
     <section
       id="hero"
-      aria-label="Hero Section with profile introduction"
-      className="min-h-[90vh] flex items-center justify-center pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 lg:px-8 w-full overflow-hidden"
+      className="min-h-[90vh] flex items-center justify-center pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 lg:px-8 w-full"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -85,7 +80,6 @@ const HeroSection = ({ about }) => {
         transition={{ duration: 0.7 }}
         className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12"
       >
-        {/* Text Content */}
         <header className="flex-1 text-center md:text-left max-w-2xl">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -116,9 +110,11 @@ const HeroSection = ({ about }) => {
             I'm{' '}
             <span className="text-cyan-400">
               <Typewriter
-                words={Array.isArray(about.title) && about.title.length > 0
-                  ? about.title
-                  : ['Cloud & DevOps Engineer', 'UI/UX Designer', 'Full Stack Developer', 'Problem Solver']}
+                words={
+                  Array.isArray(about.title) && about.title.length > 0
+                    ? about.title
+                    : ['Cloud & DevOps Engineer', 'UI/UX Designer', 'Full Stack Developer', 'Problem Solver']
+                }
                 loop={true}
                 cursor
                 cursorStyle="_"
@@ -152,7 +148,6 @@ const HeroSection = ({ about }) => {
           </motion.a>
         </header>
 
-        {/* Profile Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -201,14 +196,13 @@ const SocialLinks = () => (
       <Linkedin size={24} />
     </a>
     <a
-  href="https://www.behance.net/lingalarajesh"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="hover:scale-110 transition-transform"
->
-  <FaBehance className="w-6 h-6 text-white" />
-</a>
-
+      href="https://www.behance.net/lingalarajesh"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:scale-110 transition-transform"
+    >
+      <FaBehance className="w-6 h-6 text-white" />
+    </a>
     <a
       href="/whoiam#connect"
       aria-label="Connect with Lingala Rajesh"
@@ -228,8 +222,7 @@ const SocialLinks = () => (
 const AboutSection = ({ about }) => (
   <section
     id="about"
-    aria-label="About Section"
-    className="py-16 sm:py-20 lg:py-24 bg-[#112240] text-white w-full overflow-hidden"
+    className="py-16 sm:py-20 lg:py-24 bg-[#112240] text-white w-full"
   >
     <motion.div
       initial={{ opacity: 0 }}
@@ -246,7 +239,7 @@ const AboutSection = ({ about }) => (
           </span>
         </h2>
       </div>
-      <article className="bg-[#1b3a70] p-6 sm:p-10 md:p-12 lg:p-16 rounded-3xl shadow-2xl border border-white/10 text-base sm:text-lg md:text-xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto overflow-hidden">
+      <article className="bg-[#1b3a70] p-6 sm:p-10 md:p-12 lg:p-16 rounded-3xl shadow-2xl border border-white/10 text-base sm:text-lg md:text-xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
         <p>
           {about.description ||
             "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}

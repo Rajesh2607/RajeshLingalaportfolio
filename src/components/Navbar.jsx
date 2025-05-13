@@ -1,75 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, Award, Briefcase, BookOpen, User, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
+  const controlNavbar = () => {
+    if (typeof window !== 'undefined') {
+      if (window.scrollY > lastScrollY && window.scrollY > 80) {
+        setShowNavbar(false);
+      } else {
+        setShowNavbar(true);
+      }
+      setLastScrollY(window.scrollY);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', controlNavbar);
+    return () => window.removeEventListener('scroll', controlNavbar);
+  }, [lastScrollY]);
+
+  const navItems = [
+    { to: '/', label: 'Home', icon: <Home size={20} /> },
+    { to: '/whoiam', label: 'Who I Am', icon: <User size={20} /> },
+    { to: '/certificates', label: 'Certificates', icon: <Award size={20} /> },
+    { to: '/projects', label: 'Projects', icon: <Briefcase size={20} /> },
+    { to: '/blog', label: 'Blog', icon: <BookOpen size={20} /> },
+  ];
+
   const navLinkClass = ({ isActive }) =>
-    `flex items-center space-x-1 ${isActive ? 'text-[#17c0f8]' : 'hover:text-[#17c0f8]'}`;
+    `flex items-center gap-2 px-2 py-1 rounded-md transition-colors duration-200 ${
+      isActive ? 'text-[#17c0f8]' : 'text-white hover:text-[#17c0f8]'
+    }`;
 
   return (
-    <nav className="bg-black text-white p-6 fixed top-0 left-0 w-full z-50 shadow-md">
-      <div className="container mx-auto flex justify-between items-center overflow-x-hidden">
-        <div className="text-xl font-bold">LINGALA RAJESH</div>
+    <nav
+      className={`fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/70 text-white shadow-xl transition-transform duration-300 ease-in-out ${
+        showNavbar ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="text-2xl font-semibold tracking-wide text-white">LINGALA RAJESH</div>
 
-        {/* Mobile menu toggle */}
-        <div className="md:hidden">
-          <button onClick={toggleMenu} className="focus:outline-none">
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+        <button
+          onClick={toggleMenu}
+          className="md:hidden focus:outline-none text-white"
+          aria-label="Toggle Menu"
+        >
+          {isOpen ? <X size={26} /> : <Menu size={26} />}
+        </button>
 
-        {/* Desktop menu */}
-        <div className="hidden md:flex space-x-6">
-          <NavLink to="/" className={navLinkClass}>
-            <Home size={20} />
-            <span>Home</span>
-          </NavLink>
-          <NavLink to="/whoiam" className={navLinkClass}>
-            <User size={20} />
-            <span>Who I Am</span>
-          </NavLink>
-          <NavLink to="/certificates" className={navLinkClass}>
-            <Award size={20} />
-            <span>Certificates</span>
-          </NavLink>
-          <NavLink to="/projects" className={navLinkClass}>
-            <Briefcase size={20} />
-            <span>Projects</span>
-          </NavLink>
-          <NavLink to="/blog" className={navLinkClass}>
-            <BookOpen size={20} />
-            <span>Blog</span>
-          </NavLink>
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-6">
+          {navItems.map(({ to, label, icon }) => (
+            <NavLink key={to} to={to} className={navLinkClass}>
+              {icon}
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden mt-4 space-y-4">
-          <NavLink to="/" className={navLinkClass} onClick={toggleMenu}>
-            <Home size={20} />
-            <span>Home</span>
-          </NavLink>
-          <NavLink to="/whoiam" className={navLinkClass} onClick={toggleMenu}>
-            <User size={20} />
-            <span>Who I Am</span>
-          </NavLink>
-          <NavLink to="/certificates" className={navLinkClass} onClick={toggleMenu}>
-            <Award size={20} />
-            <span>Certificates</span>
-          </NavLink>
-          <NavLink to="/projects" className={navLinkClass} onClick={toggleMenu}>
-            <Briefcase size={20} />
-            <span>Projects</span>
-          </NavLink>
-          <NavLink to="/blog" className={navLinkClass} onClick={toggleMenu}>
-            <BookOpen size={20} />
-            <span>Blog</span>
-          </NavLink>
+        <div className="md:hidden bg-black/80 backdrop-blur-md px-6 py-4 space-y-3 rounded-b-2xl">
+          {navItems.map(({ to, label, icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={navLinkClass}
+              onClick={() => setIsOpen(false)}
+            >
+              {icon}
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </div>
       )}
     </nav>
