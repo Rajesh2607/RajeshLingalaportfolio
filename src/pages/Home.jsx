@@ -10,6 +10,7 @@ import SkeletonLoaderForhome from '../components/skeleton/SkeletonLoaderForhome'
 import ContactSection from '../components/home/Contact';
 import { Typewriter } from 'react-simple-typewriter';
 import Note from '../components/home/Note';
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [about, setAbout] = useState({
@@ -199,23 +200,25 @@ const SocialLinks = () => (
       href="https://www.behance.net/lingalarajesh"
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:scale-110 transition-transform"
+      aria-label="Visit LinkedIn Profile"
+      className="text-white hover:text-[#17c0f8] transition-colors"
     >
-      <FaBehance className="w-6 h-6 text-white" />
+      <FaBehance size={24} />
     </a>
-    <a
-      href="/whoiam#connect"
-      aria-label="Connect with Lingala Rajesh"
-      className="relative group"
-    >
-      <div className="flex items-center gap-2 hover:bg-[#1d3a6e] text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-md cursor-pointer">
-        <MoreHorizontal size={24} />
-        <span className="text-base sm:text-lg font-medium">More</span>
-      </div>
-      <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1 text-sm text-white bg-[#1a1a2e] rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-        Go to Connect With Me
-      </div>
-    </a>
+    
+<Link
+  to="/whoiam#connect"
+  aria-label="Connect with Lingala Rajesh"
+  className="relative group"
+>
+  <div className="flex items-center gap-2 hover:bg-[#1d3a6e] text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-md cursor-pointer">
+    <MoreHorizontal size={24} />
+    <span className="text-base sm:text-lg font-medium">More</span>
+  </div>
+  <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1 text-sm text-white bg-[#1a1a2e] rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+    Go to Connect With Me
+  </div>
+</Link>
   </nav>
 );
 
@@ -244,16 +247,16 @@ const AboutSection = ({ about }) => (
           {about.description ||
             "I'm a passionate Cloud and DevOps Engineer with a strong background in UI Design. With expertise in cloud platforms, containerization, and automation, I help organizations build and maintain scalable infrastructure while ensuring beautiful and functional user interfaces."}
         </p>
-        <a
-          href="/whoiam#"
-          aria-label="See more about Lingala Rajesh"
-          className="relative group inline-block mt-6"
-        >
-          <div className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white px-6 py-2 rounded-full shadow-lg transition-all duration-300 ease-in-out">
-            <MoreHorizontal size={20} />
-            <span className="text-sm sm:text-base font-semibold">See more about me</span>
-          </div>
-        </a>
+<Link
+  to="/whoiam#"
+  aria-label="See more about Lingala Rajesh"
+  className="relative group inline-block mt-6"
+>
+  <div className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white px-6 py-2 rounded-full shadow-lg transition-all duration-300 ease-in-out">
+    <MoreHorizontal size={20} />
+    <span className="text-sm sm:text-base font-semibold">See more about me</span>
+  </div>
+</Link>
       </article>
     </motion.div>
   </section>

@@ -54,8 +54,8 @@ const WhoIAm = () => {
       <section className="bg-[#0a192f] py-20">
         <div className="container mx-auto px-6 space-y-20">
           <Hero />
-          <About />
           <Education />
+          <About />
           <Achievements />
           <div id="connect">
             <SocialMedia />

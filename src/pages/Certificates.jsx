@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Award, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -10,6 +10,8 @@ const Certificates = () => {
   const [domains, setDomains] = useState([]);
   const [selectedDomain, setSelectedDomain] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [imageLoadedMap, setImageLoadedMap] = useState({});
+  const [isImageLoadingMap, setIsImageLoadingMap] = useState({});
 
   useEffect(() => {
     const fetchCertificates = async () => {
@@ -42,6 +44,11 @@ const Certificates = () => {
       setFilteredCertificates(filtered);
     }
   }, [selectedDomain, certificates]);
+
+  const handleImageLoad = (id) => {
+    setIsImageLoadingMap(prev => ({ ...prev, [id]: false }));
+    setImageLoadedMap(prev => ({ ...prev, [id]: true }));
+  };
 
   const SkeletonCard = () => (
     <div className="bg-[#112240] rounded-lg overflow-hidden animate-pulse">
@@ -77,7 +84,6 @@ const Certificates = () => {
                 ? 'border-[#17c0f8] bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text'
                 : 'border-[#17c0f8] text-[#17c0f8] hover:bg-[#17c0f8] hover:text-white transition'
             }`}
-            
           >
             {domain}
           </button>
@@ -97,15 +103,19 @@ const Certificates = () => {
                 className="bg-[#112240] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
               >
                 <div className="relative h-48">
+                  {isImageLoadingMap[cert.id] && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
+                      <div className="w-8 h-8 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+                    </div>
+                  )}
                   <img
                     src={cert.image}
                     alt={cert.title}
-                    className="w-full h-full object-cover"
-                    loading='lazy'
+                    className={`w-full h-full object-cover transition-opacity duration-500 rounded-lg ${isImageLoadingMap[cert.id] ? 'opacity-0' : 'opacity-100'}`}
+                    onLoad={() => handleImageLoad(cert.id)}
+                    onError={() => setIsImageLoadingMap(prev => ({ ...prev, [cert.id]: false }))}
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <Award className="w-16 h-16 text-[#17c0f8]" />
-                  </div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-white mb-2">{cert.title}</h3>
