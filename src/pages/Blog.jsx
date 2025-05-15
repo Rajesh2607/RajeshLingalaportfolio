@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const ImageWithLoader = ({ src, alt, className }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-300 animate-pulse rounded-md">
-          <div className="w-6 h-6 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-600 rounded-md animate-pulse z-10">
+          <div className="w-6 h-6 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
       <img
@@ -18,7 +19,7 @@ const ImageWithLoader = ({ src, alt, className }) => {
         alt={alt}
         loading="lazy"
         onLoad={() => setIsLoading(false)}
-        className={`${className} transition-opacity duration-500 ${
+        className={`w-full h-full object-cover rounded-md transition-opacity duration-500 ${
           isLoading ? 'opacity-0' : 'opacity-100'
         }`}
       />
@@ -64,57 +65,71 @@ const Blog = () => {
   };
 
   return (
-    <div className="container mx-auto px-4  py-12">
-      <h1 className="text-4xl font-bold text-white mb-8">Blog</h1>
-
-      {/* Categories Filter */}
-      <div className="flex flex-wrap gap-4 mb-8">
+    <div className="w-full min-h-screen py-12 px-4 md:px-8 bg-[#0a192f] flex flex-col items-center">
+            {/* Title */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl font-bold text-white mb-4">My Personal Blogs</h1>
+        
+        <p className="text-gray-300">Click on a domain to view specific Blog</p>
+      </motion.div>
+      {/* Category Filter */}
+      <div className="flex flex-wrap justify-center gap-4 mb-8">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => handleCategorySelect(category)}
-            className={`px-4 py-2 rounded-full border ${
+            className={`px-4 py-2 rounded-md border ${
               selectedCategory === category
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300'
-            } hover:bg-blue-500 transition`}
+                ? 'bg-[#17c0f8] text-white border-transparent'
+                : 'text-[#17c0f8] border-[#17c0f8] hover:bg-[#17c0f8] hover:text-white'
+            } transition`}
           >
             {category}
           </button>
         ))}
       </div>
 
-      {/* Blog List */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Blog Cards */}
+      <div className="w-full max-w-7xl grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {isLoading
           ? Array(6)
               .fill(null)
               .map((_, index) => (
                 <div
                   key={index}
-                  className="bg-gray-800 p-4 rounded-lg shadow-md animate-pulse"
+                  className="bg-[#112240] p-4 rounded-lg shadow-md animate-pulse w-full"
                 >
-                  <div className="w-full h-48 bg-gray-600 rounded-md mb-4"></div>
-                  <div className="h-6 bg-gray-700 rounded mb-2 w-3/4"></div>
-                  <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                  <div className="w-full h-48 bg-[#112240] rounded-md mb-4"></div>
+                  <div className="h-6 bg-[#112240] rounded mb-2 w-3/4"></div>
+                  <div className="h-4 bg-[#112240] rounded w-1/2"></div>
                 </div>
               ))
           : filteredBlogs.map((post) => (
-              <Link
-                key={post.id}
-                to={`/blog/${post.id}`}
-                className="bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow"
-              >
-                <ImageWithLoader
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-                <h2 className="text-2xl font-semibold text-white mb-2">{post.title}</h2>
-                <p className="text-gray-400 text-sm">
-                  {post.date} • {post.readTime}
-                </p>
-              </Link>
+          <Link
+            key={post.id}
+            to={`/blog/${post.id}`}
+            className="bg-[#112240] hover:bg-[#1f2937] transition-colors duration-300 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow w-full flex flex-col cursor-pointer"
+          >
+            <div className="relative w-full h-48">
+              <ImageWithLoader
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-md shadow">
+                {post.category || 'General'}
+              </div>
+            </div>
+
+            <div className="p-5 flex flex-col gap-3">
+              <h2 className="text-xl font-bold text-white">{post.title}</h2>
+            </div>
+          </Link>
+
             ))}
       </div>
     </div>
