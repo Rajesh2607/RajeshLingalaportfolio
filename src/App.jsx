@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 
 import IntroAnimation from './components/IntroAnimation';
 import Navbar from './components/Navbar';
@@ -76,6 +77,8 @@ function App() {
         </AnimatePresence>
       </div>
       </div>
+      
+      <Analytics />
     </Router>
   );
 }
