@@ -14,7 +14,7 @@ const CertificatesManager = () => {
     credentialId: '',
     image: '',
     link: '',
-    domain: ''  // New field
+    domain: '' // keep as string for input (comma separated)
   });
 
   useEffect(() => {
@@ -38,11 +38,23 @@ const CertificatesManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Convert domain string to array (split by comma, trim spaces, filter out empty)
+    const domainArray = formData.domain
+      .split(',')
+      .map(d => d.trim())
+      .filter(d => d.length > 0);
+
+    const dataToSave = {
+      ...formData,
+      domain: domainArray
+    };
+
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'certificates', editingId), formData);
+        await updateDoc(doc(db, 'certificates', editingId), dataToSave);
       } else {
-        await addDoc(collection(db, 'certificates'), formData);
+        await addDoc(collection(db, 'certificates'), dataToSave);
       }
       setFormData({
         title: '',
@@ -74,7 +86,10 @@ const CertificatesManager = () => {
   };
 
   const handleEdit = (certificate) => {
-    setFormData(certificate);
+    setFormData({
+      ...certificate,
+      domain: Array.isArray(certificate.domain) ? certificate.domain.join(', ') : certificate.domain || ''
+    });
     setEditingId(certificate.id);
   };
 
@@ -143,6 +158,7 @@ const CertificatesManager = () => {
               value={formData.domain}
               onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
               className="w-full px-3 py-2 bg-[#1d3a6e] border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#17c0f8]"
+              placeholder="Separate multiple domains with commas"
               required
             />
           </div>
@@ -192,7 +208,9 @@ const CertificatesManager = () => {
                 <p className="text-gray-400">{certificate.issuer}</p>
                 <p className="text-sm text-gray-400">{certificate.date}</p>
                 <p className="text-sm text-gray-400">ID: {certificate.credentialId}</p>
-                <p className="text-sm text-[#17c0f8]">Domain: {certificate.domain}</p>
+                <p className="text-sm text-[#17c0f8]">
+                  Domain: {Array.isArray(certificate.domain) ? certificate.domain.join(', ') : certificate.domain}
+                </p>
                 {certificate.link && (
                   <a
                     href={certificate.link}

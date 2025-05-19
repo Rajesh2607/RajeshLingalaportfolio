@@ -23,8 +23,13 @@ const Certificates = () => {
 
         setCertificates(certs);
 
-        const domainList = ['All', ...new Set(certs.map(cert => cert.domain).filter(Boolean))];
-        setDomains(domainList);
+        const allDomains = new Set();
+        certs.forEach(cert => {
+          if (Array.isArray(cert.domain)) {
+            cert.domain.forEach(d => allDomains.add(d));
+          }
+        });
+        setDomains(['All', ...Array.from(allDomains)]);
 
         const loadingState = {};
         certs.forEach(cert => {
@@ -58,14 +63,17 @@ const Certificates = () => {
     </div>
   );
 
-  // Filter certificates based on selectedDomain
   const getFilteredCertificatesByDomain = () => {
     const grouped = {};
 
     certificates.forEach(cert => {
-      if (selectedDomain !== 'All' && cert.domain !== selectedDomain) return;
-      if (!grouped[cert.domain]) grouped[cert.domain] = [];
-      grouped[cert.domain].push(cert);
+      if (!Array.isArray(cert.domain)) return;
+
+      cert.domain.forEach(d => {
+        if (selectedDomain !== 'All' && d !== selectedDomain) return;
+        if (!grouped[d]) grouped[d] = [];
+        grouped[d].push(cert);
+      });
     });
 
     return grouped;
@@ -111,15 +119,15 @@ const Certificates = () => {
           <div key={domain} className="mb-16">
             {selectedDomain === 'All' && (
               <div className="flex justify-center mb-6">
-  <h2 className="text-3xl font-bold text-[#17c0f8] ">
-    {domain}  Certificates
-  </h2>
-</div>
+                <h2 className="text-3xl font-bold text-[#17c0f8] ">
+                  {domain} Certificates
+                </h2>
+              </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {groupedCertificates[domain].map((cert, index) => (
                 <motion.div
-                  key={cert.id}
+                  key={`${cert.id}-${index}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
