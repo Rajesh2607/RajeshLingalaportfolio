@@ -6,7 +6,6 @@ import { db } from '../firebase/config';
 
 const Certificates = () => {
   const [certificates, setCertificates] = useState([]);
-  const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [domains, setDomains] = useState([]);
   const [selectedDomain, setSelectedDomain] = useState('All');
   const [loading, setLoading] = useState(true);
@@ -21,11 +20,17 @@ const Certificates = () => {
           id: doc.id,
           ...doc.data(),
         }));
+
         setCertificates(certs);
 
         const domainList = ['All', ...new Set(certs.map(cert => cert.domain).filter(Boolean))];
         setDomains(domainList);
-        setFilteredCertificates(certs);
+
+        const loadingState = {};
+        certs.forEach(cert => {
+          loadingState[cert.id] = true;
+        });
+        setIsImageLoadingMap(loadingState);
       } catch (error) {
         console.error("Error fetching certificates:", error);
       } finally {
@@ -35,15 +40,6 @@ const Certificates = () => {
 
     fetchCertificates();
   }, []);
-
-  useEffect(() => {
-    if (selectedDomain === 'All') {
-      setFilteredCertificates(certificates);
-    } else {
-      const filtered = certificates.filter(cert => cert.domain === selectedDomain);
-      setFilteredCertificates(filtered);
-    }
-  }, [selectedDomain, certificates]);
 
   const handleImageLoad = (id) => {
     setIsImageLoadingMap(prev => ({ ...prev, [id]: false }));
@@ -61,6 +57,21 @@ const Certificates = () => {
       </div>
     </div>
   );
+
+  // Filter certificates based on selectedDomain
+  const getFilteredCertificatesByDomain = () => {
+    const grouped = {};
+
+    certificates.forEach(cert => {
+      if (selectedDomain !== 'All' && cert.domain !== selectedDomain) return;
+      if (!grouped[cert.domain]) grouped[cert.domain] = [];
+      grouped[cert.domain].push(cert);
+    });
+
+    return grouped;
+  };
+
+  const groupedCertificates = getFilteredCertificatesByDomain();
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -90,57 +101,76 @@ const Certificates = () => {
         ))}
       </div>
 
-      {/* Certificates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {loading
-          ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-          : filteredCertificates.map((cert, index) => (
-              <motion.div
-                key={cert.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-[#112240] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
-              >
-                <div className="relative h-48">
-                  {isImageLoadingMap[cert.id] && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
-                      <div className="w-8 h-8 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+      {/* Domain-based Sections */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      ) : (
+        Object.keys(groupedCertificates).map(domain => (
+          <div key={domain} className="mb-16">
+            {selectedDomain === 'All' && (
+              <div className="flex justify-center mb-6">
+  <h2 className="text-3xl font-bold text-[#17c0f8] ">
+    {domain}  Certificates
+  </h2>
+</div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {groupedCertificates[domain].map((cert, index) => (
+                <motion.div
+                  key={cert.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-[#112240] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
+                >
+                  <div className="relative h-48">
+                    {isImageLoadingMap[cert.id] && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
+                        <div className="w-8 h-8 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                    <img
+                      src={cert.image}
+                      alt={cert.title}
+                      className={`w-full h-full object-cover transition-opacity duration-500 rounded-lg ${
+                        isImageLoadingMap[cert.id] ? 'opacity-0' : 'opacity-100'
+                      }`}
+                      onLoad={() => handleImageLoad(cert.id)}
+                      onError={() =>
+                        setIsImageLoadingMap(prev => ({ ...prev, [cert.id]: false }))
+                      }
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">{cert.title}</h3>
+                    <div className="text-gray-400 mb-4">
+                      {cert.issuer && <p>Issued by {cert.issuer}</p>}
+                      {cert.date && <p>Date: {cert.date}</p>}
+                      {cert.credentialId && (
+                        <p className="text-sm">Credential ID: {cert.credentialId}</p>
+                      )}
                     </div>
-                  )}
-                  <img
-                    src={cert.image}
-                    alt={cert.title}
-                    className={`w-full h-full object-cover transition-opacity duration-500 rounded-lg ${isImageLoadingMap[cert.id] ? 'opacity-0' : 'opacity-100'}`}
-                    onLoad={() => handleImageLoad(cert.id)}
-                    onError={() => setIsImageLoadingMap(prev => ({ ...prev, [cert.id]: false }))}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">{cert.title}</h3>
-                  <div className="text-gray-400 mb-4">
-                    {cert.issuer && <p>Issued by {cert.issuer}</p>}
-                    {cert.date && <p>Date: {cert.date}</p>}
-                    {cert.credentialId && (
-                      <p className="text-sm">Credential ID: {cert.credentialId}</p>
+                    {cert.link && (
+                      <a
+                        href={cert.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-[#17c0f8] hover:text-white transition-colors duration-300"
+                      >
+                        <span className="mr-2">View Certificate</span>
+                        <ExternalLink size={16} />
+                      </a>
                     )}
                   </div>
-                  {cert.link && (
-                    <a
-                      href={cert.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-[#17c0f8] hover:text-white transition-colors duration-300"
-                    >
-                      <span className="mr-2">View Certificate</span>
-                      <ExternalLink size={16} />
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-      </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };
