@@ -65,7 +65,7 @@ const Projects = () => {
       >
         <h1 className="text-4xl font-bold text-white mb-4">Featured Projects</h1>
         <p className="text-gray-400">A showcase of my technical projects grouped by domain</p>
-        <p className="text-gray-300">Click on a domain to view specific projects</p>
+        <p className="text-gray-400">Hover over a project for Links to view</p>
       </motion.div>
 
       {/* Domain Filter Buttons */}
