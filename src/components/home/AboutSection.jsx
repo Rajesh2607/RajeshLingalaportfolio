@@ -22,7 +22,10 @@ const AboutSection = ({ about }) => (
             Short Bio About Me
           </span>
         </h2>
+        
       </div>
+      
+      
 
       <article className="bg-[#1b3a70] p-6 sm:p-10 md:p-12 lg:p-16 rounded-3xl shadow-2xl border border-white/10 text-base sm:text-lg md:text-xl leading-relaxed text-justify font-light tracking-wide max-w-6xl mx-auto">
         <p>
