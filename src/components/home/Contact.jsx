@@ -1,71 +1,378 @@
-import emailjs from 'emailjs-com';
-import { useRef } from 'react';
-import { Send } from 'lucide-react';
+import { useState, useRef } from 'react'
+import { motion } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import { FiMail, FiMapPin, FiPhone, FiSend } from 'react-icons/fi'
+import emailjs from '@emailjs/browser'
 
-const ContactSection = () => {
-  const form = useRef();
+const Contact = () => {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  })
 
-  const sendEmail = (e) => {
-    e.preventDefault();
+  const form = useRef()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitMessage, setSubmitMessage] = useState('')
+  const [submitError, setSubmitError] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitMessage('')
+    setSubmitError('')
 
     emailjs.sendForm(
-      'service_k3a4wvj',       // Replace with your EmailJS Service ID
-      'template_xtbfekn',      // Replace with your EmailJS Template ID
+      'service_k3a4wvj',
+      'template_xtbfekn',
       form.current,
-      '0aPQCkeqkbL9-6ft_'        // Replace with your EmailJS Public Key
-    ).then(
-      (result) => {
-        alert('Message sent successfully!');
-        form.current.reset();
-      },
-      (error) => {
-        alert('Failed to send the message, please try again.');
-        console.error(error.text);
+      '0aPQCkeqkbL9-6ft_'
+    )
+      .then(() => {
+        setSubmitMessage('Your message has been sent successfully!')
+        form.current.reset()
+        setTimeout(() => setSubmitMessage(''), 5000)
+      })
+      .catch((error) => {
+        setSubmitError('Failed to send message. Please try again.')
+        console.error('EmailJS Error:', error)
+      })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
       }
-    );
-  };
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
+  }
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#0a192f] text-white overflow-x-hidden">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 text-center">
-          <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-            Contact Me
-          </span>
-        </h2>
-        <form ref={form} onSubmit={sendEmail} className="grid gap-6 bg-[#112240] p-8 rounded-2xl shadow-2xl border border-white/10">
-          <input
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            required
-            className="p-3 rounded-md bg-[#0a192f] text-white border border-gray-600 focus:outline-none"
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Your Email"
-            required
-            className="p-3 rounded-md bg-[#0a192f] text-white border border-gray-600 focus:outline-none"
-          />
-          <textarea
-            name="message"
-            rows="5"
-            placeholder="Your Message"
-            required
-            className="p-3 rounded-md bg-[#0a192f] text-white border border-gray-600 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="flex items-center justify-center gap-2 bg-[#17c0f8] hover:bg-[#1cb5e0] text-[#0a192f] font-semibold py-3 px-6 rounded-full transition-all duration-300"
+    <section
+      id="contact"
+      style={{
+        paddingTop: '4rem',
+        paddingBottom: '6rem',
+        backgroundColor: '#0f172a',
+        color: '#e2e8f0'
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '0 1rem'
+        }}
+      >
+        <motion.div
+          style={{
+            textAlign: 'center',
+            marginBottom: '3rem'
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          ref={ref}
+        >
+          <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            Get in <span style={{ color: '#3b82f6' }}>Touch</span>
+          </h2>
+          <p style={{ maxWidth: '640px', margin: '0 auto', color: '#94a3b8' }}>
+            Have a project in mind or want to collaborate? Feel free to reach out!
+          </p>
+        </motion.div>
+
+        {/* Side-by-side layout container */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: '2rem'
+          }}
+        >
+          {/* Contact Info */}
+          <motion.div
+            style={{ flex: '1 1 45%' }}
+            variants={containerVariants}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
           >
-            <Send size={20} />
-            Send Message
-          </button>
-        </form>
+            <motion.h3
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                marginBottom: '1.5rem',
+                color: '#ffffff'
+              }}
+              variants={itemVariants}
+            >
+              Contact Information
+            </motion.h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {[
+                {
+                  icon: <FiMail size={24} />,
+                  title: 'Email',
+                  link: 'mailto:rajeshlingala26072005@gmail.com',
+                  text: 'rajeshlingala26072005@gmail.com'
+                },
+                {
+                  icon: <FiPhone size={24} />,
+                  title: 'Phone',
+                  link: 'tel:+919398207530',
+                  text: '+91 93982 07530'
+                },
+                {
+                  icon: <FiMapPin size={24} />,
+                  title: 'Location',
+                  text: 'Gundugolanu, Andhra Pradesh, India'
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}
+                  variants={itemVariants}
+                >
+                  <div
+                    style={{
+                      padding: '0.75rem',
+                      backgroundColor: '#1e293b',
+                      borderRadius: '0.5rem',
+                      color: '#3b82f6'
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: 500, fontSize: '1.125rem', marginBottom: '0.25rem' }}>
+                      {item.title}
+                    </h4>
+                    {item.link ? (
+                      <a
+                        href={item.link}
+                        style={{ color: '#cbd5e1', textDecoration: 'none' }}
+                      >
+                        {item.text}
+                      </a>
+                    ) : (
+                      <p style={{ color: '#cbd5e1' }}>{item.text}</p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div
+              style={{
+                marginTop: '2rem',
+                padding: '1.5rem',
+                background: '#1e40af',
+                borderRadius: '0.75rem',
+                color: 'white'
+              }}
+              variants={itemVariants}
+            >
+              <h4 style={{ fontWeight: '500', fontSize: '1.125rem', marginBottom: '0.5rem' }}>
+                Need a Developer?
+              </h4>
+              <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+                I'm currently available for freelance work and full-time positions.
+              </p>
+              <a
+                href="mailto:rajeshlingala26072005@gmail.com"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: 500,
+                  textDecoration: 'none'
+                }}
+              >
+                Hire Me <FiSend />
+              </a>
+            </motion.div>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.div
+            style={{ flex: '1 1 45%' }}
+            variants={containerVariants}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+          >
+            <motion.h3
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                marginBottom: '1.5rem',
+                color: '#ffffff'
+              }}
+              variants={itemVariants}
+            >
+              Send Me a Message
+            </motion.h3>
+
+            <motion.form
+              ref={form}
+              onSubmit={handleSubmit}
+              style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+              variants={containerVariants}
+            >
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr',
+                  gap: '1.5rem'
+                }}
+              >
+                <motion.div variants={itemVariants}>
+                  <label
+                    htmlFor="user_name"
+                    style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1' }}
+                  >
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    id="user_name"
+                    name="user_name"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid #334155',
+                      backgroundColor: '#1e293b',
+                      color: '#f8fafc'
+                    }}
+                  />
+                </motion.div>
+
+                <motion.div variants={itemVariants}>
+                  <label
+                    htmlFor="user_email"
+                    style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1' }}
+                  >
+                    Your Email
+                  </label>
+                  <input
+                    type="email"
+                    id="user_email"
+                    name="user_email"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid #334155',
+                      backgroundColor: '#1e293b',
+                      color: '#f8fafc'
+                    }}
+                  />
+                </motion.div>
+              </div>
+
+              <motion.div variants={itemVariants}>
+                <label
+                  htmlFor="subject"
+                  style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1' }}
+                >
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #334155',
+                    backgroundColor: '#1e293b',
+                    color: '#f8fafc'
+                  }}
+                />
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <label
+                  htmlFor="message"
+                  style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1' }}
+                >
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows="5"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #334155',
+                    backgroundColor: '#1e293b',
+                    color: '#f8fafc',
+                    resize: 'none'
+                  }}
+                ></textarea>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    borderRadius: '0.5rem',
+                    fontWeight: 500,
+                    opacity: isSubmitting ? 0.7 : 1,
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isSubmitting ? 'Sending...' : <>Send Message <FiSend /></>}
+                </button>
+
+                {submitMessage && (
+                  <p style={{ marginTop: '1rem', color: '#10b981' }}>{submitMessage}</p>
+                )}
+                {submitError && (
+                  <p style={{ marginTop: '1rem', color: '#ef4444' }}>{submitError}</p>
+                )}
+              </motion.div>
+            </motion.form>
+          </motion.div>
+        </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default ContactSection;
+export default Contact
