@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       animation: {
         rainbow: 'rainbowMove 6s ease-in-out infinite',
+        'spin-slow': 'spin 20s linear infinite',
       },
       keyframes: {
         rainbowMove: {

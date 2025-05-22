@@ -68,7 +68,7 @@ const Navbar = () => {
 
       {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden bg-black/80 backdrop-blur-md px-6 py-4 space-y-3 rounded-b-2xl">
+        <div className="md:hidden bg-[#0a192f] backdrop-blur-md px-6 py-4 space-y-3 rounded-b-2xl">
           {navItems.map(({ to, label, icon }) => (
             <NavLink
               key={to}

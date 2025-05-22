@@ -37,7 +37,7 @@ const HeroSection = ({ about }) => {
             <span className="relative">
               <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-400/20 via-cyan-400/20 to-blue-400/20 blur-lg"></span>
               <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
-                Hi Myself,
+                Hi  I'm
               </span>
             </span>
           </motion.h1>

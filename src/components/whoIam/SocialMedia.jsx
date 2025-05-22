@@ -54,11 +54,17 @@ const SocialMedia = () => {
       <section className="py-20 bg-midnight text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-                Connect With Me
-              </span>
-            </h2>
+            <div className="flex flex-col items-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-center">
+                <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                  Connect With Me
+                </span>
+              </h2>
+
+              {/* Gradient line below */}
+              <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
+            </div>
+
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -86,11 +92,17 @@ const SocialMedia = () => {
     <section id="social" className="py-20 bg-midnight text-white">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-            <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-              Connect With Me
-            </span>
-          </h2>
+          <div className="flex flex-col items-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-center">
+              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                Connect With Me
+              </span>
+            </h2>
+
+            {/* Gradient line below */}
+            <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
+          </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {socialLinks.map((link) => (

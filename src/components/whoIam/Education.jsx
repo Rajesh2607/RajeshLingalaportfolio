@@ -95,11 +95,16 @@ const Education = () => {
     >
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-            <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-              Education
-            </span>
-          </h2>
+            <div className="flex flex-col items-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-center">
+                <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                  Education
+                </span>
+              </h2>
+
+              {/* Gradient line below */}
+              <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
+            </div>
 
           <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-purple-400 before:via-cyan-400 before:to-blue-400 space-y-12">
             {educationData.map((edu, index) => (

@@ -38,11 +38,17 @@ const About = () => {
     >
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">
-            <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-              What I Do?
-            </span>
-          </h2>
+        <div className="flex flex-col items-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-center">
+          <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+            What I Do?
+          </span>
+        </h2>
+
+        {/* Gradient line below */}
+        <div className="mt-2 h-1 w-52 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
+      </div>
+
 
           {/* UX Design Section */}
           <div ref={uxRef} className="mb-20 opacity-0 translate-y-10 transition-all duration-1000 ease-out">
