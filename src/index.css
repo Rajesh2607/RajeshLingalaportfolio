@@ -2,49 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reset and prevent overflow issues */
+/* Complete reset and scrollbar fix */
 * {
   box-sizing: border-box;
 }
 
-html {
-  height: 100%;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-body {
+html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
 }
 
 #root {
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
 }
 
-/* Custom scrollbar styling for webkit browsers */
-::-webkit-scrollbar {
+/* Force hide any secondary scrollbars */
+body::-webkit-scrollbar {
   width: 8px;
 }
 
-::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track {
   background: #0a192f;
 }
 
-::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb {
   background: #17c0f8;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+body::-webkit-scrollbar-thumb:hover {
   background: #1a9cc7;
 }
 
-/* Hide scrollbar for Firefox */
+/* Hide any other scrollbars */
+*:not(body)::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox scrollbar */
 html {
   scrollbar-width: thin;
   scrollbar-color: #17c0f8 #0a192f;
+}
+
+/* Force hide horizontal scrollbars everywhere */
+* {
+  overflow-x: hidden !important;
+}
+
+/* Allow vertical scrolling only on body */
+body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Prevent any child elements from creating scrollbars */
+div, section, main, article, aside, nav, header, footer {
+  overflow-x: hidden !important;
 }

@@ -45,14 +45,14 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#0a192f]">
+      <div className="bg-[#0a192f]" style={{ overflowX: 'hidden' }}>
         <SkeletonLoaderForhome />
       </div>
     );
   }
 
   return (
-    <main className="bg-[#0a192f]">
+    <main className="bg-[#0a192f]" style={{ overflowX: 'hidden', width: '100%' }}>
       <HeroSection about={about} />
       <AboutSection about={about} />
       <Skills />

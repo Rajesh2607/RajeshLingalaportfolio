@@ -10,7 +10,7 @@ import Home from './pages/Home';
 import Certificates from './pages/Certificates';
 import Projects from './pages/Projects';
 import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail'; // Blog details fetched from Firebase
+import BlogDetail from './pages/BlogDetail';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -22,7 +22,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-[#0a192f] text-white">
+      <div className="min-h-screen bg-[#0a192f] text-white" style={{ overflowX: 'hidden' }}>
         <AnimatePresence>
           {!showContent && (
             <IntroAnimation onFinish={() => setShowContent(true)} />
@@ -35,6 +35,7 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
+              style={{ overflowX: 'hidden' }}
             >
               <Routes>
                 {/* Admin Routes */}
@@ -52,22 +53,21 @@ function App() {
                 <Route
                   path="*"
                   element={
-                    <>
+                    <div style={{ overflowX: 'hidden' }}>
                       <Navbar />
-                      <div className="pt-16"> 
+                      <div className="pt-16" style={{ overflowX: 'hidden' }}> 
                         <ScrollToTop />
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/certificates" element={<Certificates />} />
                           <Route path="/projects" element={<Projects />} />
                           <Route path="/blog" element={<Blog />} />
-                          <Route path="/blog/:id" element={<BlogDetail />} /> {/* Firebase blog detail */}
+                          <Route path="/blog/:id" element={<BlogDetail />} />
                           <Route path="/whoiam" element={<WhoIAm />} />
                         </Routes>
                       </div>
-                      {/* Footer */}
                       <Footer />
-                    </>
+                    </div>
                   }
                 />
               </Routes>
