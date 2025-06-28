@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const IntroAnimation = ({ onFinish }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const images = ["/images/Profile.jpg","/images/icon.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [imageKey, setImageKey] = useState(0); // helps framer-motion trigger image change
+  const [imageKey, setImageKey] = useState(0);
+  
+  // Use public path for images
+  const images = ["/images/Profile.jpg", "/images/icon1.jpg"];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,11 +23,11 @@ const IntroAnimation = ({ onFinish }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
-      setImageKey((prev) => prev + 1); // triggers re-render for AnimatePresence
+      setImageKey((prev) => prev + 1);
     }, 2000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]);
 
   return (
     <AnimatePresence mode="wait">
@@ -56,15 +58,21 @@ const IntroAnimation = ({ onFinish }) => {
                     key={imageKey}
                     src={images[currentIndex]}
                     alt="Rajesh Lingala"
-                    className="w-full h-full object-cover absolute"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    className="w-full h-full object-cover"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.2 }}
                     transition={{ duration: 0.8 }}
+                    onError={(e) => {
+                      console.warn(`Failed to load image: ${e.target.src}`);
+                      // Fallback to a placeholder or skip this image
+                      e.target.style.display = 'none';
+                    }}
                   />
                 </AnimatePresence>
               </div>
             </motion.div>
+            
             <motion.h1
               className="text-white font-bold text-4xl md:text-5xl mb-4"
               initial={{ opacity: 0, y: 20 }}
@@ -76,6 +84,7 @@ const IntroAnimation = ({ onFinish }) => {
             >
               Welcome to My Portfolio
             </motion.h1>
+            
             <motion.p
               className="text-gray-200 text-xl"
               initial={{ opacity: 0 }}
