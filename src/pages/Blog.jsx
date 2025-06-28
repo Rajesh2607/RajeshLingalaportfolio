@@ -210,21 +210,21 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] overflow-x-hidden">
       {/* Hero Section */}
-      <div className="relative py-20 px-4 md:px-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-600/10 rounded-3xl mx-4 md:mx-8"></div>
+      <div className="relative py-16 px-4 md:px-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-600/5"></div>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               My Blog
             </span>
           </h1>
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
             Insights, tutorials, and thoughts on web development, technology, and design
           </p>
           
@@ -242,6 +242,7 @@ const Blog = () => {
         </motion.div>
       </div>
 
+      {/* Main Content Container */}
       <div className="px-4 md:px-8 pb-16">
         <div className="max-w-7xl mx-auto">
           {/* Category Filter */}
@@ -249,13 +250,13 @@ const Blog = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-3 mb-12"
+            className="flex flex-wrap justify-center gap-3 mb-8"
           >
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => handleCategorySelect(category)}
-                className={`px-6 py-3 rounded-full border-2 font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full border-2 font-medium transition-all duration-300 text-sm md:text-base ${
                   selectedCategory === category
                     ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-lg transform scale-105'
                     : 'text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 hover:scale-105'
@@ -271,9 +272,9 @@ const Blog = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-center mb-12"
+            className="text-center mb-8"
           >
-            <p className="text-gray-400">
+            <p className="text-gray-400 text-sm md:text-base">
               {isLoading ? (
                 <span className="inline-block w-32 h-4 bg-gray-700 rounded animate-pulse"></span>
               ) : (
@@ -287,7 +288,7 @@ const Blog = () => {
           </motion.div>
 
           {/* Blog Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {isLoading
               ? Array(6).fill(null).map((_, index) => <SkeletonCard key={index} />)
               : filteredBlogs.length > 0
@@ -301,11 +302,11 @@ const Blog = () => {
                     className="col-span-full text-center py-16"
                   >
                     <div className="max-w-md mx-auto">
-                      <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                        <Search size={32} className="text-gray-400" />
+                      <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
+                        <Search size={28} className="text-gray-400" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-4">No articles found</h3>
-                      <p className="text-gray-400 mb-6">
+                      <h3 className="text-xl md:text-2xl font-bold text-white mb-4">No articles found</h3>
+                      <p className="text-gray-400 mb-6 text-sm md:text-base">
                         {searchTerm
                           ? `No articles match "${searchTerm}"`
                           : `No articles in ${selectedCategory} category`}
@@ -315,7 +316,7 @@ const Blog = () => {
                           setSearchTerm('');
                           setSelectedCategory('All');
                         }}
-                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:shadow-lg transition-all duration-300"
+                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:shadow-lg transition-all duration-300 text-sm md:text-base"
                       >
                         Show All Articles
                       </button>
