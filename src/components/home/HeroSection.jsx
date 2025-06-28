@@ -4,12 +4,23 @@ import { Github, Linkedin, MoreHorizontal } from 'lucide-react';
 import { FaBehance } from 'react-icons/fa';
 import { Typewriter } from 'react-simple-typewriter';
 import { Link } from 'react-router-dom';
-import { SiLeetcode, SiMedium, SiGeeksforgeeks } from "react-icons/si";
 
 const HeroSection = ({ about }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   const handleImageLoad = () => setIsImageLoading(false);
+  const handleImageError = () => {
+    console.warn('Failed to load profile image');
+    setIsImageLoading(false);
+  };
+
+  // Ensure about object has default values to prevent errors
+  const safeAbout = {
+    title: [],
+    profilePic: '',
+    resume: '',
+    ...about
+  };
 
   return (
     <section
@@ -37,7 +48,7 @@ const HeroSection = ({ about }) => {
             <span className="relative">
               <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-400/20 via-cyan-400/20 to-blue-400/20 blur-lg"></span>
               <span className="relative bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text animate-gradient bg-[length:200%_auto]">
-                Hi  I'm
+                Hi, I'm
               </span>
             </span>
           </motion.h1>
@@ -61,8 +72,8 @@ const HeroSection = ({ about }) => {
             <span className="text-cyan-400">
               <Typewriter
                 words={
-                  Array.isArray(about.title) && about.title.length > 0
-                    ? about.title
+                  Array.isArray(safeAbout.title) && safeAbout.title.length > 0
+                    ? safeAbout.title
                     : ['Cloud & DevOps Engineer', 'UI/UX Designer', 'Full Stack Developer', 'Problem Solver']
                 }
                 loop={true}
@@ -91,7 +102,7 @@ const HeroSection = ({ about }) => {
             <motion.a
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href={about.resume || '/resume.pdf'}
+              href={safeAbout.resume || '/resume.pdf'}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 rounded-full shadow hover:shadow-lg transition-all duration-300 text-sm font-semibold relative z-10"
@@ -113,12 +124,13 @@ const HeroSection = ({ about }) => {
             </div>
           )}
           <img
-            src={about.profilePic || 'https://via.placeholder.com/450'}
+            src={safeAbout.profilePic || 'https://via.placeholder.com/450'}
             alt="Profile of Lingala Rajesh"
             className={`w-full h-full object-cover rounded-full border-4 border-[#17c0f8] shadow-2xl transition-opacity duration-500 ${
               isImageLoading ? 'opacity-0' : 'opacity-100'
             }`}
             onLoad={handleImageLoad}
+            onError={handleImageError}
             loading="lazy"
           />
           <div className="absolute inset-0 rounded-full shadow-[0_0_40px_rgba(23,192,248,0.3)] pointer-events-none"></div>
