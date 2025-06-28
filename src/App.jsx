@@ -10,7 +10,7 @@ import Home from './pages/Home';
 import Certificates from './pages/Certificates';
 import Projects from './pages/Projects';
 import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail'; // Blog details fetched from Firebase
+import BlogDetail from './pages/BlogDetail';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -22,7 +22,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-[#0a192f] text-white">
+      <div className="no-horizontal-scroll min-h-screen bg-[#0a192f] text-white">
         <AnimatePresence>
           {!showContent && (
             <IntroAnimation onFinish={() => setShowContent(true)} />
@@ -35,7 +35,7 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
-              className="min-h-screen"
+              className="no-horizontal-scroll min-h-screen"
             >
               <Routes>
                 {/* Admin Routes */}
@@ -53,9 +53,9 @@ function App() {
                 <Route
                   path="*"
                   element={
-                    <div className="min-h-screen flex flex-col">
+                    <div className="no-horizontal-scroll min-h-screen flex flex-col">
                       <Navbar />
-                      <main className="flex-1 pt-16">
+                      <main className="no-horizontal-scroll flex-1 pt-16">
                         <ScrollToTop />
                         <Routes>
                           <Route path="/" element={<Home />} />

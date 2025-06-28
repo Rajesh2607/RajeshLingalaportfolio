@@ -68,9 +68,9 @@ const Skills = () => {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      className="py-16 sm:py-20 bg-[#0a192f] w-full overflow-hidden"
+      className="py-16 sm:py-20 bg-[#0a192f] no-horizontal-scroll"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="container-fix max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center mb-8 sm:mb-12">
           <div className="flex items-center">
             <Code2 size={24} className="text-[#17c0f8] mr-3" />
@@ -85,7 +85,6 @@ const Skills = () => {
           <div className="mt-2 h-1 w-24 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
         </div>
 
-
         {loading ? (
           <div className="space-y-12">
             {[1, 2, 3].map((group) => (
@@ -93,7 +92,7 @@ const Skills = () => {
                 <div className="text-center mb-6">
                   <div className="h-6 w-48 bg-gray-700 rounded mx-auto animate-pulse" />
                 </div>
-                <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full">
+                <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
                   {[1, 2, 3, 4].map((item) => (
                     <div
                       key={item}
@@ -105,17 +104,17 @@ const Skills = () => {
             ))}
           </div>
         ) : (
-          <div className="space-y-12 w-full">
+          <div className="space-y-12">
             {Object.entries(skillsData).map(([category, skills]) => {
               const Icon = getCategoryIcon(category);
               return (
-                <div key={category} className="w-full">
+                <div key={category}>
                   <h3 className="text-lg sm:text-xl text-white font-semibold mb-4 sm:mb-6 text-center flex items-center justify-center gap-2">
                     <Icon size={18} className="text-[#17c0f8]" />
                     {category.toUpperCase()}
                   </h3>
 
-                  <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full">
+                  <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
                     {skills.map((skill, index) => (
                       <motion.div
                         key={`${category}-${index}`}
