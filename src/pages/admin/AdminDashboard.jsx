@@ -127,12 +127,12 @@ const AdminDashboard = () => {
           x: isMobile && !sidebarOpen ? '-100%' : 0,
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={`bg-gradient-to-b from-[#112240] to-[#1a2f4a] text-white relative border-r border-gray-700/50 z-50 ${
+        className={`bg-gradient-to-b from-[#112240] to-[#1a2f4a] text-white relative border-r border-gray-700/50 z-50 flex flex-col ${
           isMobile ? 'fixed h-full' : 'sticky top-0 h-screen'
         }`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-700/50">
+        <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
           <div className="flex items-center justify-between">
             {sidebarOpen ? (
               <motion.div
@@ -165,8 +165,8 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-500">
           {menuItems.map((item) => (
             <SidebarButton
               key={item.id}
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-700/50">
+        <div className="p-4 border-t border-gray-700/50 flex-shrink-0">
           <button
             onClick={handleLogout}
             disabled={loading}
@@ -235,7 +235,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Content Area */}
-        <div className="p-4 md:p-6 h-[calc(100vh-88px)] overflow-y-auto">
+        <div className="p-4 md:p-6 h-[calc(100vh-88px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-500">
           <motion.div
             key={activeSection}
             initial={{ opacity: 0, y: 20 }}
