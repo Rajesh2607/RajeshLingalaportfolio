@@ -45,21 +45,21 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="w-full">
+      <div className="bg-[#0a192f]">
         <SkeletonLoaderForhome />
       </div>
     );
   }
 
   return (
-    <div className="w-full">
+    <main className="bg-[#0a192f] overflow-x-hidden">
       <HeroSection about={about} />
       <AboutSection about={about} />
       <Skills />
       <Experience />
       <ContactSection />
       <Note />
-    </div>
+    </main>
   );
 };
 

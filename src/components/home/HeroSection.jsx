@@ -25,13 +25,13 @@ const HeroSection = ({ about }) => {
   return (
     <section
       id="hero"
-      className="no-horizontal-scroll min-h-[90vh] flex items-center justify-center pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 lg:px-8"
+      className="min-h-[90vh] flex items-center justify-center pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 lg:px-8 w-full"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
-        className="container-fix max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12"
+        className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12"
       >
         <motion.header
           initial={{ opacity: 0, x: -100 }}

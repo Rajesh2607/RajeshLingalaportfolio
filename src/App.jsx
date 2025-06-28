@@ -10,7 +10,7 @@ import Home from './pages/Home';
 import Certificates from './pages/Certificates';
 import Projects from './pages/Projects';
 import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail';
+import BlogDetail from './pages/BlogDetail'; // Blog details fetched from Firebase
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
@@ -22,7 +22,8 @@ function App() {
 
   return (
     <Router>
-      <div className="no-horizontal-scroll min-h-screen bg-[#0a192f] text-white">
+       <div className="bg-[#0a0f24] text-white overflow-x-hidden">
+      <div className="min-h-screen bg-[#0a192f]">
         <AnimatePresence>
           {!showContent && (
             <IntroAnimation onFinish={() => setShowContent(true)} />
@@ -35,7 +36,6 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
-              className="no-horizontal-scroll min-h-screen"
             >
               <Routes>
                 {/* Admin Routes */}
@@ -53,27 +53,29 @@ function App() {
                 <Route
                   path="*"
                   element={
-                    <div className="no-horizontal-scroll min-h-screen flex flex-col">
+                    <>
                       <Navbar />
-                      <main className="no-horizontal-scroll flex-1 pt-16">
+                      <div className="pt-16"> 
                         <ScrollToTop />
-                        <Routes>
-                          <Route path="/" element={<Home />} />
-                          <Route path="/certificates" element={<Certificates />} />
-                          <Route path="/projects" element={<Projects />} />
-                          <Route path="/blog" element={<Blog />} />
-                          <Route path="/blog/:id" element={<BlogDetail />} />
-                          <Route path="/whoiam" element={<WhoIAm />} />
-                        </Routes>
-                      </main>
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/certificates" element={<Certificates />} />
+                        <Route path="/projects" element={<Projects />} />
+                        <Route path="/blog" element={<Blog />} />
+                        <Route path="/blog/:id" element={<BlogDetail />} /> {/* Firebase blog detail */}
+                        <Route path="/whoiam" element={<WhoIAm />} />
+                      </Routes>
+                      </div>
+                      {/* Footer */}
                       <Footer />
-                    </div>
+                    </>
                   }
                 />
               </Routes>
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
       </div>
       
       <Analytics />
