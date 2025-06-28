@@ -225,7 +225,8 @@ const Blog = () => {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-            Insights, tutorials, and thoughts on web development, technology, and design
+            Sharing my journey through life, lessons learned from failures and successes, 
+            and the experiences that shaped who I am today
           </p>
           
           {/* Search Bar */}
