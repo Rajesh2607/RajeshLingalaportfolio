@@ -301,20 +301,6 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-[#112240] to-[#1a2f4a] rounded-2xl p-8 border border-gray-700/50"
-      >
-        <h2 className="text-3xl font-bold text-white mb-4">
-          Welcome back! 👋
-        </h2>
-        <p className="text-gray-400 text-lg">
-          Manage your portfolio content and keep your professional presence up to date.
-        </p>
-      </motion.div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
