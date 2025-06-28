@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-import { Lock } from 'lucide-react';
+import { Lock, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
+import { motion } from 'framer-motion';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -42,6 +44,9 @@ const AdminLogin = () => {
         case 'auth/too-many-requests':
           setError('Too many failed attempts. Please try again later');
           break;
+        case 'auth/invalid-credential':
+          setError('Invalid credentials. Please check your email and password');
+          break;
         default:
           setError('Failed to login. Please check your credentials');
       }
@@ -57,68 +62,171 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a192f] px-4">
-      <div className="max-w-md w-full space-y-8 bg-[#112240] p-8 rounded-lg shadow-xl">
-        <div className="text-center">
-          <Lock className="mx-auto h-12 w-12 text-[#17c0f8]" />
-          <h2 className="mt-6 text-3xl font-bold text-white">Admin Access</h2>
-          <p className="mt-2 text-sm text-gray-400">Secure administrative portal</p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {error && (
-            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-2 rounded-md text-center">
-              {error}
-            </div>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-600 bg-[#1d3a6e] placeholder-gray-400 text-white rounded-md focus:outline-none focus:ring-[#17c0f8] focus:border-[#17c0f8] sm:text-sm"
-                placeholder="Admin email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-600 bg-[#1d3a6e] placeholder-gray-400 text-white rounded-md focus:outline-none focus:ring-[#17c0f8] focus:border-[#17c0f8] sm:text-sm"
-                placeholder="Admin password"
-              />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] px-4">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative max-w-md w-full"
+      >
+        {/* Login Card */}
+        <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] p-8 rounded-2xl shadow-2xl border border-gray-700/50 backdrop-blur-sm">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            >
+              <Shield size={32} className="text-white" />
+            </motion.div>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-bold text-white mb-2"
+            >
+              Admin Portal
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-gray-400"
+            >
+              Secure access to portfolio management
+            </motion.p>
           </div>
 
-          <div>
-            <button
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-center mb-6 flex items-center justify-center space-x-2"
+            >
+              <AlertCircle size={18} />
+              <span className="text-sm">{error}</span>
+            </motion.div>
+          )}
+
+          {/* Login Form */}
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-6"
+            onSubmit={handleLogin}
+          >
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+                Email Address
+              </label>
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="w-full px-4 py-3 bg-[#0a192f] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your admin email"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="w-full px-4 py-3 pr-12 bg-[#0a192f] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <motion.button
               type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-black bg-[#17c0f8] hover:bg-[#17c0f8]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#17c0f8] disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading || !email || !password}
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
+              className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
               {loading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-black mr-2"></div>
-                  Authenticating...
-                </div>
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                  <span>Authenticating...</span>
+                </>
               ) : (
-                'Access Admin Panel'
+                <>
+                  <Lock size={20} />
+                  <span>Access Admin Panel</span>
+                </>
               )}
-            </button>
-          </div>
-        </form>
-      </div>
+            </motion.button>
+          </motion.form>
+
+          {/* Security Notice */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="mt-6 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg"
+          >
+            <div className="flex items-start space-x-3">
+              <Shield size={16} className="text-cyan-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-cyan-400 text-sm font-medium mb-1">Security Notice</p>
+                <p className="text-gray-400 text-xs">
+                  This is a secure admin portal. All activities are logged and monitored.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="text-center mt-6"
+        >
+          <p className="text-gray-500 text-sm">
+            © 2024 Portfolio Admin. All rights reserved.
+          </p>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
