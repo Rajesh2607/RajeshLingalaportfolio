@@ -52,7 +52,7 @@ const Home = () => {
   }
 
   return (
-    <main className="bg-[#0a192f] overflow-x-hidden">
+    <main className="bg-[#0a192f]">
       <HeroSection about={about} />
       <AboutSection about={about} />
       <Skills />
