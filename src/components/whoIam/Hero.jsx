@@ -56,7 +56,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="min-h-screen pt-20 bg-gradient-to-b from-midnight to-navy relative">
+    <section className="min-h-screen pt-20 bg-gradient-to-b from-midnight to-navy relative overflow-hidden scroll-smooth">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-purple-600 filter blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-blue-600 filter blur-3xl"></div>
@@ -83,15 +83,15 @@ const Hero = () => {
                     My Personal Story
                   </h1>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div className="max-h-[450px] overflow-y-auto pr-3 
-                      scrollbar-thin scrollbar-thumb-[#1e293b] 
-                      scrollbar-track-transparent hover:scrollbar-thumb-[#334155] 
-                      scrollbar-thumb-rounded-md transition-all duration-300">
-                      <p className="text-lg text-gray-300 leading-relaxed">
-                        {personal.description}
-                      </p>
+                  <div className="max-h-[450px] overflow-y-auto pr-3 
+                  scrollbar-thin scrollbar-thumb-[#1e293b] 
+                  scrollbar-track-transparent hover:scrollbar-thumb-[#334155] 
+                  scrollbar-thumb-rounded-md transition-all duration-300">
+                  <p className="text-lg text-gray-300 leading-relaxed">
+                    {personal.description}
+                  </p>
                     </div>
-                    <motion.div 
+                <motion.div 
                       className="relative"
                       initial={{ opacity: 0, x: 50 }} 
                       animate={{ opacity: 1, x: 0 }} 
@@ -135,19 +135,19 @@ const Hero = () => {
                       />
                     </motion.div>
                     <motion.div
-                      className="order-1 md:order-2 max-h-[450px] overflow-y-auto pr-2 rounded 
-                                scrollbar-thin scrollbar-track-transparent 
-                                scrollbar-thumb-gradient-to-b from-purple-500 via-cyan-400 to-blue-500 
-                                scrollbar-thumb-rounded-lg scrollbar-track-rounded-full 
-                                transition-all duration-300 text-lg text-gray-300"
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 1, delay: 1 }}
-                    >
-                      <div className="pr-2">
-                        {professional.description}
-                      </div>
-                    </motion.div>
+                    className="order-1 md:order-2 max-h-[450px] overflow-y-auto pr-2 rounded 
+                              scrollbar-thin scrollbar-track-transparent 
+                              scrollbar-thumb-gradient-to-b from-purple-500 via-cyan-400 to-blue-500 
+                              scrollbar-thumb-rounded-lg scrollbar-track-rounded-full 
+                              transition-all duration-300 text-lg text-gray-300"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, delay: 1 }}
+                  >
+                    <div className="pr-2">
+                      {professional.description}
+                    </div>
+                  </motion.div>
                   </div>
                 </motion.div>
               )}
