@@ -83,7 +83,10 @@ const Hero = () => {
                     My Personal Story
                   </h1>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div className="max-h-[450px] pr-3">
+                    <div className="max-h-[450px] overflow-y-auto pr-3 
+                      scrollbar-thin scrollbar-thumb-[#1e293b] 
+                      scrollbar-track-transparent hover:scrollbar-thumb-[#334155] 
+                      scrollbar-thumb-rounded-md transition-all duration-300">
                       <p className="text-lg text-gray-300 leading-relaxed">
                         {personal.description}
                       </p>
@@ -132,7 +135,11 @@ const Hero = () => {
                       />
                     </motion.div>
                     <motion.div
-                      className="order-1 md:order-2 max-h-[450px] pr-2 text-lg text-gray-300"
+                      className="order-1 md:order-2 max-h-[450px] overflow-y-auto pr-2 rounded 
+                                scrollbar-thin scrollbar-track-transparent 
+                                scrollbar-thumb-gradient-to-b from-purple-500 via-cyan-400 to-blue-500 
+                                scrollbar-thumb-rounded-lg scrollbar-track-rounded-full 
+                                transition-all duration-300 text-lg text-gray-300"
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 1, delay: 1 }}
