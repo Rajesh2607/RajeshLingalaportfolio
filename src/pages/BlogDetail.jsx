@@ -12,8 +12,6 @@ import {
   Share2, 
   BookOpen,
   Eye,
-  Heart,
-  MessageCircle,
   ChevronUp
 } from 'lucide-react';
 
@@ -293,32 +291,10 @@ const BlogDetail = () => {
           transition={{ delay: 0.8 }}
           className="mt-16 pt-8 border-t border-gray-700/50"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div className="flex items-center space-x-6 text-gray-400">
-              <div className="flex items-center space-x-2">
-                <Eye size={18} />
-                <span>Reading time: {post.readTime || estimatedReadTime} minutes</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-500/20 to-pink-600/20 text-red-400 rounded-xl border border-red-400/30 hover:bg-red-500/30 transition-all duration-300"
-              >
-                <Heart size={18} />
-                <span>Like</span>
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-600/20 text-green-400 rounded-xl border border-green-400/30 hover:bg-green-500/30 transition-all duration-300"
-              >
-                <MessageCircle size={18} />
-                <span>Comment</span>
-              </motion.button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-6">
+            <div className="flex items-center justify-center space-x-2 text-gray-400">
+              <Eye size={18} />
+              <span>Reading time: {post.readTime || estimatedReadTime} minutes</span>
             </div>
           </div>
         </motion.footer>
