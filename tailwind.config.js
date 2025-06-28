@@ -13,7 +13,13 @@ module.exports = {
           '50%': { backgroundPosition: '100% 50%' },
         },
       },
+      colors: {
+        midnight: '#0a192f',
+        navy: '#112240',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true }),
+  ],
 };

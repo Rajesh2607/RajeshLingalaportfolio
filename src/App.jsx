@@ -22,8 +22,7 @@ function App() {
 
   return (
     <Router>
-       <div className="bg-[#0a0f24] text-white overflow-x-hidden">
-      <div className="min-h-screen bg-[#0a192f]">
+      <div className="min-h-screen bg-[#0a192f] overflow-x-hidden">
         <AnimatePresence>
           {!showContent && (
             <IntroAnimation onFinish={() => setShowContent(true)} />
@@ -36,6 +35,7 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
+              className="min-h-screen"
             >
               <Routes>
                 {/* Admin Routes */}
@@ -53,29 +53,27 @@ function App() {
                 <Route
                   path="*"
                   element={
-                    <>
+                    <div className="min-h-screen flex flex-col">
                       <Navbar />
-                      <div className="pt-16"> 
+                      <main className="flex-1 pt-16">
                         <ScrollToTop />
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/certificates" element={<Certificates />} />
-                        <Route path="/projects" element={<Projects />} />
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:id" element={<BlogDetail />} /> {/* Firebase blog detail */}
-                        <Route path="/whoiam" element={<WhoIAm />} />
-                      </Routes>
-                      </div>
-                      {/* Footer */}
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/certificates" element={<Certificates />} />
+                          <Route path="/projects" element={<Projects />} />
+                          <Route path="/blog" element={<Blog />} />
+                          <Route path="/blog/:id" element={<BlogDetail />} />
+                          <Route path="/whoiam" element={<WhoIAm />} />
+                        </Routes>
+                      </main>
                       <Footer />
-                    </>
+                    </div>
                   }
                 />
               </Routes>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
       </div>
       
       <Analytics />
