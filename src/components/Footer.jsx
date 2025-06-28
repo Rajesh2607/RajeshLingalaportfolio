@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 const Footer = () => {
   return (
     <motion.footer
-      className="bg-navy-800 py-8 overflow-x-hidden"
+      className="bg-navy-800 py-8"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -78,20 +78,19 @@ const Footer = () => {
       </div>
 
       {/* Gradient animation keyframes */}
-<style>{`
-  @keyframes gradientMove {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-`}</style>
-
+      <style>{`
+        @keyframes gradientMove {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+      `}</style>
     </motion.footer>
   );
 };
