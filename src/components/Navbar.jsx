@@ -28,8 +28,8 @@ const Navbar = () => {
   const navItems = [
     { to: '/', label: 'Home', icon: <Home size={20} /> },
     { to: '/whoiam', label: 'Who I Am', icon: <User size={20} /> },
-    { to: '/certificates', label: 'Certificates', icon: <Award size={20} /> },
     { to: '/projects', label: 'Projects', icon: <Briefcase size={20} /> },
+    { to: '/certificates', label: 'Certificates', icon: <Award size={20} /> },
     { to: '/blog', label: 'Blog', icon: <BookOpen size={20} /> },
   ];
 
