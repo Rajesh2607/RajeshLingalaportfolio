@@ -2,7 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar styles */
+/* Prevent initial double scrollbar during loading */
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hide scrollbar during initial loading */
+.loading-state {
+  overflow: hidden !important;
+}
+
+/* Custom scrollbar styles - only apply after loading */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -36,11 +53,6 @@
   display: none;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
 /* Line clamp utility */
 .line-clamp-2 {
   display: -webkit-box;
@@ -49,12 +61,13 @@ html {
   overflow: hidden;
 }
 
-/* Prevent horizontal overflow */
-body {
-  overflow-x: hidden;
-}
-
 /* Ensure proper box sizing */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Prevent layout shifts during loading */
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
 }

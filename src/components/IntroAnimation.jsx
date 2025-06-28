@@ -33,10 +33,11 @@ const IntroAnimation = ({ onFinish }) => {
     <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          className="fixed inset-0 bg-gradient-to-br from-[#0a192f] to-[#17c0f8] flex items-center justify-center z-50"
+          className="fixed inset-0 bg-gradient-to-br from-[#0a192f] to-[#17c0f8] flex items-center justify-center z-50 overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 1 } }}
           exit={{ opacity: 0, scale: 1.1, transition: { duration: 1 } }}
+          style={{ overflow: 'hidden' }} // Ensure no scrollbars during intro
         >
           <div className="text-center">
             <motion.div

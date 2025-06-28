@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
@@ -20,13 +20,30 @@ import ScrollToTop from './components/ScrollToTop';
 function App() {
   const [showContent, setShowContent] = useState(false);
 
+  // Prevent double scrollbar during initial loading
+  useEffect(() => {
+    // Add loading class to body during intro animation
+    document.body.classList.add('loading-state');
+    
+    return () => {
+      // Remove loading class when component unmounts
+      document.body.classList.remove('loading-state');
+    };
+  }, []);
+
+  const handleIntroFinish = () => {
+    setShowContent(true);
+    // Remove loading state to restore normal scrolling
+    document.body.classList.remove('loading-state');
+  };
+
   return (
     <Router>
        <div className="bg-[#0a0f24] text-white overflow-x-hidden">
       <div className="min-h-screen bg-[#0a192f]">
         <AnimatePresence>
           {!showContent && (
-            <IntroAnimation onFinish={() => setShowContent(true)} />
+            <IntroAnimation onFinish={handleIntroFinish} />
           )}
         </AnimatePresence>
 
