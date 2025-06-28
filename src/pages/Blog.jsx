@@ -52,11 +52,11 @@ const BlogCard = ({ post, index }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.6 }}
       whileHover={{ y: -8 }}
-      className="group"
+      className="group h-full"
     >
       <Link
         to={`/blog/${post.id}`}
-        className="block bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-700/50 hover:border-cyan-400/50"
+        className="block h-full bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-700/50 hover:border-cyan-400/50"
       >
         {/* Image Section */}
         <div className="relative h-56 overflow-hidden">
@@ -86,14 +86,14 @@ const BlogCard = ({ post, index }) => {
         </div>
 
         {/* Content Section */}
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 flex-1 flex flex-col">
           {/* Title */}
-          <h2 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300 line-clamp-2">
+          <h2 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300 line-clamp-2 flex-1">
             {post.title}
           </h2>
 
           {/* Meta Information */}
-          <div className="flex items-center justify-between text-sm text-gray-400">
+          <div className="flex items-center justify-between text-sm text-gray-400 mt-auto">
             <div className="flex items-center space-x-4">
               {post.date && (
                 <div className="flex items-center space-x-1">
@@ -112,7 +112,7 @@ const BlogCard = ({ post, index }) => {
 
           {/* Author */}
           {post.author && (
-            <div className="flex items-center space-x-3 pt-2 border-t border-gray-700/50">
+            <div className="flex items-center space-x-3 pt-3 border-t border-gray-700/50">
               <div className="w-8 h-8 rounded-full overflow-hidden">
                 <img
                   src={post.author.avatar}
@@ -133,7 +133,7 @@ const BlogCard = ({ post, index }) => {
 };
 
 const SkeletonCard = () => (
-  <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden animate-pulse border border-gray-700/50">
+  <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden animate-pulse border border-gray-700/50 h-full">
     <div className="h-56 bg-gradient-to-br from-gray-700 to-gray-800"></div>
     <div className="p-6 space-y-4">
       <div className="h-6 bg-gray-700 rounded-lg w-3/4"></div>
@@ -212,54 +212,54 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] overflow-x-hidden">
       {/* Hero Section */}
-      <div className="relative py-16 px-4 md:px-8">
+      <div className="relative py-20 px-6 md:px-8 lg:px-12">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-600/5"></div>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative text-center max-w-4xl mx-auto"
+          className="relative text-center max-w-5xl mx-auto"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               My Blog
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
             Insights, tutorials, and thoughts on web development, technology, and design
           </p>
           
           {/* Search Bar */}
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <div className="relative max-w-lg mx-auto">
+            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400" size={22} />
             <input
               type="text"
               placeholder="Search articles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#112240] border border-gray-600 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
+              className="w-full pl-14 pr-6 py-4 bg-[#112240]/80 backdrop-blur-sm border border-gray-600/50 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300 text-lg"
             />
           </div>
         </motion.div>
       </div>
 
       {/* Main Content Container */}
-      <div className="px-4 md:px-8 pb-16">
+      <div className="px-6 md:px-8 lg:px-12 pb-20">
         <div className="max-w-7xl mx-auto">
           {/* Category Filter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-3 mb-8"
+            className="flex flex-wrap justify-center gap-4 mb-12"
           >
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => handleCategorySelect(category)}
-                className={`px-4 py-2 rounded-full border-2 font-medium transition-all duration-300 text-sm md:text-base ${
+                className={`px-6 py-3 rounded-2xl border-2 font-semibold transition-all duration-300 text-base ${
                   selectedCategory === category
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-lg transform scale-105'
-                    : 'text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 hover:scale-105'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-xl transform scale-105'
+                    : 'text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 hover:scale-105 hover:shadow-lg'
                 }`}
               >
                 {category}
@@ -272,11 +272,11 @@ const Blog = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-center mb-8"
+            className="text-center mb-12"
           >
-            <p className="text-gray-400 text-sm md:text-base">
+            <p className="text-gray-400 text-lg">
               {isLoading ? (
-                <span className="inline-block w-32 h-4 bg-gray-700 rounded animate-pulse"></span>
+                <span className="inline-block w-40 h-5 bg-gray-700 rounded animate-pulse"></span>
               ) : (
                 <>
                   Showing {filteredBlogs.length} of {blogs.length} articles
@@ -288,7 +288,7 @@ const Blog = () => {
           </motion.div>
 
           {/* Blog Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10">
             {isLoading
               ? Array(6).fill(null).map((_, index) => <SkeletonCard key={index} />)
               : filteredBlogs.length > 0
@@ -299,14 +299,14 @@ const Blog = () => {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="col-span-full text-center py-16"
+                    className="col-span-full text-center py-20"
                   >
-                    <div className="max-w-md mx-auto">
-                      <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                        <Search size={28} className="text-gray-400" />
+                    <div className="max-w-lg mx-auto">
+                      <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
+                        <Search size={32} className="text-gray-400" />
                       </div>
-                      <h3 className="text-xl md:text-2xl font-bold text-white mb-4">No articles found</h3>
-                      <p className="text-gray-400 mb-6 text-sm md:text-base">
+                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">No articles found</h3>
+                      <p className="text-gray-400 mb-8 text-lg leading-relaxed">
                         {searchTerm
                           ? `No articles match "${searchTerm}"`
                           : `No articles in ${selectedCategory} category`}
@@ -316,7 +316,7 @@ const Blog = () => {
                           setSearchTerm('');
                           setSelectedCategory('All');
                         }}
-                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:shadow-lg transition-all duration-300 text-sm md:text-base"
+                        className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
                       >
                         Show All Articles
                       </button>
