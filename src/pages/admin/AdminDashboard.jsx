@@ -105,7 +105,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] flex overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] flex">
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
         {isMobile && sidebarOpen && (
@@ -127,12 +127,12 @@ const AdminDashboard = () => {
           x: isMobile && !sidebarOpen ? '-100%' : 0,
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={`bg-gradient-to-b from-[#112240] to-[#1a2f4a] text-white relative border-r border-gray-700/50 z-50 ${
+        className={`bg-gradient-to-b from-[#112240] to-[#1a2f4a] text-white border-r border-gray-700/50 z-50 flex flex-col ${
           isMobile ? 'fixed h-full' : 'sticky top-0 h-screen'
         }`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-700/50">
+        <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
           <div className="flex items-center justify-between">
             {sidebarOpen ? (
               <motion.div
@@ -165,8 +165,8 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {/* Navigation - This is the scrollable area */}
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
           {menuItems.map((item) => (
             <SidebarButton
               key={item.id}
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-700/50">
+        <div className="p-4 border-t border-gray-700/50 flex-shrink-0">
           <button
             onClick={handleLogout}
             disabled={loading}
@@ -202,9 +202,9 @@ const AdminDashboard = () => {
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-[#112240]/80 backdrop-blur-sm border-b border-gray-700/50 p-4 md:p-6">
+        <header className="bg-[#112240]/80 backdrop-blur-sm border-b border-gray-700/50 p-4 md:p-6 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {!sidebarOpen && (
@@ -234,8 +234,8 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* Content Area */}
-        <div className="p-4 md:p-6 h-[calc(100vh-88px)] overflow-y-auto">
+        {/* Content Area - This is the main scrollable area */}
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
           <motion.div
             key={activeSection}
             initial={{ opacity: 0, y: 20 }}
