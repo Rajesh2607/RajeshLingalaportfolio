@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ExternalLink, Search, Filter, Grid, List, Eye, Calendar, Code, Layers } from 'lucide-react';
+import { Github, ExternalLink, Filter, Grid, List, Code, Layers, Star, Calendar } from 'lucide-react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 import ProjectSkeleton from '../components/skeleton/ProjectSkeleton';
@@ -12,11 +12,9 @@ const Projects = () => {
   const [categories, setCategories] = useState([]);
   const [activeDomain, setActiveDomain] = useState('All');
   const [activeCategory, setActiveCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('grid');
   const [loading, setLoading] = useState(true);
   const [mediaLoadStates, setMediaLoadStates] = useState({});
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -30,7 +28,6 @@ const Projects = () => {
         setProjects(projectData);
         setFilteredProjects(projectData);
 
-        // Extract unique domains and categories
         const uniqueDomains = ['All', ...new Set(projectData.map(p => p.domain).filter(Boolean))];
         const uniqueCategories = ['All', ...new Set(projectData.map(p => p.category).filter(Boolean))];
         
@@ -46,42 +43,22 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  // Filter projects based on domain, category, and search term
   useEffect(() => {
     let filtered = projects;
 
-    // Filter by domain
     if (activeDomain !== 'All') {
       filtered = filtered.filter(project => project.domain === activeDomain);
     }
 
-    // Filter by category
     if (activeCategory !== 'All') {
       filtered = filtered.filter(project => project.category === activeCategory);
     }
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(project =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.technologies && project.technologies.some(tech => 
-          tech.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-      );
-    }
-
     setFilteredProjects(filtered);
-  }, [projects, activeDomain, activeCategory, searchTerm]);
+  }, [projects, activeDomain, activeCategory]);
 
   const handleMediaLoad = (id) => {
     setMediaLoadStates(prev => ({ ...prev, [id]: true }));
-  };
-
-  const clearFilters = () => {
-    setActiveDomain('All');
-    setActiveCategory('All');
-    setSearchTerm('');
   };
 
   const ProjectCard = ({ project, index }) => (
@@ -89,27 +66,23 @@ const Projects = () => {
       layout
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -30 }}
+      exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: index * 0.1, duration: 0.6 }}
-      className={`group relative bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-400/10 ${
-        viewMode === 'list' ? 'flex flex-col md:flex-row' : ''
-      }`}
-      whileHover={{ y: -8 }}
+      className="group relative bg-gradient-to-br from-[#0f1629] to-[#1a2332] rounded-3xl overflow-hidden border border-gray-800/50 hover:border-cyan-400/30 transition-all duration-700 hover:shadow-2xl hover:shadow-cyan-400/5"
+      whileHover={{ y: -12, scale: 1.02 }}
     >
-      {/* Project Image/Video */}
-      <div className={`relative overflow-hidden ${
-        viewMode === 'list' ? 'md:w-80 h-64 md:h-auto' : 'h-64'
-      }`}>
+      {/* Project Media */}
+      <div className="relative h-72 overflow-hidden">
         {!mediaLoadStates[project.id] && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800 z-10">
-            <div className="w-8 h-8 border-4 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 z-10">
+            <div className="w-10 h-10 border-4 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
           </div>
         )}
 
         {project.mediaType === 'video' ? (
           <video
             src={project.media}
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
             autoPlay
             loop
             muted
@@ -121,7 +94,7 @@ const Projects = () => {
             src={project.media}
             alt={project.title}
             loading="lazy"
-            className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
+            className={`w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 ${
               mediaLoadStates[project.id] ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => handleMediaLoad(project.id)}
@@ -129,98 +102,104 @@ const Projects = () => {
           />
         )}
 
-        {/* Overlay with links */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
-          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-            <div className="flex space-x-3">
-              {project.github && (
-                <motion.a
-                  href={project.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Github size={20} />
-                </motion.a>
-              )}
-              {project.live && (
-                <motion.a
-                  href={project.live}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <ExternalLink size={20} />
-                </motion.a>
-              )}
-            </div>
-            <div className="flex items-center space-x-2 text-white/80 text-sm">
-              <Eye size={16} />
-              <span>View Project</span>
-            </div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+        {/* Action Buttons */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+          <div className="flex space-x-4">
+            {project.github && (
+              <motion.a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all duration-300 border border-white/20"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Github size={24} />
+              </motion.a>
+            )}
+            {project.live && (
+              <motion.a
+                href={project.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 bg-cyan-500/20 backdrop-blur-md rounded-full text-cyan-400 hover:bg-cyan-500/30 transition-all duration-300 border border-cyan-400/30"
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <ExternalLink size={24} />
+              </motion.a>
+            )}
           </div>
         </div>
 
-        {/* Category and Domain badges */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between">
+        {/* Top Badges */}
+        <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
           {project.category && (
-            <span className="px-3 py-1 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-sm text-cyan-400 text-xs font-semibold rounded-full border border-cyan-400/30">
+            <span className="px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-md text-cyan-300 text-sm font-semibold rounded-full border border-cyan-400/30">
               {project.category}
             </span>
           )}
           {project.domain && (
-            <span className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-600/20 backdrop-blur-sm text-purple-400 text-xs font-semibold rounded-full border border-purple-400/30">
+            <span className="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-600/20 backdrop-blur-md text-purple-300 text-sm font-semibold rounded-full border border-purple-400/30">
               {project.domain}
             </span>
           )}
         </div>
-      </div>
 
-      {/* Project Content */}
-      <div className={`p-6 flex flex-col justify-between ${viewMode === 'list' ? 'flex-1' : ''}`}>
-        <div>
-          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors duration-300">
+        {/* Bottom Info */}
+        <div className="absolute bottom-6 left-6 right-6">
+          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300">
             {project.title}
           </h3>
-          <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-3">
-            {project.description}
+          <p className="text-gray-300 text-sm leading-relaxed opacity-90">
+            {project.description?.slice(0, 120)}...
           </p>
         </div>
+      </div>
 
+      {/* Project Details */}
+      <div className="p-8">
         {/* Technologies */}
-        <div className="space-y-4">
+        <div className="mb-6">
+          <div className="flex items-center mb-4">
+            <Code size={18} className="text-cyan-400 mr-2" />
+            <span className="text-gray-300 font-medium">Technologies</span>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {(project.technologies || []).slice(0, viewMode === 'list' ? 8 : 4).map((tech, i) => (
+            {(project.technologies || []).slice(0, 6).map((tech, i) => (
               <span
                 key={`${tech}-${i}`}
-                className="px-3 py-1 bg-[#0a192f] text-cyan-400 rounded-full text-xs font-medium border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors duration-300"
+                className="px-3 py-1.5 bg-gradient-to-r from-gray-800 to-gray-700 text-gray-300 rounded-lg text-xs font-medium border border-gray-600/50 hover:border-cyan-400/50 hover:text-cyan-300 transition-all duration-300"
               >
                 {tech}
               </span>
             ))}
-            {(project.technologies || []).length > (viewMode === 'list' ? 8 : 4) && (
-              <span className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs font-medium">
-                +{(project.technologies || []).length - (viewMode === 'list' ? 8 : 4)} more
+            {(project.technologies || []).length > 6 && (
+              <span className="px-3 py-1.5 bg-gradient-to-r from-gray-700 to-gray-600 text-gray-400 rounded-lg text-xs font-medium border border-gray-600/50">
+                +{(project.technologies || []).length - 6}
               </span>
             )}
           </div>
+        </div>
 
-          {/* Project stats */}
-          <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-700/50">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
-                <Code size={12} />
-                <span>{(project.technologies || []).length} techs</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Layers size={12} />
-                <span>{project.category || 'General'}</span>
-              </div>
+        {/* Project Stats */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
+          <div className="flex items-center space-x-4 text-gray-400 text-sm">
+            <div className="flex items-center space-x-1">
+              <Layers size={14} />
+              <span>{project.category || 'General'}</span>
             </div>
+            <div className="flex items-center space-x-1">
+              <Code size={14} />
+              <span>{(project.technologies || []).length} techs</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-1 text-yellow-400">
+            <Star size={14} fill="currentColor" />
+            <span className="text-sm font-medium">Featured</span>
           </div>
         </div>
       </div>
@@ -228,192 +207,176 @@ const Projects = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0f1c] via-[#0f1419] to-[#0a0f1c]">
       {/* Hero Section */}
-      <div className="relative py-20 px-6 md:px-8 lg:px-12">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-600/5"></div>
+      <section className="relative py-24 px-6 md:px-8 lg:px-12 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative text-center max-w-5xl mx-auto"
+          className="relative text-center max-w-6xl mx-auto"
         >
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
-              My Projects
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-            A showcase of my technical projects, from web applications to mobile apps, 
-            demonstrating my skills across different domains and technologies
-          </p>
-        </motion.div>
-      </div>
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="mb-8"
+          >
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
+                Featured
+              </span>
+              <br />
+              <span className="text-white">Projects</span>
+            </h1>
+          </motion.div>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-4xl mx-auto"
+          >
+            Explore my collection of innovative projects spanning web development, 
+            mobile applications, and cutting-edge technologies
+          </motion.p>
 
-      {/* Controls Section */}
-      <div className="px-6 md:px-8 lg:px-12 mb-12">
-        <div className="max-w-7xl mx-auto">
-          {/* Search and View Toggle */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
-            {/* Search Bar */}
-            <div className="relative flex-1 max-w-lg">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search projects, technologies..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-6 py-4 bg-[#112240]/80 backdrop-blur-sm border border-gray-600/50 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
-              />
-            </div>
-
-            {/* View Mode and Filter Toggle */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center bg-[#112240]/80 backdrop-blur-sm rounded-xl border border-gray-600/50 p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-3 rounded-lg transition-all duration-300 ${
-                    viewMode === 'grid'
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <Grid size={20} />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-3 rounded-lg transition-all duration-300 ${
-                    viewMode === 'list'
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <List size={20} />
-                </button>
-              </div>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-6 py-3 bg-[#112240]/80 backdrop-blur-sm border border-gray-600/50 rounded-xl text-white hover:border-cyan-400/50 transition-all duration-300"
-              >
-                <Filter size={20} />
-                <span>Filters</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6 mb-8"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Domain Filter */}
-                  <div>
-                    <h3 className="text-white font-semibold mb-4 flex items-center">
-                      <Layers size={18} className="mr-2 text-cyan-400" />
-                      Domain
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {domains.map((domain) => (
-                        <button
-                          key={domain}
-                          onClick={() => setActiveDomain(domain)}
-                          className={`px-4 py-2 rounded-xl border-2 font-medium transition-all duration-300 text-sm ${
-                            activeDomain === domain
-                              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-lg'
-                              : 'text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400'
-                          }`}
-                        >
-                          {domain}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Category Filter */}
-                  <div>
-                    <h3 className="text-white font-semibold mb-4 flex items-center">
-                      <Code size={18} className="mr-2 text-purple-400" />
-                      Category
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => setActiveCategory(category)}
-                          className={`px-4 py-2 rounded-xl border-2 font-medium transition-all duration-300 text-sm ${
-                            activeCategory === category
-                              ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white border-transparent shadow-lg'
-                              : 'text-purple-400 border-purple-400/50 hover:bg-purple-400/10 hover:border-purple-400'
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Clear Filters */}
-                {(activeDomain !== 'All' || activeCategory !== 'All' || searchTerm) && (
-                  <div className="mt-6 pt-6 border-t border-gray-700/50">
-                    <button
-                      onClick={clearFilters}
-                      className="px-6 py-2 bg-gradient-to-r from-red-500/20 to-pink-600/20 text-red-400 rounded-xl border border-red-400/30 hover:bg-red-500/30 transition-all duration-300"
-                    >
-                      Clear All Filters
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Results Info */}
+          {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            transition={{ delay: 0.6 }}
+            className="flex flex-wrap justify-center gap-8 mb-16"
           >
-            <p className="text-gray-400 text-lg">
-              {loading ? (
-                <span className="inline-block w-40 h-5 bg-gray-700 rounded animate-pulse"></span>
-              ) : (
-                <>
-                  Showing {filteredProjects.length} of {projects.length} projects
-                  {searchTerm && ` for "${searchTerm}"`}
-                  {activeDomain !== 'All' && ` in ${activeDomain}`}
-                  {activeCategory !== 'All' && ` • ${activeCategory}`}
-                </>
-              )}
-            </p>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-cyan-400 mb-2">{projects.length}+</div>
+              <div className="text-gray-400">Projects</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-400 mb-2">{domains.length - 1}+</div>
+              <div className="text-gray-400">Domains</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-400 mb-2">{categories.length - 1}+</div>
+              <div className="text-gray-400">Categories</div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Filters Section */}
+      <section className="px-6 md:px-8 lg:px-12 mb-16">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-[#0f1629]/80 to-[#1a2332]/80 backdrop-blur-xl rounded-3xl border border-gray-800/50 p-8"
+          >
+            {/* View Mode Toggle */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 mb-8">
+              <div className="flex items-center space-x-6">
+                <h2 className="text-2xl font-bold text-white">Browse Projects</h2>
+                <div className="flex items-center bg-gray-800/50 rounded-2xl border border-gray-700/50 p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-3 rounded-xl transition-all duration-300 ${
+                      viewMode === 'grid'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Grid size={20} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-3 rounded-xl transition-all duration-300 ${
+                      viewMode === 'list'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <List size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-gray-400">
+                Showing {filteredProjects.length} of {projects.length} projects
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Domain Filter */}
+              <div>
+                <h3 className="text-white font-semibold mb-6 flex items-center text-lg">
+                  <Layers size={20} className="mr-3 text-cyan-400" />
+                  Filter by Domain
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {domains.map((domain) => (
+                    <motion.button
+                      key={domain}
+                      onClick={() => setActiveDomain(domain)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
+                        activeDomain === domain
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25'
+                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
+                      }`}
+                    >
+                      {domain}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div>
+                <h3 className="text-white font-semibold mb-6 flex items-center text-lg">
+                  <Code size={20} className="mr-3 text-purple-400" />
+                  Filter by Category
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {categories.map((category) => (
+                    <motion.button
+                      key={category}
+                      onClick={() => setActiveCategory(category)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
+                        activeCategory === category
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/25'
+                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-purple-400/50 hover:text-purple-300'
+                      }`}
+                    >
+                      {category}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* Projects Grid/List */}
-      <div className="px-6 md:px-8 lg:px-12 pb-20">
+      {/* Projects Grid */}
+      <section className="px-6 md:px-8 lg:px-12 pb-24">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className={`grid gap-8 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
-                : 'grid-cols-1'
-            }`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {Array(6).fill(null).map((_, i) => <ProjectSkeleton key={i} />)}
             </div>
           ) : filteredProjects.length > 0 ? (
             <motion.div
               layout
-              className={`grid gap-8 ${
-                viewMode === 'grid' 
-                  ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
-                  : 'grid-cols-1 max-w-5xl mx-auto'
-              }`}
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
             >
               <AnimatePresence mode="popLayout">
                 {filteredProjects.map((project, index) => (
@@ -425,29 +388,32 @@ const Projects = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20"
+              className="text-center py-24"
             >
               <div className="max-w-lg mx-auto">
-                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                  <Search size={32} className="text-gray-400" />
+                <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full flex items-center justify-center">
+                  <Filter size={40} className="text-gray-500" />
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">No projects found</h3>
+                <h3 className="text-3xl font-bold text-white mb-6">No projects found</h3>
                 <p className="text-gray-400 mb-8 text-lg leading-relaxed">
-                  {searchTerm
-                    ? `No projects match "${searchTerm}"`
-                    : 'No projects match the selected filters'}
+                  No projects match the selected filters. Try adjusting your selection.
                 </p>
-                <button
-                  onClick={clearFilters}
-                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
+                <motion.button
+                  onClick={() => {
+                    setActiveDomain('All');
+                    setActiveCategory('All');
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl hover:shadow-cyan-500/25 transition-all duration-300 text-lg font-semibold"
                 >
                   Show All Projects
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 };
