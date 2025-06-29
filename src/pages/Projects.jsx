@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader } from 'lucide-react';
+import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader, FolderOpen } from 'lucide-react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
-  const [filteredProjects, setFilteredProjects] = useState([]);
-  const [domains, setDomains] = useState(['All']);
+  const [groupedProjects, setGroupedProjects] = useState({});
   const [categories, setCategories] = useState(['All']);
-  const [activeDomain, setActiveDomain] = useState('All');
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +24,7 @@ const Projects = () => {
         if (querySnapshot.empty) {
           console.log('No projects found in database');
           setProjects([]);
-          setFilteredProjects([]);
+          setGroupedProjects({});
           return;
         }
 
@@ -49,22 +47,27 @@ const Projects = () => {
 
         console.log('Fetched projects:', projectData);
         setProjects(projectData);
-        setFilteredProjects(projectData);
 
-        // Extract unique domains and categories
-        const uniqueDomains = ['All'];
-        const uniqueCategories = ['All'];
-        
+        // Group projects by domain
+        const grouped = {};
         projectData.forEach(project => {
-          if (project.domain && !uniqueDomains.includes(project.domain)) {
-            uniqueDomains.push(project.domain);
+          const domain = project.domain;
+          if (!grouped[domain]) {
+            grouped[domain] = [];
           }
+          grouped[domain].push(project);
+        });
+
+        setGroupedProjects(grouped);
+
+        // Extract unique categories
+        const uniqueCategories = ['All'];
+        projectData.forEach(project => {
           if (project.category && !uniqueCategories.includes(project.category)) {
             uniqueCategories.push(project.category);
           }
         });
         
-        setDomains(uniqueDomains);
         setCategories(uniqueCategories);
 
       } catch (err) {
@@ -78,20 +81,26 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  // Filter projects based on selected domain and category
-  useEffect(() => {
-    let filtered = [...projects];
-
-    if (activeDomain !== 'All') {
-      filtered = filtered.filter(project => project.domain === activeDomain);
+  // Filter grouped projects by category
+  const getFilteredGroupedProjects = () => {
+    if (activeCategory === 'All') {
+      return groupedProjects;
     }
 
-    if (activeCategory !== 'All') {
-      filtered = filtered.filter(project => project.category === activeCategory);
-    }
+    const filtered = {};
+    Object.keys(groupedProjects).forEach(domain => {
+      const filteredProjects = groupedProjects[domain].filter(
+        project => project.category === activeCategory
+      );
+      if (filteredProjects.length > 0) {
+        filtered[domain] = filteredProjects;
+      }
+    });
 
-    setFilteredProjects(filtered);
-  }, [projects, activeDomain, activeCategory]);
+    return filtered;
+  };
+
+  const filteredGroupedProjects = getFilteredGroupedProjects();
 
   // Loading skeleton component
   const ProjectSkeleton = () => (
@@ -106,6 +115,16 @@ const Projects = () => {
           <div className="h-6 w-20 bg-gray-700 rounded-full"></div>
           <div className="h-6 w-18 bg-gray-700 rounded-full"></div>
         </div>
+      </div>
+    </div>
+  );
+
+  // Domain section skeleton
+  const DomainSkeleton = () => (
+    <div className="mb-20">
+      <div className="h-8 bg-gray-700 rounded w-64 mx-auto mb-12 animate-pulse"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        {Array(3).fill(null).map((_, i) => <ProjectSkeleton key={i} />)}
       </div>
     </div>
   );
@@ -197,13 +216,10 @@ const Projects = () => {
             </div>
           </div>
 
-          {/* Category and Domain badges */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between">
+          {/* Category badge */}
+          <div className="absolute top-4 right-4">
             <span className="px-3 py-1 bg-cyan-500/20 backdrop-blur-sm text-cyan-300 text-xs font-semibold rounded-full border border-cyan-400/30">
               {project.category}
-            </span>
-            <span className="px-3 py-1 bg-purple-500/20 backdrop-blur-sm text-purple-300 text-xs font-semibold rounded-full border border-purple-400/30">
-              {project.domain}
             </span>
           </div>
         </div>
@@ -245,10 +261,6 @@ const Projects = () => {
           <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
             <div className="flex items-center space-x-3 text-gray-400 text-xs">
               <div className="flex items-center space-x-1">
-                <Layers size={12} />
-                <span>{project.domain}</span>
-              </div>
-              <div className="flex items-center space-x-1">
                 <Code size={12} />
                 <span>{project.technologies.length} techs</span>
               </div>
@@ -260,6 +272,70 @@ const Projects = () => {
           </div>
         </div>
       </motion.div>
+    );
+  };
+
+  // Domain section component
+  const DomainSection = ({ domain, projects, domainIndex }) => {
+    const totalProjects = projects.length;
+    const uniqueTechs = [...new Set(projects.flatMap(p => p.technologies))].length;
+
+    return (
+      <motion.section
+        key={domain}
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: domainIndex * 0.2, duration: 0.8 }}
+        className="mb-20"
+      >
+        {/* Domain Header */}
+        <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: domainIndex * 0.2 + 0.3 }}
+            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl mb-6 shadow-xl"
+          >
+            <FolderOpen size={32} className="text-white" />
+          </motion.div>
+          
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: domainIndex * 0.2 + 0.4 }}
+            className="text-4xl md:text-5xl font-bold mb-4"
+          >
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
+              {domain}
+            </span>
+          </motion.h2>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: domainIndex * 0.2 + 0.5 }}
+            className="flex flex-wrap justify-center gap-8 text-gray-400"
+          >
+            <div className="flex items-center space-x-2">
+              <Layers size={16} className="text-cyan-400" />
+              <span>{totalProjects} Project{totalProjects !== 1 ? 's' : ''}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Code size={16} className="text-purple-400" />
+              <span>{uniqueTechs} Technologies</span>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Projects Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <AnimatePresence mode="popLayout">
+            {projects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
+            ))}
+          </AnimatePresence>
+        </div>
+      </motion.section>
     );
   };
 
@@ -293,22 +369,22 @@ const Projects = () => {
         >
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
-              Featured Projects
+              Project Portfolio
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
-            Explore my collection of innovative projects spanning web development, 
-            mobile applications, and cutting-edge technologies
+            Explore my projects organized by domain - from web development to mobile apps, 
+            each showcasing different technologies and innovative solutions
           </p>
 
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-8 mb-16">
             <div className="text-center">
               <div className="text-3xl font-bold text-cyan-400 mb-2">{projects.length}</div>
-              <div className="text-gray-400">Projects</div>
+              <div className="text-gray-400">Total Projects</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400 mb-2">{Math.max(0, domains.length - 1)}</div>
+              <div className="text-3xl font-bold text-purple-400 mb-2">{Object.keys(groupedProjects).length}</div>
               <div className="text-gray-400">Domains</div>
             </div>
             <div className="text-center">
@@ -319,84 +395,58 @@ const Projects = () => {
         </motion.div>
       </section>
 
-      {/* Filters Section */}
-      <section className="px-6 md:px-8 lg:px-12 mb-16">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Domain Filter */}
-              <div>
-                <h3 className="text-white font-semibold mb-4 flex items-center">
-                  <Layers size={18} className="mr-2 text-cyan-400" />
-                  Filter by Domain
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {domains.map((domain) => (
-                    <button
-                      key={domain}
-                      onClick={() => setActiveDomain(domain)}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
-                        activeDomain === domain
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
-                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
-                      }`}
-                    >
-                      {domain}
-                    </button>
-                  ))}
-                </div>
+      {/* Category Filter */}
+      {categories.length > 1 && (
+        <section className="px-6 md:px-8 lg:px-12 mb-16">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8 text-center"
+            >
+              <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
+                <Code size={18} className="mr-2 text-purple-400" />
+                Filter by Category
+              </h3>
+              <div className="flex flex-wrap justify-center gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                      activeCategory === category
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                        : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-purple-400/50 hover:text-purple-300'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
-
-              {/* Category Filter */}
-              <div>
-                <h3 className="text-white font-semibold mb-4 flex items-center">
-                  <Code size={18} className="mr-2 text-purple-400" />
-                  Filter by Category
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setActiveCategory(category)}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
-                        activeCategory === category
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-purple-400/50 hover:text-purple-300'
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
+              <div className="mt-4 text-gray-400">
+                Showing {Object.values(filteredGroupedProjects).flat().length} of {projects.length} projects
               </div>
-            </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
-            <div className="mt-6 text-center text-gray-400">
-              Showing {filteredProjects.length} of {projects.length} projects
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Projects Grid */}
+      {/* Projects by Domain */}
       <section className="px-6 md:px-8 lg:px-12 pb-24">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {Array(6).fill(null).map((_, i) => <ProjectSkeleton key={i} />)}
+            <div>
+              {Array(3).fill(null).map((_, i) => <DomainSkeleton key={i} />)}
             </div>
-          ) : filteredProjects.length > 0 ? (
-            <motion.div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              <AnimatePresence mode="popLayout">
-                {filteredProjects.map((project, index) => (
-                  <ProjectCard key={project.id} project={project} index={index} />
-                ))}
-              </AnimatePresence>
-            </motion.div>
+          ) : Object.keys(filteredGroupedProjects).length > 0 ? (
+            Object.entries(filteredGroupedProjects).map(([domain, domainProjects], domainIndex) => (
+              <DomainSection
+                key={domain}
+                domain={domain}
+                projects={domainProjects}
+                domainIndex={domainIndex}
+              />
+            ))
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
@@ -405,20 +455,17 @@ const Projects = () => {
             >
               <div className="max-w-lg mx-auto">
                 <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                  <Code size={32} className="text-gray-400" />
+                  <FolderOpen size={32} className="text-gray-400" />
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-6">No projects found</h3>
                 <p className="text-gray-400 mb-8 text-lg leading-relaxed">
                   {projects.length === 0 
                     ? "No projects available in the database yet."
-                    : "No projects match the selected filters. Try adjusting your selection."
+                    : "No projects match the selected category. Try selecting a different category."
                   }
                 </p>
                 <button
-                  onClick={() => {
-                    setActiveDomain('All');
-                    setActiveCategory('All');
-                  }}
+                  onClick={() => setActiveCategory('All')}
                   className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
                 >
                   Show All Projects
