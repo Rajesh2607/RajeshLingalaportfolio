@@ -67,7 +67,7 @@ const Projects = () => {
         <p className="text-gray-400">A showcase of my technical projects grouped by domain</p>
         <p className="text-gray-400">Hover over a project for Links to view</p>
       </motion.div>
-
+ 
       {/* Domain Filter Buttons */}
       <div className="flex flex-wrap justify-center gap-4 mb-12">
         {domainNames.map((domain) => (
