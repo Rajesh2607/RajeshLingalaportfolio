@@ -5,7 +5,6 @@ import { X, Github, ExternalLink, Code, Tag, Star, Layers, Loader, AlertCircle }
 const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaError, setMediaError] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
 
   // Memoize project data to prevent unnecessary re-renders
   const projectData = useMemo(() => {
@@ -30,7 +29,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
     if (isOpen) {
       setMediaLoaded(false);
       setMediaError(false);
-      setIsClosing(false);
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
     } else {
@@ -45,20 +43,15 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
 
   // Optimized close handler
   const handleClose = useCallback(() => {
-    setIsClosing(true);
-    // Small delay to allow exit animation
-    setTimeout(() => {
-      onClose();
-      setIsClosing(false);
-    }, 150);
+    onClose();
   }, [onClose]);
 
   // Optimized backdrop click handler
   const handleBackdropClick = useCallback((e) => {
-    if (e.target === e.currentTarget && !isClosing) {
+    if (e.target === e.currentTarget) {
       handleClose();
     }
-  }, [handleClose, isClosing]);
+  }, [handleClose]);
 
   // Prevent event bubbling for links
   const handleLinkClick = useCallback((e) => {
@@ -78,7 +71,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   // Escape key handler
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen && !isClosing) {
+      if (e.key === 'Escape' && isOpen) {
         handleClose();
       }
     };
@@ -87,11 +80,11 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
-  }, [isOpen, isClosing, handleClose]);
+  }, [isOpen, handleClose]);
 
   if (!projectData) return null;
 
-  // Optimized animation variants
+  // Simplified animation variants for better performance
   const backdropVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
@@ -101,51 +94,22 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   const modalVariants = {
     hidden: { 
       opacity: 0, 
-      scale: 0.95, 
-      y: 20 
+      scale: 0.9
     },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        damping: 30,
-        stiffness: 400,
-        duration: 0.3
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.95, 
-      y: 20,
-      transition: {
-        duration: 0.15,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  // Optimized tech grid animation
-  const techVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.02,
-        delayChildren: 0.1
-      }
-    }
-  };
-
-  const techItemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
     visible: { 
       opacity: 1, 
       scale: 1,
       transition: {
         duration: 0.2,
         ease: "easeOut"
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      scale: 0.9,
+      transition: {
+        duration: 0.15,
+        ease: "easeIn"
       }
     }
   };
@@ -160,7 +124,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
           exit="exit"
           className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={handleBackdropClick}
-          style={{ willChange: 'opacity' }}
         >
           <motion.div
             variants={modalVariants}
@@ -169,14 +132,12 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
             exit="exit"
             className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-gray-700/50 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
-            style={{ willChange: 'transform, opacity' }}
           >
-            {/* Optimized Header */}
-            <div className="relative p-6 border-b border-gray-700/50 bg-[#112240]/80 backdrop-blur-sm">
+            {/* Header */}
+            <div className="relative p-6 border-b border-gray-700/50 bg-[#112240]/80">
               <button
                 onClick={handleClose}
-                disabled={isClosing}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors duration-200 disabled:opacity-50"
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors duration-200"
                 aria-label="Close modal"
               >
                 <X size={24} />
@@ -195,7 +156,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   </span>
                 </div>
                 
-                <h2 className="text-3xl font-bold text-white mb-2 line-clamp-2">{projectData.title}</h2>
+                <h2 className="text-3xl font-bold text-white mb-2">{projectData.title}</h2>
                 
                 <div className="flex items-center space-x-4 text-gray-400">
                   <div className="flex items-center space-x-1">
@@ -210,10 +171,10 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Optimized Content with Virtual Scrolling */}
-            <div className="overflow-y-auto max-h-[calc(90vh-120px)] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="p-6 space-y-8">
-                {/* Optimized Project Media */}
+                {/* Project Media */}
                 {projectData.media && (
                   <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
                     {!mediaLoaded && !mediaError && (
@@ -244,7 +205,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                             preload="metadata"
                             onLoadedData={handleMediaLoad}
                             onError={handleMediaError}
-                            style={{ willChange: 'opacity' }}
                           />
                         ) : (
                           <img
@@ -256,13 +216,12 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                             loading="lazy"
                             onLoad={handleMediaLoad}
                             onError={handleMediaError}
-                            style={{ willChange: 'opacity' }}
                           />
                         )}
                       </>
                     )}
                     
-                    {/* Simplified overlay - only show when media is loaded */}
+                    {/* Overlay */}
                     {mediaLoaded && !mediaError && (
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                         <div className="flex space-x-4">
@@ -296,7 +255,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Optimized Project Description */}
+                {/* Project Description */}
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
                     <Tag size={20} className="mr-2 text-cyan-400" />
@@ -309,34 +268,27 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   </div>
                 </div>
 
-                {/* Optimized Technologies Grid */}
+                {/* Technologies Grid */}
                 {projectData.technologies.length > 0 && (
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
                       <Code size={20} className="mr-2 text-purple-400" />
                       Technologies ({projectData.technologies.length})
                     </h3>
-                    <motion.div
-                      variants={techVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
-                    >
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {projectData.technologies.map((tech, index) => (
-                        <motion.div
+                        <div
                           key={`${tech}-${index}`}
-                          variants={techItemVariants}
                           className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-lg p-3 text-center border border-gray-600/30 hover:border-cyan-400/50 hover:bg-cyan-500/10 transition-colors duration-200"
-                          style={{ willChange: 'border-color, background-color' }}
                         >
                           <span className="text-gray-300 font-medium text-sm">{tech}</span>
-                        </motion.div>
+                        </div>
                       ))}
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
-                {/* Optimized Project Links */}
+                {/* Project Links */}
                 {(projectData.github || projectData.live) && (
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
@@ -385,7 +337,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Simplified Project Stats */}
+                {/* Project Stats */}
                 <div className="bg-gradient-to-r from-[#0a192f]/50 to-[#112240]/50 rounded-xl p-6 border border-gray-700/30">
                   <div className="grid grid-cols-3 gap-6 text-center">
                     <div>
