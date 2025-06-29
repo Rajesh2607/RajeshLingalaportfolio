@@ -36,6 +36,13 @@ const Projects = () => {
         setProjects(projectData);
         setFilteredProjects(projectData);
 
+        // Pre-set all media as loaded to avoid loading issues
+        const initialLoadStates = {};
+        projectData.forEach(project => {
+          initialLoadStates[project.id] = true; // Set to true by default
+        });
+        setMediaLoadStates(initialLoadStates);
+
         // Extract unique domains and categories
         const uniqueDomains = ['All'];
         const uniqueCategories = ['All'];
@@ -94,34 +101,42 @@ const Projects = () => {
       whileHover={{ y: -12, scale: 1.02 }}
     >
       {/* Project Media */}
-      <div className="relative h-72 overflow-hidden">
-        {!mediaLoadStates[project.id] && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 z-10">
-            <div className="w-10 h-10 border-4 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
-          </div>
+      <div className="relative h-72 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
+        {/* Always show media without loading spinner for better UX */}
+        {project.media && (
+          <>
+            {project.mediaType === 'video' ? (
+              <video
+                src={project.media}
+                className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+                autoPlay
+                loop
+                muted
+                playsInline
+                onLoadedData={() => handleMediaLoad(project.id)}
+                onError={() => console.log('Video load error for project:', project.id)}
+              />
+            ) : (
+              <img
+                src={project.media}
+                alt={project.title}
+                loading="lazy"
+                className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+                onLoad={() => handleMediaLoad(project.id)}
+                onError={() => console.log('Image load error for project:', project.id)}
+              />
+            )}
+          </>
         )}
 
-        {project.mediaType === 'video' ? (
-          <video
-            src={project.media}
-            className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
-            autoPlay
-            loop
-            muted
-            playsInline
-            onLoadedData={() => handleMediaLoad(project.id)}
-          />
-        ) : (
-          <img
-            src={project.media}
-            alt={project.title}
-            loading="lazy"
-            className={`w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 ${
-              mediaLoadStates[project.id] ? 'opacity-100' : 'opacity-0'
-            }`}
-            onLoad={() => handleMediaLoad(project.id)}
-            onError={() => handleMediaLoad(project.id)}
-          />
+        {/* Fallback for missing media */}
+        {!project.media && (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
+            <div className="text-center text-gray-400">
+              <Code size={48} className="mx-auto mb-4 opacity-50" />
+              <p className="text-sm">No preview available</p>
+            </div>
+          </div>
         )}
 
         {/* Gradient Overlay */}
@@ -174,7 +189,7 @@ const Projects = () => {
         {/* Bottom Info */}
         <div className="absolute bottom-6 left-6 right-6">
           <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300">
-            {project.title}
+            {project.title || 'Untitled Project'}
           </h3>
           <p className="text-gray-300 text-sm leading-relaxed opacity-90">
             {project.description && project.description.length > 120 
