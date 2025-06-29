@@ -8,8 +8,8 @@ import ProjectSkeleton from '../components/skeleton/ProjectSkeleton';
 const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
-  const [domains, setDomains] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [domains, setDomains] = useState(['All']);
+  const [categories, setCategories] = useState(['All']);
   const [activeDomain, setActiveDomain] = useState('All');
   const [activeCategory, setActiveCategory] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
@@ -19,17 +19,38 @@ const Projects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        console.log('Fetching projects...');
         const querySnapshot = await getDocs(collection(db, 'projects'));
-        const projectData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        console.log('Query snapshot size:', querySnapshot.size);
         
+        const projectData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          console.log('Project data:', data);
+          return {
+            id: doc.id,
+            ...data,
+          };
+        });
+        
+        console.log('Processed project data:', projectData);
         setProjects(projectData);
         setFilteredProjects(projectData);
 
-        const uniqueDomains = ['All', ...new Set(projectData.map(p => p.domain).filter(Boolean))];
-        const uniqueCategories = ['All', ...new Set(projectData.map(p => p.category).filter(Boolean))];
+        // Extract unique domains and categories
+        const uniqueDomains = ['All'];
+        const uniqueCategories = ['All'];
+        
+        projectData.forEach(project => {
+          if (project.domain && !uniqueDomains.includes(project.domain)) {
+            uniqueDomains.push(project.domain);
+          }
+          if (project.category && !uniqueCategories.includes(project.category)) {
+            uniqueCategories.push(project.category);
+          }
+        });
+        
+        console.log('Unique domains:', uniqueDomains);
+        console.log('Unique categories:', uniqueCategories);
         
         setDomains(uniqueDomains);
         setCategories(uniqueCategories);
@@ -44,7 +65,7 @@ const Projects = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = projects;
+    let filtered = [...projects];
 
     if (activeDomain !== 'All') {
       filtered = filtered.filter(project => project.domain === activeDomain);
@@ -54,6 +75,7 @@ const Projects = () => {
       filtered = filtered.filter(project => project.category === activeCategory);
     }
 
+    console.log('Filtered projects:', filtered);
     setFilteredProjects(filtered);
   }, [projects, activeDomain, activeCategory]);
 
@@ -155,7 +177,9 @@ const Projects = () => {
             {project.title}
           </h3>
           <p className="text-gray-300 text-sm leading-relaxed opacity-90">
-            {project.description?.slice(0, 120)}...
+            {project.description && project.description.length > 120 
+              ? `${project.description.slice(0, 120)}...` 
+              : project.description || 'No description available'}
           </p>
         </div>
       </div>
@@ -254,15 +278,15 @@ const Projects = () => {
             className="flex flex-wrap justify-center gap-8 mb-16"
           >
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">{projects.length}+</div>
+              <div className="text-3xl font-bold text-cyan-400 mb-2">{projects.length}</div>
               <div className="text-gray-400">Projects</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400 mb-2">{domains.length - 1}+</div>
+              <div className="text-3xl font-bold text-purple-400 mb-2">{Math.max(0, domains.length - 1)}</div>
               <div className="text-gray-400">Domains</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">{categories.length - 1}+</div>
+              <div className="text-3xl font-bold text-blue-400 mb-2">{Math.max(0, categories.length - 1)}</div>
               <div className="text-gray-400">Categories</div>
             </div>
           </motion.div>
@@ -396,7 +420,10 @@ const Projects = () => {
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-6">No projects found</h3>
                 <p className="text-gray-400 mb-8 text-lg leading-relaxed">
-                  No projects match the selected filters. Try adjusting your selection.
+                  {projects.length === 0 
+                    ? "No projects available in the database yet."
+                    : "No projects match the selected filters. Try adjusting your selection."
+                  }
                 </p>
                 <motion.button
                   onClick={() => {
