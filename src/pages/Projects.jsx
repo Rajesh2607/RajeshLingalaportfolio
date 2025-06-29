@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader } from 'lucide-react';
+import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader, Search, Filter } from 'lucide-react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 import ProjectDetailModal from '../components/ProjectDetailModal';
@@ -10,6 +10,7 @@ const Projects = () => {
   const [groupedProjects, setGroupedProjects] = useState({});
   const [categories, setCategories] = useState(['All']);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -50,7 +51,6 @@ const Projects = () => {
           });
         });
 
-        console.log('Fetched projects:', projectData);
         setProjects(projectData);
 
         // Group projects by domain
@@ -86,56 +86,57 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  // Modal functions
-  const openModal = (project) => {
+  // Optimized modal functions
+  const openModal = useCallback((project) => {
     setSelectedProject(project);
     setIsModalOpen(true);
-    // Prevent body scroll when modal is open
-    document.body.style.overflow = 'hidden';
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedProject(null);
-    // Restore body scroll
-    document.body.style.overflow = 'unset';
-  };
+  }, []);
 
-  // Close modal on escape key
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isModalOpen) {
-        closeModal();
-      }
-    };
+  // Memoized filtered projects
+  const filteredGroupedProjects = useMemo(() => {
+    let filtered = {};
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isModalOpen]);
-
-  // Filter grouped projects by category
-  const getFilteredGroupedProjects = () => {
+    // Filter by category
     if (activeCategory === 'All') {
-      return groupedProjects;
+      filtered = { ...groupedProjects };
+    } else {
+      Object.keys(groupedProjects).forEach(domain => {
+        const filteredProjects = groupedProjects[domain].filter(
+          project => project.category === activeCategory
+        );
+        if (filteredProjects.length > 0) {
+          filtered[domain] = filteredProjects;
+        }
+      });
     }
 
-    const filtered = {};
-    Object.keys(groupedProjects).forEach(domain => {
-      const filteredProjects = groupedProjects[domain].filter(
-        project => project.category === activeCategory
-      );
-      if (filteredProjects.length > 0) {
-        filtered[domain] = filteredProjects;
-      }
-    });
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      Object.keys(filtered).forEach(domain => {
+        filtered[domain] = filtered[domain].filter(project =>
+          project.title.toLowerCase().includes(searchLower) ||
+          project.description.toLowerCase().includes(searchLower) ||
+          project.technologies.some(tech => tech.toLowerCase().includes(searchLower)) ||
+          project.domain.toLowerCase().includes(searchLower)
+        );
+        
+        if (filtered[domain].length === 0) {
+          delete filtered[domain];
+        }
+      });
+    }
 
     return filtered;
-  };
-
-  const filteredGroupedProjects = getFilteredGroupedProjects();
+  }, [groupedProjects, activeCategory, searchTerm]);
 
   // Loading skeleton component
-  const ProjectSkeleton = () => (
+  const ProjectSkeleton = React.memo(() => (
     <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden animate-pulse">
       <div className="h-64 bg-gray-700"></div>
       <div className="p-6 space-y-4">
@@ -149,252 +150,216 @@ const Projects = () => {
         </div>
       </div>
     </div>
-  );
+  ));
 
-  // Domain section skeleton
-  const DomainSkeleton = () => (
-    <div className="mb-20">
-      <div className="text-center mb-12">
-        <div className="h-12 bg-gray-700 rounded w-64 mx-auto mb-4 animate-pulse"></div>
-        <div className="h-1 w-32 bg-gray-700 rounded mx-auto mb-6 animate-pulse"></div>
-        <div className="h-4 bg-gray-700 rounded w-48 mx-auto animate-pulse"></div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {Array(3).fill(null).map((_, i) => <ProjectSkeleton key={i} />)}
-      </div>
-    </div>
-  );
-
-  // Project card component
-  const ProjectCard = ({ project, index, onProjectClick }) => {
+  // Optimized Project card component
+  const ProjectCard = React.memo(({ project, index, onProjectClick }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    const handleCardClick = () => {
+    const handleCardClick = useCallback(() => {
       onProjectClick(project);
-    };
+    }, [project, onProjectClick]);
 
-    const handleLinkClick = (e) => {
-      e.stopPropagation(); // Prevent modal from opening when clicking links
-    };
+    const handleLinkClick = useCallback((e) => {
+      e.stopPropagation();
+    }, []);
+
+    const handleImageLoad = useCallback(() => {
+      setImageLoaded(true);
+    }, []);
+
+    const handleImageError = useCallback(() => {
+      setImageError(true);
+    }, []);
 
     return (
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ delay: index * 0.1, duration: 0.6 }}
-        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-400/10 cursor-pointer"
-        whileHover={{ y: -8 }}
+        transition={{ delay: index * 0.05, duration: 0.4 }}
+        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-xl cursor-pointer"
+        whileHover={{ y: -4 }}
         onClick={handleCardClick}
+        style={{ willChange: 'transform' }}
       >
-        {/* Media Section */}
+        {/* Optimized Media Section */}
         <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           {project.media && !imageError ? (
             <>
               {project.mediaType === 'video' ? (
                 <video
                   src={project.media}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   autoPlay
                   loop
                   muted
                   playsInline
-                  loading="lazy"
-                  onError={() => setImageError(true)}
+                  preload="metadata"
+                  onError={handleImageError}
+                  style={{ willChange: 'transform' }}
                 />
               ) : (
                 <>
                   {!imageLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader className="w-8 h-8 text-cyan-400 animate-spin" />
+                      <Loader className="w-6 h-6 text-cyan-400 animate-spin" />
                     </div>
                   )}
                   <img
                     src={project.media}
                     alt={project.title}
                     loading="lazy"
-                    className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
+                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
                       imageLoaded ? 'opacity-100' : 'opacity-0'
                     }`}
-                    onLoad={() => setImageLoaded(true)}
-                    onError={() => setImageError(true)}
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                    style={{ willChange: 'transform, opacity' }}
                   />
                 </>
               )}
             </>
           ) : (
-            // Fallback for missing or error media
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
               <div className="text-center text-gray-400">
-                <Code size={48} className="mx-auto mb-4 opacity-50" />
-                <p className="text-sm">No preview available</p>
+                <Code size={32} className="mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No preview</p>
               </div>
             </div>
           )}
 
-          {/* Overlay with action buttons */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-            <div className="flex space-x-4">
+          {/* Simplified overlay */}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <div className="flex space-x-3">
               {project.github && (
-                <motion.a
+                <a
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleLinkClick}
-                  className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors duration-200"
                 >
-                  <Github size={20} />
-                </motion.a>
+                  <Github size={18} />
+                </a>
               )}
               {project.live && (
-                <motion.a
+                <a
                   href={project.live}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleLinkClick}
-                  className="p-3 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  className="p-2 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-colors duration-200"
                 >
-                  <ExternalLink size={20} />
-                </motion.a>
+                  <ExternalLink size={18} />
+                </a>
               )}
             </div>
           </div>
 
           {/* Category badge */}
-          <div className="absolute top-4 right-4">
-            <span className="px-3 py-1 bg-cyan-500/20 backdrop-blur-sm text-cyan-300 text-xs font-semibold rounded-full border border-cyan-400/30">
+          <div className="absolute top-3 right-3">
+            <span className="px-2 py-1 bg-cyan-500/20 backdrop-blur-sm text-cyan-300 text-xs font-semibold rounded-full border border-cyan-400/30">
               {project.category}
             </span>
           </div>
         </div>
 
-        {/* Content Section */}
-        <div className="p-6">
-          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300">
+        {/* Optimized Content Section */}
+        <div className="p-5">
+          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300 line-clamp-1">
             {project.title}
           </h3>
           
-          <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-3">
+          <p className="text-gray-400 text-sm leading-relaxed mb-3 line-clamp-2">
             {project.description}
           </p>
 
-          {/* Technologies */}
-          <div className="mb-4">
-            <div className="flex items-center mb-2">
-              <Code size={14} className="text-cyan-400 mr-2" />
-              <span className="text-gray-300 text-sm font-medium">Technologies</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {project.technologies.slice(0, 4).map((tech, i) => (
+          {/* Simplified Technologies */}
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-1">
+              {project.technologies.slice(0, 3).map((tech, i) => (
                 <span
                   key={i}
-                  className="px-2 py-1 bg-gray-800/50 text-gray-300 rounded-md text-xs font-medium border border-gray-600/50 hover:border-cyan-400/50 hover:text-cyan-300 transition-all duration-300"
+                  className="px-2 py-1 bg-gray-800/50 text-gray-300 rounded text-xs font-medium border border-gray-600/50"
                 >
                   {tech}
                 </span>
               ))}
-              {project.technologies.length > 4 && (
-                <span className="px-2 py-1 bg-gray-700/50 text-gray-400 rounded-md text-xs font-medium">
-                  +{project.technologies.length - 4}
+              {project.technologies.length > 3 && (
+                <span className="px-2 py-1 bg-gray-700/50 text-gray-400 rounded text-xs font-medium">
+                  +{project.technologies.length - 3}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-            <div className="flex items-center space-x-3 text-gray-400 text-xs">
-              <div className="flex items-center space-x-1">
-                <Code size={12} />
-                <span>{project.technologies.length} techs</span>
-              </div>
+          {/* Simplified Footer */}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-700/50">
+            <div className="flex items-center space-x-1 text-gray-400 text-xs">
+              <Code size={10} />
+              <span>{project.technologies.length} techs</span>
             </div>
             <div className="flex items-center space-x-1 text-yellow-400">
-              <Star size={12} fill="currentColor" />
+              <Star size={10} fill="currentColor" />
               <span className="text-xs font-medium">Featured</span>
             </div>
           </div>
         </div>
       </motion.div>
     );
-  };
+  });
 
-  // Domain section component
-  const DomainSection = ({ domain, projects, domainIndex }) => {
+  // Optimized Domain section component
+  const DomainSection = React.memo(({ domain, projects, domainIndex }) => {
     const totalProjects = projects.length;
     const uniqueTechs = [...new Set(projects.flatMap(p => p.technologies))].length;
 
     return (
       <motion.section
         key={domain}
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: domainIndex * 0.2, duration: 0.8 }}
-        className="mb-20"
+        transition={{ delay: domainIndex * 0.1, duration: 0.6 }}
+        className="mb-16"
       >
-        {/* Beautiful Domain Header */}
-        <div className="text-center mb-12">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: domainIndex * 0.2 + 0.3 }}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
+        {/* Simplified Domain Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               {domain}
             </span>
-          </motion.h2>
+          </h2>
           
-          {/* Beautiful gradient line under domain name */}
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ delay: domainIndex * 0.2 + 0.5, duration: 1, ease: "easeOut" }}
-            className="relative mx-auto mb-6"
-            style={{ maxWidth: "200px" }}
-          >
-            <div className="h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"></div>
-            <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
-          </motion.div>
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full mx-auto mb-4"></div>
           
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: domainIndex * 0.2 + 0.6 }}
-            className="flex flex-wrap justify-center gap-8 text-gray-400"
-          >
-            <div className="flex items-center space-x-2">
-              <Layers size={16} className="text-cyan-400" />
+          <div className="flex flex-wrap justify-center gap-6 text-gray-400 text-sm">
+            <div className="flex items-center space-x-1">
+              <Layers size={14} className="text-cyan-400" />
               <span>{totalProjects} Project{totalProjects !== 1 ? 's' : ''}</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <Code size={16} className="text-purple-400" />
+            <div className="flex items-center space-x-1">
+              <Code size={14} className="text-purple-400" />
               <span>{uniqueTechs} Technologies</span>
             </div>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          <AnimatePresence mode="popLayout">
-            {projects.map((project, index) => (
-              <ProjectCard 
-                key={project.id} 
-                project={project} 
-                index={index} 
-                onProjectClick={openModal}
-              />
-            ))}
-          </AnimatePresence>
+        {/* Optimized Projects Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {projects.map((project, index) => (
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              index={index} 
+              onProjectClick={openModal}
+            />
+          ))}
         </div>
       </motion.section>
     );
-  };
+  });
 
   // Error state
   if (error) {
@@ -415,88 +380,109 @@ const Projects = () => {
     );
   }
 
+  const totalFilteredProjects = Object.values(filteredGroupedProjects).flat().length;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f]">
-      {/* Hero Section */}
-      <section className="relative py-20 px-6 md:px-8 lg:px-12">
+      {/* Optimized Hero Section */}
+      <section className="relative py-16 px-6 md:px-8 lg:px-12">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-5xl mx-auto"
+          className="text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               Project Portfolio
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
-            Explore my projects organized by domain - from web development to mobile apps, 
-            each showcasing different technologies and innovative solutions
-          </p>
-          <p className="text-lg text-cyan-400 mb-12 font-medium">
-            💡 Click on any project card to view complete details
+          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+            Explore my projects organized by domain - click any card to view complete details
           </p>
 
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 mb-16">
+          {/* Simplified Stats */}
+          <div className="flex flex-wrap justify-center gap-6 mb-12">
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">{projects.length}</div>
-              <div className="text-gray-400">Total Projects</div>
+              <div className="text-2xl font-bold text-cyan-400 mb-1">{projects.length}</div>
+              <div className="text-gray-400 text-sm">Projects</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400 mb-2">{Object.keys(groupedProjects).length}</div>
-              <div className="text-gray-400">Domains</div>
+              <div className="text-2xl font-bold text-purple-400 mb-1">{Object.keys(groupedProjects).length}</div>
+              <div className="text-gray-400 text-sm">Domains</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">{Math.max(0, categories.length - 1)}</div>
-              <div className="text-gray-400">Categories</div>
+              <div className="text-2xl font-bold text-blue-400 mb-1">{Math.max(0, categories.length - 1)}</div>
+              <div className="text-gray-400 text-sm">Categories</div>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* Category Filter */}
-      {categories.length > 1 && (
-        <section className="px-6 md:px-8 lg:px-12 mb-16">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8 text-center"
-            >
-              <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
-                <Code size={18} className="mr-2 text-purple-400" />
-                Filter by Category
-              </h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setActiveCategory(category)}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                      activeCategory === category
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                        : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-purple-400/50 hover:text-purple-300'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
+      {/* Optimized Search and Filter */}
+      <section className="px-6 md:px-8 lg:px-12 mb-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
+            {/* Search Bar */}
+            <div className="mb-6">
+              <div className="relative max-w-md mx-auto">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
+                />
               </div>
-              <div className="mt-4 text-gray-400">
-                Showing {Object.values(filteredGroupedProjects).flat().length} of {projects.length} projects
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      )}
+            </div>
 
-      {/* Projects by Domain */}
-      <section className="px-6 md:px-8 lg:px-12 pb-24">
+            {/* Category Filter */}
+            {categories.length > 1 && (
+              <div className="text-center">
+                <h3 className="text-white font-semibold mb-4 flex items-center justify-center">
+                  <Filter size={16} className="mr-2 text-cyan-400" />
+                  Filter by Category
+                </h3>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setActiveCategory(category)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
+                        activeCategory === category
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
+                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 text-gray-400 text-sm">
+                  Showing {totalFilteredProjects} of {projects.length} projects
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Optimized Projects by Domain */}
+      <section className="px-6 md:px-8 lg:px-12 pb-20">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div>
-              {Array(3).fill(null).map((_, i) => <DomainSkeleton key={i} />)}
+            <div className="space-y-16">
+              {Array(2).fill(null).map((_, i) => (
+                <div key={i} className="space-y-8">
+                  <div className="text-center">
+                    <div className="h-10 bg-gray-700 rounded w-48 mx-auto mb-4 animate-pulse"></div>
+                    <div className="h-1 w-32 bg-gray-700 rounded mx-auto animate-pulse"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {Array(3).fill(null).map((_, j) => <ProjectSkeleton key={j} />)}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : Object.keys(filteredGroupedProjects).length > 0 ? (
             Object.entries(filteredGroupedProjects).map(([domain, domainProjects], domainIndex) => (
@@ -511,22 +497,23 @@ const Projects = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-24"
+              className="text-center py-20"
             >
               <div className="max-w-lg mx-auto">
-                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                  <Code size={32} className="text-gray-400" />
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-6">No projects found</h3>
-                <p className="text-gray-400 mb-8 text-lg leading-relaxed">
+                <Code size={48} className="mx-auto mb-6 text-gray-400" />
+                <h3 className="text-2xl font-bold text-white mb-4">No projects found</h3>
+                <p className="text-gray-400 mb-6">
                   {projects.length === 0 
-                    ? "No projects available in the database yet."
-                    : "No projects match the selected category. Try selecting a different category."
+                    ? "No projects available yet."
+                    : "No projects match your search criteria."
                   }
                 </p>
                 <button
-                  onClick={() => setActiveCategory('All')}
-                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setActiveCategory('All');
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
                 >
                   Show All Projects
                 </button>
@@ -536,7 +523,7 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* Project Detail Modal */}
+      {/* Optimized Project Detail Modal */}
       <ProjectDetailModal
         project={selectedProject}
         isOpen={isModalOpen}
