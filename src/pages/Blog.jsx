@@ -204,7 +204,7 @@ const Blog = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] overflow-x-hidden">
       {/* Hero Section */}
       <div className="relative py-20 px-6 md:px-8 lg:px-12">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-600/5"></div>
+        
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
