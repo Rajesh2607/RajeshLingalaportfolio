@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader, FolderOpen } from 'lucide-react';
+import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader } from 'lucide-react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -122,7 +122,11 @@ const Projects = () => {
   // Domain section skeleton
   const DomainSkeleton = () => (
     <div className="mb-20">
-      <div className="h-8 bg-gray-700 rounded w-64 mx-auto mb-12 animate-pulse"></div>
+      <div className="text-center mb-12">
+        <div className="h-12 bg-gray-700 rounded w-64 mx-auto mb-4 animate-pulse"></div>
+        <div className="h-1 w-32 bg-gray-700 rounded mx-auto mb-6 animate-pulse"></div>
+        <div className="h-4 bg-gray-700 rounded w-48 mx-auto animate-pulse"></div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {Array(3).fill(null).map((_, i) => <ProjectSkeleton key={i} />)}
       </div>
@@ -288,32 +292,35 @@ const Projects = () => {
         transition={{ delay: domainIndex * 0.2, duration: 0.8 }}
         className="mb-20"
       >
-        {/* Domain Header */}
+        {/* Beautiful Domain Header */}
         <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: domainIndex * 0.2 + 0.3 }}
-            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl mb-6 shadow-xl"
-          >
-            <FolderOpen size={32} className="text-white" />
-          </motion.div>
-          
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: domainIndex * 0.2 + 0.4 }}
-            className="text-4xl md:text-5xl font-bold mb-4"
+            transition={{ delay: domainIndex * 0.2 + 0.3 }}
+            className="text-4xl md:text-5xl font-bold mb-6"
           >
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               {domain}
             </span>
           </motion.h2>
           
+          {/* Beautiful gradient line under domain name */}
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ delay: domainIndex * 0.2 + 0.5, duration: 1, ease: "easeOut" }}
+            className="relative mx-auto mb-6"
+            style={{ maxWidth: "200px" }}
+          >
+            <div className="h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"></div>
+            <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
+          </motion.div>
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: domainIndex * 0.2 + 0.5 }}
+            transition={{ delay: domainIndex * 0.2 + 0.6 }}
             className="flex flex-wrap justify-center gap-8 text-gray-400"
           >
             <div className="flex items-center space-x-2">
@@ -455,7 +462,7 @@ const Projects = () => {
             >
               <div className="max-w-lg mx-auto">
                 <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                  <FolderOpen size={32} className="text-gray-400" />
+                  <Code size={32} className="text-gray-400" />
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-6">No projects found</h3>
                 <p className="text-gray-400 mb-8 text-lg leading-relaxed">
