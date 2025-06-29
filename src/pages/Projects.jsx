@@ -85,15 +85,20 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  // Optimized modal functions
+  // Optimized modal functions with better performance
   const openModal = useCallback((project) => {
+    // Prevent body scroll when modal opens
+    document.body.style.overflow = 'hidden';
     setSelectedProject(project);
     setIsModalOpen(true);
   }, []);
 
   const closeModal = useCallback(() => {
+    // Restore body scroll when modal closes
+    document.body.style.overflow = 'unset';
     setIsModalOpen(false);
-    setSelectedProject(null);
+    // Delay clearing selected project to prevent flash
+    setTimeout(() => setSelectedProject(null), 150);
   }, []);
 
   // Memoized filtered projects
@@ -117,34 +122,19 @@ const Projects = () => {
     return filtered;
   }, [groupedProjects, activeCategory]);
 
-  // Loading skeleton component
-  const ProjectSkeleton = React.memo(() => (
-    <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden animate-pulse">
-      <div className="h-64 bg-gray-700"></div>
-      <div className="p-6 space-y-4">
-        <div className="h-6 bg-gray-700 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-700 rounded w-full"></div>
-        <div className="h-4 bg-gray-700 rounded w-2/3"></div>
-        <div className="flex gap-2 mt-4">
-          <div className="h-6 w-16 bg-gray-700 rounded-full"></div>
-          <div className="h-6 w-20 bg-gray-700 rounded-full"></div>
-          <div className="h-6 w-18 bg-gray-700 rounded-full"></div>
-        </div>
-      </div>
-    </div>
-  ));
-
-  // Optimized Project card component
+  // Optimized Project card component with minimal re-renders
   const ProjectCard = React.memo(({ project, index, onProjectClick }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    const handleCardClick = useCallback(() => {
+    const handleCardClick = useCallback((e) => {
+      e.preventDefault();
       onProjectClick(project);
     }, [project, onProjectClick]);
 
     const handleLinkClick = useCallback((e) => {
       e.stopPropagation();
+      e.preventDefault();
     }, []);
 
     const handleImageLoad = useCallback(() => {
@@ -153,52 +143,77 @@ const Projects = () => {
 
     const handleImageError = useCallback(() => {
       setImageError(true);
+      setImageLoaded(true);
     }, []);
+
+    // Simplified animation variants for better performance
+    const cardVariants = {
+      hidden: { opacity: 0, y: 20 },
+      visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: { 
+          duration: 0.3,
+          ease: "easeOut"
+        }
+      }
+    };
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ delay: index * 0.05, duration: 0.4 }}
-        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-xl cursor-pointer"
-        whileHover={{ y: -4 }}
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: index * 0.03 }}
+        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-200 hover:shadow-lg cursor-pointer transform-gpu"
         onClick={handleCardClick}
-        style={{ willChange: 'transform' }}
+        style={{ 
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          perspective: 1000
+        }}
+        whileHover={{ 
+          y: -2,
+          transition: { duration: 0.2, ease: "easeOut" }
+        }}
       >
         {/* Optimized Media Section */}
-        <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
+        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           {project.media && !imageError ? (
             <>
               {project.mediaType === 'video' ? (
                 <video
                   src={project.media}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  autoPlay
-                  loop
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   muted
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   onError={handleImageError}
-                  style={{ willChange: 'transform' }}
+                  style={{ 
+                    willChange: 'transform',
+                    backfaceVisibility: 'hidden'
+                  }}
                 />
               ) : (
                 <>
                   {!imageLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader className="w-6 h-6 text-cyan-400 animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                      <div className="w-4 h-4 border-2 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
                     </div>
                   )}
                   <img
                     src={project.media}
                     alt={project.title}
                     loading="lazy"
-                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
+                    className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
                       imageLoaded ? 'opacity-100' : 'opacity-0'
                     }`}
                     onLoad={handleImageLoad}
                     onError={handleImageError}
-                    style={{ willChange: 'transform, opacity' }}
+                    style={{ 
+                      willChange: 'transform, opacity',
+                      backfaceVisibility: 'hidden'
+                    }}
                   />
                 </>
               )}
@@ -206,24 +221,24 @@ const Projects = () => {
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
               <div className="text-center text-gray-400">
-                <Code size={32} className="mx-auto mb-2 opacity-50" />
+                <Code size={24} className="mx-auto mb-1 opacity-50" />
                 <p className="text-xs">No preview</p>
               </div>
             </div>
           )}
 
-          {/* Simplified overlay */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div className="flex space-x-3">
+          {/* Simplified overlay with better performance */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+            <div className="flex space-x-2">
               {project.github && (
                 <a
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleLinkClick}
-                  className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors duration-200"
+                  className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors duration-150"
                 >
-                  <Github size={18} />
+                  <Github size={16} />
                 </a>
               )}
               {project.live && (
@@ -232,25 +247,25 @@ const Projects = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleLinkClick}
-                  className="p-2 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-colors duration-200"
+                  className="p-2 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-colors duration-150"
                 >
-                  <ExternalLink size={18} />
+                  <ExternalLink size={16} />
                 </a>
               )}
             </div>
           </div>
 
           {/* Category badge */}
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-1 bg-cyan-500/20 backdrop-blur-sm text-cyan-300 text-xs font-semibold rounded-full border border-cyan-400/30">
+          <div className="absolute top-2 right-2">
+            <span className="px-2 py-1 bg-cyan-500/20 backdrop-blur-sm text-cyan-300 text-xs font-medium rounded-full border border-cyan-400/30">
               {project.category}
             </span>
           </div>
         </div>
 
         {/* Optimized Content Section */}
-        <div className="p-5">
-          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300 line-clamp-1">
+        <div className="p-4">
+          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-200 line-clamp-1">
             {project.title}
           </h3>
           
@@ -258,12 +273,12 @@ const Projects = () => {
             {project.description}
           </p>
 
-          {/* Simplified Technologies */}
+          {/* Optimized Technologies */}
           <div className="mb-3">
             <div className="flex flex-wrap gap-1">
               {project.technologies.slice(0, 3).map((tech, i) => (
                 <span
-                  key={i}
+                  key={`${project.id}-tech-${i}`}
                   className="px-2 py-1 bg-gray-800/50 text-gray-300 rounded text-xs font-medium border border-gray-600/50"
                 >
                   {tech}
@@ -277,8 +292,8 @@ const Projects = () => {
             </div>
           </div>
 
-          {/* Simplified Footer */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-700/50">
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
             <div className="flex items-center space-x-1 text-gray-400 text-xs">
               <Code size={10} />
               <span>{project.technologies.length} techs</span>
@@ -301,35 +316,35 @@ const Projects = () => {
     return (
       <motion.section
         key={domain}
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: domainIndex * 0.1, duration: 0.6 }}
-        className="mb-16"
+        transition={{ delay: domainIndex * 0.05, duration: 0.4 }}
+        className="mb-12"
       >
-        {/* Simplified Domain Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        {/* Domain Header */}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               {domain}
             </span>
           </h2>
           
-          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full mx-auto mb-4"></div>
+          <div className="h-1 w-24 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full mx-auto mb-3"></div>
           
-          <div className="flex flex-wrap justify-center gap-6 text-gray-400 text-sm">
+          <div className="flex flex-wrap justify-center gap-4 text-gray-400 text-sm">
             <div className="flex items-center space-x-1">
-              <Layers size={14} className="text-cyan-400" />
+              <Layers size={12} className="text-cyan-400" />
               <span>{totalProjects} Project{totalProjects !== 1 ? 's' : ''}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Code size={14} className="text-purple-400" />
+              <Code size={12} className="text-purple-400" />
               <span>{uniqueTechs} Technologies</span>
             </div>
           </div>
         </div>
 
-        {/* Optimized Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Projects Grid with optimized layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
           {projects.map((project, index) => (
             <ProjectCard 
               key={project.id} 
@@ -343,17 +358,34 @@ const Projects = () => {
     );
   });
 
+  // Loading skeleton with better performance
+  const ProjectSkeleton = React.memo(() => (
+    <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden animate-pulse">
+      <div className="h-48 bg-gray-700"></div>
+      <div className="p-4 space-y-3">
+        <div className="h-5 bg-gray-700 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-700 rounded w-full"></div>
+        <div className="h-4 bg-gray-700 rounded w-2/3"></div>
+        <div className="flex gap-1 mt-3">
+          <div className="h-5 w-12 bg-gray-700 rounded-full"></div>
+          <div className="h-5 w-16 bg-gray-700 rounded-full"></div>
+          <div className="h-5 w-14 bg-gray-700 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  ));
+
   // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
-          <AlertCircle size={64} className="text-red-400 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
-          <p className="text-gray-400 mb-6">{error}</p>
+          <AlertCircle size={48} className="text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-3">Something went wrong</h2>
+          <p className="text-gray-400 mb-4 text-sm">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
           >
             Try Again
           </button>
@@ -367,34 +399,35 @@ const Projects = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f]">
       {/* Optimized Hero Section */}
-      <section className="relative py-16 px-6 md:px-8 lg:px-12">
+      <section className="relative py-12 px-6 md:px-8 lg:px-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               Project Portfolio
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+          <p className="text-base md:text-lg text-gray-300 mb-6 leading-relaxed">
             Explore my projects organized by domain - click any card to view complete details
           </p>
 
           {/* Simplified Stats */}
-          <div className="flex flex-wrap justify-center gap-6 mb-12">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="text-center">
-              <div className="text-2xl font-bold text-cyan-400 mb-1">{projects.length}</div>
-              <div className="text-gray-400 text-sm">Projects</div>
+              <div className="text-xl font-bold text-cyan-400 mb-1">{projects.length}</div>
+              <div className="text-gray-400 text-xs">Projects</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-400 mb-1">{Object.keys(groupedProjects).length}</div>
-              <div className="text-gray-400 text-sm">Domains</div>
+              <div className="text-xl font-bold text-purple-400 mb-1">{Object.keys(groupedProjects).length}</div>
+              <div className="text-gray-400 text-xs">Domains</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400 mb-1">{Math.max(0, categories.length - 1)}</div>
-              <div className="text-gray-400 text-sm">Categories</div>
+              <div className="text-xl font-bold text-blue-400 mb-1">{Math.max(0, categories.length - 1)}</div>
+              <div className="text-gray-400 text-xs">Categories</div>
             </div>
           </div>
         </motion.div>
@@ -402,16 +435,17 @@ const Projects = () => {
 
       {/* Category Filter Only */}
       {categories.length > 1 && (
-        <section className="px-6 md:px-8 lg:px-12 mb-12">
+        <section className="px-6 md:px-8 lg:px-12 mb-8">
           <div className="max-w-4xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6"
+              transition={{ delay: 0.1 }}
+              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-xl border border-gray-700/50 p-4"
             >
               <div className="text-center">
-                <h3 className="text-white font-semibold mb-4 flex items-center justify-center">
-                  <Filter size={16} className="mr-2 text-cyan-400" />
+                <h3 className="text-white font-medium mb-3 flex items-center justify-center text-sm">
+                  <Filter size={14} className="mr-2 text-cyan-400" />
                   Filter by Category
                 </h3>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -419,7 +453,7 @@ const Projects = () => {
                     <button
                       key={category}
                       onClick={() => setActiveCategory(category)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
+                      className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                         activeCategory === category
                           ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                           : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
@@ -429,7 +463,7 @@ const Projects = () => {
                     </button>
                   ))}
                 </div>
-                <div className="mt-3 text-gray-400 text-sm">
+                <div className="mt-2 text-gray-400 text-xs">
                   Showing {totalFilteredProjects} of {projects.length} projects
                 </div>
               </div>
@@ -439,17 +473,17 @@ const Projects = () => {
       )}
 
       {/* Optimized Projects by Domain */}
-      <section className="px-6 md:px-8 lg:px-12 pb-20">
+      <section className="px-6 md:px-8 lg:px-12 pb-16">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className="space-y-16">
+            <div className="space-y-12">
               {Array(2).fill(null).map((_, i) => (
-                <div key={i} className="space-y-8">
+                <div key={i} className="space-y-6">
                   <div className="text-center">
-                    <div className="h-10 bg-gray-700 rounded w-48 mx-auto mb-4 animate-pulse"></div>
-                    <div className="h-1 w-32 bg-gray-700 rounded mx-auto animate-pulse"></div>
+                    <div className="h-8 bg-gray-700 rounded w-32 mx-auto mb-3 animate-pulse"></div>
+                    <div className="h-1 w-24 bg-gray-700 rounded mx-auto animate-pulse"></div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                     {Array(3).fill(null).map((_, j) => <ProjectSkeleton key={j} />)}
                   </div>
                 </div>
@@ -468,12 +502,12 @@ const Projects = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20"
+              className="text-center py-16"
             >
               <div className="max-w-lg mx-auto">
-                <Code size={48} className="mx-auto mb-6 text-gray-400" />
-                <h3 className="text-2xl font-bold text-white mb-4">No projects found</h3>
-                <p className="text-gray-400 mb-6">
+                <Code size={40} className="mx-auto mb-4 text-gray-400" />
+                <h3 className="text-xl font-bold text-white mb-3">No projects found</h3>
+                <p className="text-gray-400 mb-4 text-sm">
                   {projects.length === 0 
                     ? "No projects available yet."
                     : "No projects match your selected category."
@@ -481,7 +515,7 @@ const Projects = () => {
                 </p>
                 <button
                   onClick={() => setActiveCategory('All')}
-                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
                 >
                   Show All Projects
                 </button>
@@ -492,11 +526,15 @@ const Projects = () => {
       </section>
 
       {/* Optimized Project Detail Modal */}
-      <ProjectDetailModal
-        project={selectedProject}
-        isOpen={isModalOpen}
-        onClose={closeModal}
-      />
+      <AnimatePresence mode="wait">
+        {isModalOpen && selectedProject && (
+          <ProjectDetailModal
+            project={selectedProject}
+            isOpen={isModalOpen}
+            onClose={closeModal}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
