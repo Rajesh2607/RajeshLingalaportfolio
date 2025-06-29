@@ -200,6 +200,7 @@ const Projects = () => {
                   loop
                   muted
                   playsInline
+                  loading="lazy"
                   onError={() => setImageError(true)}
                 />
               ) : (
@@ -212,6 +213,7 @@ const Projects = () => {
                   <img
                     src={project.media}
                     alt={project.title}
+                    loading="lazy"
                     className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
                       imageLoaded ? 'opacity-100' : 'opacity-0'
                     }`}

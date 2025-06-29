@@ -85,12 +85,14 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                         loop
                         muted
                         playsInline
+                        loading="lazy"
                       />
                     ) : (
                       <img
                         src={project.media}
                         alt={project.title}
                         className="w-full h-64 md:h-80 object-cover"
+                        loading="lazy"
                       />
                     )}
                     
