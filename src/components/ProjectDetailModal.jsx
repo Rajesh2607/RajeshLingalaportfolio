@@ -198,6 +198,10 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                               mediaLoaded ? 'opacity-100' : 'opacity-0'
                             }`}
                             controls
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
                             preload="metadata"
                             onLoadedData={handleMediaLoad}
                             onError={handleMediaError}

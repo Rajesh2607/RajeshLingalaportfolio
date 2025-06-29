@@ -126,6 +126,7 @@ const Projects = () => {
   const ProjectCard = React.memo(({ project, index, onProjectClick }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [videoLoaded, setVideoLoaded] = useState(false);
 
     const handleCardClick = useCallback((e) => {
       e.preventDefault();
@@ -144,6 +145,15 @@ const Projects = () => {
     const handleImageError = useCallback(() => {
       setImageError(true);
       setImageLoaded(true);
+    }, []);
+
+    const handleVideoLoad = useCallback(() => {
+      setVideoLoaded(true);
+    }, []);
+
+    const handleVideoError = useCallback(() => {
+      setImageError(true);
+      setVideoLoaded(true);
     }, []);
 
     // Simplified animation variants for better performance
@@ -182,18 +192,30 @@ const Projects = () => {
           {project.media && !imageError ? (
             <>
               {project.mediaType === 'video' ? (
-                <video
-                  src={project.media}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  muted
-                  playsInline
-                  preload="none"
-                  onError={handleImageError}
-                  style={{ 
-                    willChange: 'transform',
-                    backfaceVisibility: 'hidden'
-                  }}
-                />
+                <>
+                  {!videoLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-800 z-10">
+                      <div className="w-4 h-4 border-2 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <video
+                    src={project.media}
+                    className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
+                      videoLoaded ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="metadata"
+                    onLoadedData={handleVideoLoad}
+                    onError={handleVideoError}
+                    style={{ 
+                      willChange: 'transform',
+                      backfaceVisibility: 'hidden'
+                    }}
+                  />
+                </>
               ) : (
                 <>
                   {!imageLoaded && (
