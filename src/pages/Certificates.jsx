@@ -12,7 +12,6 @@ const Certificates = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imageLoadStates, setImageLoadStates] = useState({});
 
   useEffect(() => {
     const fetchCertificates = async () => {
@@ -20,39 +19,33 @@ const Certificates = () => {
         setLoading(true);
         setError(null);
         
-        console.log('Fetching certificates from Firebase...');
+        console.log('🔄 Fetching certificates from Firebase...');
         const querySnapshot = await getDocs(collection(db, 'certificates'));
         
-        console.log('Query snapshot:', querySnapshot);
-        console.log('Query snapshot empty:', querySnapshot.empty);
-        console.log('Query snapshot size:', querySnapshot.size);
-        
         if (querySnapshot.empty) {
-          console.log('No certificates found in database');
+          console.log('❌ No certificates found in database');
           setCertificates([]);
           setGroupedCertificates({});
           setDomains(['All']);
-          setLoading(false);
           return;
         }
 
         const certs = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log('Certificate document:', doc.id, data);
+          console.log('📄 Processing certificate:', doc.id, data);
           
-          // Handle domain field - it could be string, array, or undefined
+          // Handle domain field safely
           let domainArray = [];
           if (data.domain) {
             if (Array.isArray(data.domain)) {
               domainArray = data.domain.filter(d => d && d.trim() !== '');
             } else if (typeof data.domain === 'string') {
-              // Split by comma and clean up
               domainArray = data.domain.split(',').map(d => d.trim()).filter(d => d !== '');
             }
           }
           
-          // If no valid domain, use 'General'
+          // Default domain if none specified
           if (domainArray.length === 0) {
             domainArray = ['General'];
           }
@@ -68,11 +61,10 @@ const Certificates = () => {
             domain: domainArray
           };
           
-          console.log('Processed certificate:', certificate);
           certs.push(certificate);
         });
 
-        console.log('All processed certificates:', certs);
+        console.log('✅ Successfully processed certificates:', certs.length);
         setCertificates(certs);
 
         // Group certificates by domain
@@ -86,7 +78,6 @@ const Certificates = () => {
           });
         });
 
-        console.log('Grouped certificates:', grouped);
         setGroupedCertificates(grouped);
 
         // Extract unique domains
@@ -95,18 +86,16 @@ const Certificates = () => {
           cert.domain.forEach(d => allDomains.add(d));
         });
         const domainList = ['All', ...Array.from(allDomains).sort()];
-        console.log('Domain list:', domainList);
         setDomains(domainList);
 
-        // Initialize image loading states
-        const loadingState = {};
-        certs.forEach(cert => {
-          loadingState[cert.id] = cert.image ? true : false;
+        console.log('🎯 Final state:', {
+          certificates: certs.length,
+          domains: domainList.length - 1,
+          grouped: Object.keys(grouped).length
         });
-        setImageLoadStates(loadingState);
 
       } catch (err) {
-        console.error("Error fetching certificates:", err);
+        console.error("❌ Error fetching certificates:", err);
         setError(`Failed to load certificates: ${err.message}`);
       } finally {
         setLoading(false);
@@ -115,14 +104,6 @@ const Certificates = () => {
 
     fetchCertificates();
   }, []);
-
-  const handleImageLoad = (id) => {
-    setImageLoadStates(prev => ({ ...prev, [id]: false }));
-  };
-
-  const handleImageError = (id) => {
-    setImageLoadStates(prev => ({ ...prev, [id]: false }));
-  };
 
   // Filter certificates by domain and search term
   const getFilteredGroupedCertificates = () => {
@@ -178,7 +159,7 @@ const Certificates = () => {
         <div className="relative h-56 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           {cert.image && !imageError ? (
             <>
-              {imageLoadStates[cert.id] && (
+              {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <Loader className="w-8 h-8 text-cyan-400 animate-spin" />
                 </div>
@@ -189,14 +170,8 @@ const Certificates = () => {
                 className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
-                onLoad={() => {
-                  setImageLoaded(true);
-                  handleImageLoad(cert.id);
-                }}
-                onError={() => {
-                  setImageError(true);
-                  handleImageError(cert.id);
-                }}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
               />
             </>
           ) : (
@@ -395,18 +370,6 @@ const Certificates = () => {
       </div>
     </div>
   );
-
-  // Debug information
-  console.log('Current state:', {
-    loading,
-    error,
-    certificatesCount: certificates.length,
-    groupedCertificatesKeys: Object.keys(groupedCertificates),
-    filteredGroupedCertificatesKeys: Object.keys(filteredGroupedCertificates),
-    selectedDomain,
-    searchTerm,
-    domains
-  });
 
   // Error state
   if (error) {
