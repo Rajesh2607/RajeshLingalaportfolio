@@ -20,19 +20,42 @@ const Certificates = () => {
         setLoading(true);
         setError(null);
         
+        console.log('Fetching certificates from Firebase...');
         const querySnapshot = await getDocs(collection(db, 'certificates'));
+        
+        console.log('Query snapshot:', querySnapshot);
+        console.log('Query snapshot empty:', querySnapshot.empty);
+        console.log('Query snapshot size:', querySnapshot.size);
         
         if (querySnapshot.empty) {
           console.log('No certificates found in database');
           setCertificates([]);
           setGroupedCertificates({});
+          setLoading(false);
           return;
         }
 
         const certs = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          certs.push({
+          console.log('Certificate document:', doc.id, data);
+          
+          // Handle domain field - it could be string, array, or undefined
+          let domainArray = [];
+          if (data.domain) {
+            if (Array.isArray(data.domain)) {
+              domainArray = data.domain.filter(d => d && d.trim() !== '');
+            } else if (typeof data.domain === 'string') {
+              domainArray = [data.domain.trim()];
+            }
+          }
+          
+          // If no valid domain, use 'General'
+          if (domainArray.length === 0) {
+            domainArray = ['General'];
+          }
+
+          const certificate = {
             id: doc.id,
             title: data.title || 'Untitled Certificate',
             issuer: data.issuer || 'Unknown Issuer',
@@ -40,11 +63,14 @@ const Certificates = () => {
             credentialId: data.credentialId || '',
             image: data.image || '',
             link: data.link || '',
-            domain: Array.isArray(data.domain) ? data.domain : [data.domain || 'General']
-          });
+            domain: domainArray
+          };
+          
+          console.log('Processed certificate:', certificate);
+          certs.push(certificate);
         });
 
-        console.log('Fetched certificates:', certs);
+        console.log('All processed certificates:', certs);
         setCertificates(certs);
 
         // Group certificates by domain
@@ -58,6 +84,7 @@ const Certificates = () => {
           });
         });
 
+        console.log('Grouped certificates:', grouped);
         setGroupedCertificates(grouped);
 
         // Extract unique domains
@@ -65,18 +92,20 @@ const Certificates = () => {
         certs.forEach(cert => {
           cert.domain.forEach(d => allDomains.add(d));
         });
-        setDomains(['All', ...Array.from(allDomains)]);
+        const domainList = ['All', ...Array.from(allDomains)];
+        console.log('Domain list:', domainList);
+        setDomains(domainList);
 
         // Initialize image loading states
         const loadingState = {};
         certs.forEach(cert => {
-          loadingState[cert.id] = true;
+          loadingState[cert.id] = cert.image ? true : false;
         });
         setImageLoadStates(loadingState);
 
       } catch (err) {
         console.error("Error fetching certificates:", err);
-        setError('Failed to load certificates. Please try again later.');
+        setError(`Failed to load certificates: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -101,17 +130,19 @@ const Certificates = () => {
       filtered = { ...groupedCertificates };
     } else {
       if (groupedCertificates[selectedDomain]) {
-        filtered[selectedDomain] = groupedCertificates[selectedDomain];
+        filtered[selectedDomain] = [...groupedCertificates[selectedDomain]];
       }
     }
 
     // Apply search filter
-    if (searchTerm) {
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
       Object.keys(filtered).forEach(domain => {
         filtered[domain] = filtered[domain].filter(cert =>
-          cert.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cert.issuer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cert.domain.some(d => d.toLowerCase().includes(searchTerm.toLowerCase()))
+          cert.title.toLowerCase().includes(searchLower) ||
+          cert.issuer.toLowerCase().includes(searchLower) ||
+          cert.domain.some(d => d.toLowerCase().includes(searchLower)) ||
+          (cert.credentialId && cert.credentialId.toLowerCase().includes(searchLower))
         );
         
         // Remove empty domains
@@ -363,6 +394,18 @@ const Certificates = () => {
     </div>
   );
 
+  // Debug information
+  console.log('Current state:', {
+    loading,
+    error,
+    certificatesCount: certificates.length,
+    groupedCertificatesKeys: Object.keys(groupedCertificates),
+    filteredGroupedCertificatesKeys: Object.keys(filteredGroupedCertificates),
+    selectedDomain,
+    searchTerm,
+    domains
+  });
+
   // Error state
   if (error) {
     return (
@@ -521,6 +564,19 @@ const Certificates = () => {
           )}
         </div>
       </section>
+
+      {/* Debug Information (only in development) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 left-4 bg-black/80 text-white p-4 rounded-lg text-xs max-w-sm">
+          <div>Loading: {loading.toString()}</div>
+          <div>Error: {error || 'None'}</div>
+          <div>Certificates: {certificates.length}</div>
+          <div>Domains: {domains.join(', ')}</div>
+          <div>Selected: {selectedDomain}</div>
+          <div>Search: {searchTerm || 'None'}</div>
+          <div>Filtered: {Object.keys(filteredGroupedCertificates).length} domains</div>
+        </div>
+      )}
     </div>
   );
 };
