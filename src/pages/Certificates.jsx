@@ -138,7 +138,7 @@ const Certificates = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9 }}
         transition={{ delay: index * 0.1, duration: 0.6 }}
-        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-yellow-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-400/10"
+        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-400/10"
         whileHover={{ y: -8 }}
       >
         {/* Certificate Image */}
@@ -147,7 +147,7 @@ const Certificates = () => {
             <>
               {imageLoadStates[cert.id] && (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <Loader className="w-8 h-8 text-yellow-400 animate-spin" />
+                  <Loader className="w-8 h-8 text-cyan-400 animate-spin" />
                 </div>
               )}
               <img
@@ -182,7 +182,7 @@ const Certificates = () => {
                 href={cert.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-4 bg-yellow-500/30 backdrop-blur-sm rounded-full text-yellow-300 hover:bg-yellow-500/50 transition-all duration-300"
+                className="p-4 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-all duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -221,13 +221,13 @@ const Certificates = () => {
 
         {/* Certificate Content */}
         <div className="p-6">
-          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-yellow-300 transition-colors duration-300 line-clamp-2">
+          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300 line-clamp-2">
             {cert.title}
           </h3>
           
           <div className="space-y-3 mb-4">
             <div className="flex items-center text-gray-400">
-              <BookOpen size={14} className="mr-2 text-yellow-400" />
+              <BookOpen size={14} className="mr-2 text-cyan-400" />
               <span className="text-sm font-medium">{cert.issuer}</span>
             </div>
             
@@ -248,7 +248,7 @@ const Certificates = () => {
 
           {/* Footer */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-            <div className="flex items-center space-x-1 text-yellow-400">
+            <div className="flex items-center space-x-1 text-cyan-400">
               <Star size={12} fill="currentColor" />
               <span className="text-xs font-medium">Certified</span>
             </div>
@@ -291,7 +291,7 @@ const Certificates = () => {
             transition={{ delay: domainIndex * 0.2 + 0.3 }}
             className="text-4xl md:text-5xl font-bold mb-6"
           >
-            <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 text-transparent bg-clip-text">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               {domain}
             </span>
           </motion.h2>
@@ -304,8 +304,8 @@ const Certificates = () => {
             className="relative mx-auto mb-6"
             style={{ maxWidth: "200px" }}
           >
-            <div className="h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent rounded-full"></div>
-            <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full blur-sm opacity-60"></div>
+            <div className="h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"></div>
+            <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
           </motion.div>
           
           <motion.div
@@ -315,11 +315,11 @@ const Certificates = () => {
             className="flex flex-wrap justify-center gap-8 text-gray-400"
           >
             <div className="flex items-center space-x-2">
-              <Award size={16} className="text-yellow-400" />
+              <Award size={16} className="text-cyan-400" />
               <span>{totalCerts} Certificate{totalCerts !== 1 ? 's' : ''}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Trophy size={16} className="text-orange-400" />
+              <Trophy size={16} className="text-purple-400" />
               <span>{uniqueIssuers} Issuer{uniqueIssuers !== 1 ? 's' : ''}</span>
             </div>
           </motion.div>
@@ -373,7 +373,7 @@ const Certificates = () => {
           <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
           >
             Try Again
           </button>
@@ -392,7 +392,7 @@ const Certificates = () => {
           className="text-center max-w-5xl mx-auto"
         >
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
-            <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 text-transparent bg-clip-text">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
               Professional Certificates
             </span>
           </h1>
@@ -404,15 +404,15 @@ const Certificates = () => {
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-8 mb-16">
             <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400 mb-2">{certificates.length}</div>
+              <div className="text-3xl font-bold text-cyan-400 mb-2">{certificates.length}</div>
               <div className="text-gray-400">Total Certificates</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-orange-400 mb-2">{Object.keys(groupedCertificates).length}</div>
+              <div className="text-3xl font-bold text-purple-400 mb-2">{Object.keys(groupedCertificates).length}</div>
               <div className="text-gray-400">Domains</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-red-400 mb-2">
+              <div className="text-3xl font-bold text-blue-400 mb-2">
                 {[...new Set(certificates.map(c => c.issuer))].length}
               </div>
               <div className="text-gray-400">Issuers</div>
@@ -438,7 +438,7 @@ const Certificates = () => {
                   placeholder="Search certificates..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
                 />
               </div>
             </div>
@@ -446,7 +446,7 @@ const Certificates = () => {
             {/* Domain Filter */}
             <div className="text-center">
               <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
-                <Filter size={18} className="mr-2 text-yellow-400" />
+                <Filter size={18} className="mr-2 text-cyan-400" />
                 Filter by Domain
               </h3>
               <div className="flex flex-wrap justify-center gap-3">
@@ -456,8 +456,8 @@ const Certificates = () => {
                     onClick={() => setSelectedDomain(domain)}
                     className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                       selectedDomain === domain
-                        ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-lg'
-                        : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-yellow-400/50 hover:text-yellow-300'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                        : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
                     }`}
                   >
                     {domain}
@@ -512,7 +512,7 @@ const Certificates = () => {
                     setSearchTerm('');
                     setSelectedDomain('All');
                   }}
-                  className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
+                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
                 >
                   Show All Certificates
                 </button>
