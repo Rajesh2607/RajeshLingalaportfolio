@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader } from 'lucide-react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
+import ProjectDetailModal from '../components/ProjectDetailModal';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -11,6 +12,10 @@ const Projects = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Modal state
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch projects from Firebase
   useEffect(() => {
@@ -81,6 +86,33 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
+  // Modal functions
+  const openModal = (project) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProject(null);
+    // Restore body scroll
+    document.body.style.overflow = 'unset';
+  };
+
+  // Close modal on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isModalOpen]);
+
   // Filter grouped projects by category
   const getFilteredGroupedProjects = () => {
     if (activeCategory === 'All') {
@@ -134,9 +166,17 @@ const Projects = () => {
   );
 
   // Project card component
-  const ProjectCard = ({ project, index }) => {
+  const ProjectCard = ({ project, index, onProjectClick }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
+
+    const handleCardClick = () => {
+      onProjectClick(project);
+    };
+
+    const handleLinkClick = (e) => {
+      e.stopPropagation(); // Prevent modal from opening when clicking links
+    };
 
     return (
       <motion.div
@@ -144,8 +184,9 @@ const Projects = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9 }}
         transition={{ delay: index * 0.1, duration: 0.6 }}
-        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-400/10"
+        className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-400/10 cursor-pointer"
         whileHover={{ y: -8 }}
+        onClick={handleCardClick}
       >
         {/* Media Section */}
         <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
@@ -198,6 +239,7 @@ const Projects = () => {
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleLinkClick}
                   className="p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-all duration-300"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -210,6 +252,7 @@ const Projects = () => {
                   href={project.live}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleLinkClick}
                   className="p-3 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-all duration-300"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -338,7 +381,12 @@ const Projects = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           <AnimatePresence mode="popLayout">
             {projects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
+              <ProjectCard 
+                key={project.id} 
+                project={project} 
+                index={index} 
+                onProjectClick={openModal}
+              />
             ))}
           </AnimatePresence>
         </div>
@@ -382,6 +430,9 @@ const Projects = () => {
           <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
             Explore my projects organized by domain - from web development to mobile apps, 
             each showcasing different technologies and innovative solutions
+          </p>
+          <p className="text-lg text-cyan-400 mb-12 font-medium">
+            💡 Click on any project card to view complete details
           </p>
 
           {/* Stats */}
@@ -482,6 +533,13 @@ const Projects = () => {
           )}
         </div>
       </section>
+
+      {/* Project Detail Modal */}
+      <ProjectDetailModal
+        project={selectedProject}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 };
