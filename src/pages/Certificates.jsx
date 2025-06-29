@@ -31,6 +31,7 @@ const Certificates = () => {
           console.log('No certificates found in database');
           setCertificates([]);
           setGroupedCertificates({});
+          setDomains(['All']);
           setLoading(false);
           return;
         }
@@ -46,7 +47,8 @@ const Certificates = () => {
             if (Array.isArray(data.domain)) {
               domainArray = data.domain.filter(d => d && d.trim() !== '');
             } else if (typeof data.domain === 'string') {
-              domainArray = [data.domain.trim()];
+              // Split by comma and clean up
+              domainArray = data.domain.split(',').map(d => d.trim()).filter(d => d !== '');
             }
           }
           
@@ -92,7 +94,7 @@ const Certificates = () => {
         certs.forEach(cert => {
           cert.domain.forEach(d => allDomains.add(d));
         });
-        const domainList = ['All', ...Array.from(allDomains)];
+        const domainList = ['All', ...Array.from(allDomains).sort()];
         console.log('Domain list:', domainList);
         setDomains(domainList);
 
@@ -451,7 +453,7 @@ const Certificates = () => {
               <div className="text-gray-400">Total Certificates</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400 mb-2">{Object.keys(groupedCertificates).length}</div>
+              <div className="text-3xl font-bold text-purple-400 mb-2">{Math.max(0, domains.length - 1)}</div>
               <div className="text-gray-400">Domains</div>
             </div>
             <div className="text-center">
@@ -465,55 +467,57 @@ const Certificates = () => {
       </section>
 
       {/* Search and Filter Section */}
-      <section className="px-6 md:px-8 lg:px-12 mb-16">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8"
-          >
-            {/* Search Bar */}
-            <div className="mb-6">
-              <div className="relative max-w-md mx-auto">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search certificates..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
-                />
+      {domains.length > 1 && (
+        <section className="px-6 md:px-8 lg:px-12 mb-16">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8"
+            >
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative max-w-md mx-auto">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Search certificates..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Domain Filter */}
-            <div className="text-center">
-              <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
-                <Filter size={18} className="mr-2 text-cyan-400" />
-                Filter by Domain
-              </h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                {domains.map((domain) => (
-                  <button
-                    key={domain}
-                    onClick={() => setSelectedDomain(domain)}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                      selectedDomain === domain
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
-                        : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
-                    }`}
-                  >
-                    {domain}
-                  </button>
-                ))}
+              {/* Domain Filter */}
+              <div className="text-center">
+                <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
+                  <Filter size={18} className="mr-2 text-cyan-400" />
+                  Filter by Domain
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {domains.map((domain) => (
+                    <button
+                      key={domain}
+                      onClick={() => setSelectedDomain(domain)}
+                      className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                        selectedDomain === domain
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
+                      }`}
+                    >
+                      {domain}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-4 text-gray-400">
+                  Showing {totalCertificates} of {certificates.length} certificates
+                </div>
               </div>
-              <div className="mt-4 text-gray-400">
-                Showing {totalCertificates} of {certificates.length} certificates
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Certificates by Domain */}
       <section className="px-6 md:px-8 lg:px-12 pb-24">
@@ -564,19 +568,6 @@ const Certificates = () => {
           )}
         </div>
       </section>
-
-      {/* Debug Information (only in development) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 left-4 bg-black/80 text-white p-4 rounded-lg text-xs max-w-sm">
-          <div>Loading: {loading.toString()}</div>
-          <div>Error: {error || 'None'}</div>
-          <div>Certificates: {certificates.length}</div>
-          <div>Domains: {domains.join(', ')}</div>
-          <div>Selected: {selectedDomain}</div>
-          <div>Search: {searchTerm || 'None'}</div>
-          <div>Filtered: {Object.keys(filteredGroupedCertificates).length} domains</div>
-        </div>
-      )}
     </div>
   );
 };
