@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Award, Calendar, Shield, Star, Loader, AlertCircle, Filter, Search, Trophy, Medal, BookOpen } from 'lucide-react';
+import { ExternalLink, Award, Calendar, Shield, Star, Loader, AlertCircle, Filter, Trophy, Medal, BookOpen } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -9,7 +9,6 @@ const Certificates = () => {
   const [groupedCertificates, setGroupedCertificates] = useState({});
   const [domains, setDomains] = useState(['All']);
   const [selectedDomain, setSelectedDomain] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -105,7 +104,7 @@ const Certificates = () => {
     fetchCertificates();
   }, []);
 
-  // Filter certificates by domain and search term
+  // Filter certificates by domain only
   const getFilteredGroupedCertificates = () => {
     let filtered = {};
 
@@ -115,24 +114,6 @@ const Certificates = () => {
       if (groupedCertificates[selectedDomain]) {
         filtered[selectedDomain] = [...groupedCertificates[selectedDomain]];
       }
-    }
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase().trim();
-      Object.keys(filtered).forEach(domain => {
-        filtered[domain] = filtered[domain].filter(cert =>
-          cert.title.toLowerCase().includes(searchLower) ||
-          cert.issuer.toLowerCase().includes(searchLower) ||
-          cert.domain.some(d => d.toLowerCase().includes(searchLower)) ||
-          (cert.credentialId && cert.credentialId.toLowerCase().includes(searchLower))
-        );
-        
-        // Remove empty domains
-        if (filtered[domain].length === 0) {
-          delete filtered[domain];
-        }
-      });
     }
 
     return filtered;
@@ -429,7 +410,7 @@ const Certificates = () => {
         </motion.div>
       </section>
 
-      {/* Search and Filter Section */}
+      {/* Domain Filter Only */}
       {domains.length > 1 && (
         <section className="px-6 md:px-8 lg:px-12 mb-16">
           <div className="max-w-4xl mx-auto">
@@ -438,21 +419,6 @@ const Certificates = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8"
             >
-              {/* Search Bar */}
-              <div className="mb-6">
-                <div className="relative max-w-md mx-auto">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="text"
-                    placeholder="Search certificates..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
-                  />
-                </div>
-              </div>
-
-              {/* Domain Filter */}
               <div className="text-center">
                 <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
                   <Filter size={18} className="mr-2 text-cyan-400" />
@@ -512,16 +478,11 @@ const Certificates = () => {
                 <p className="text-gray-400 mb-8 text-lg leading-relaxed">
                   {certificates.length === 0 
                     ? "No certificates available in the database yet."
-                    : searchTerm
-                    ? `No certificates match "${searchTerm}"`
                     : "No certificates match the selected domain."
                   }
                 </p>
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedDomain('All');
-                  }}
+                  onClick={() => setSelectedDomain('All')}
                   className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
                 >
                   Show All Certificates

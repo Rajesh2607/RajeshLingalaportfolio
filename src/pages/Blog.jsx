@@ -3,7 +3,7 @@ import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Calendar, Clock, User, Tag, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, User, Tag, ArrowRight, Filter } from 'lucide-react';
 
 const ImageWithLoader = ({ src, alt, className }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -154,7 +154,6 @@ const Blog = () => {
   const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -189,21 +188,13 @@ const Blog = () => {
   useEffect(() => {
     let filtered = blogs;
 
-    // Filter by category
+    // Filter by category only
     if (selectedCategory !== 'All') {
       filtered = filtered.filter(blog => blog.category === selectedCategory);
     }
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(blog =>
-        blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (blog.category && blog.category.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
     setFilteredBlogs(filtered);
-  }, [selectedCategory, searchTerm, blogs]);
+  }, [selectedCategory, blogs]);
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -228,65 +219,49 @@ const Blog = () => {
             Sharing my journey through life, lessons learned from failures and successes, 
             and the experiences that shaped who I am today
           </p>
-          
-          {/* Search Bar */}
-          <div className="relative max-w-lg mx-auto">
-            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400" size={22} />
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-6 py-4 bg-[#112240]/80 backdrop-blur-sm border border-gray-600/50 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300 text-lg"
-            />
-          </div>
         </motion.div>
       </div>
 
       {/* Main Content Container */}
       <div className="px-6 md:px-8 lg:px-12 pb-20">
         <div className="max-w-7xl mx-auto">
-          {/* Category Filter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-4 mb-12"
-          >
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategorySelect(category)}
-                className={`px-6 py-3 rounded-2xl border-2 font-semibold transition-all duration-300 text-base ${
-                  selectedCategory === category
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-xl transform scale-105'
-                    : 'text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 hover:scale-105 hover:shadow-lg'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* Blog Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-center mb-12"
-          >
-            <p className="text-gray-400 text-lg">
-              {isLoading ? (
-                <span className="inline-block w-40 h-5 bg-gray-700 rounded animate-pulse"></span>
-              ) : (
-                <>
-                  Showing {filteredBlogs.length} of {blogs.length} articles
-                  {searchTerm && ` for "${searchTerm}"`}
-                  {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-                </>
-              )}
-            </p>
-          </motion.div>
+          {/* Category Filter Only */}
+          {categories.length > 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mb-12"
+            >
+              <div className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
+                <div className="text-center">
+                  <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
+                    <Filter size={18} className="mr-2 text-cyan-400" />
+                    Filter by Category
+                  </h3>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => handleCategorySelect(category)}
+                        className={`px-6 py-3 rounded-2xl border-2 font-semibold transition-all duration-300 text-base ${
+                          selectedCategory === category
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-xl transform scale-105'
+                            : 'text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 hover:scale-105 hover:shadow-lg'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-gray-400">
+                    Showing {filteredBlogs.length} of {blogs.length} articles
+                    {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Blog Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10">
@@ -304,19 +279,16 @@ const Blog = () => {
                   >
                     <div className="max-w-lg mx-auto">
                       <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                        <Search size={32} className="text-gray-400" />
+                        <Tag size={32} className="text-gray-400" />
                       </div>
                       <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">No articles found</h3>
                       <p className="text-gray-400 mb-8 text-lg leading-relaxed">
-                        {searchTerm
-                          ? `No articles match "${searchTerm}"`
+                        {blogs.length === 0
+                          ? "No articles available yet."
                           : `No articles in ${selectedCategory} category`}
                       </p>
                       <button
-                        onClick={() => {
-                          setSearchTerm('');
-                          setSelectedCategory('All');
-                        }}
+                        onClick={() => setSelectedCategory('All')}
                         className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
                       >
                         Show All Articles

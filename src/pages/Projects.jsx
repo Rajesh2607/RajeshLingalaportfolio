@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader, Search, Filter } from 'lucide-react';
+import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader, Filter } from 'lucide-react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
 import ProjectDetailModal from '../components/ProjectDetailModal';
@@ -10,7 +10,6 @@ const Projects = () => {
   const [groupedProjects, setGroupedProjects] = useState({});
   const [categories, setCategories] = useState(['All']);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -101,7 +100,7 @@ const Projects = () => {
   const filteredGroupedProjects = useMemo(() => {
     let filtered = {};
 
-    // Filter by category
+    // Filter by category only
     if (activeCategory === 'All') {
       filtered = { ...groupedProjects };
     } else {
@@ -115,25 +114,8 @@ const Projects = () => {
       });
     }
 
-    // Filter by search term
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase().trim();
-      Object.keys(filtered).forEach(domain => {
-        filtered[domain] = filtered[domain].filter(project =>
-          project.title.toLowerCase().includes(searchLower) ||
-          project.description.toLowerCase().includes(searchLower) ||
-          project.technologies.some(tech => tech.toLowerCase().includes(searchLower)) ||
-          project.domain.toLowerCase().includes(searchLower)
-        );
-        
-        if (filtered[domain].length === 0) {
-          delete filtered[domain];
-        }
-      });
-    }
-
     return filtered;
-  }, [groupedProjects, activeCategory, searchTerm]);
+  }, [groupedProjects, activeCategory]);
 
   // Loading skeleton component
   const ProjectSkeleton = React.memo(() => (
@@ -418,26 +400,15 @@ const Projects = () => {
         </motion.div>
       </section>
 
-      {/* Optimized Search and Filter */}
-      <section className="px-6 md:px-8 lg:px-12 mb-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
-            {/* Search Bar */}
-            <div className="mb-6">
-              <div className="relative max-w-md mx-auto">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search projects..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-[#0a192f]/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
-                />
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            {categories.length > 1 && (
+      {/* Category Filter Only */}
+      {categories.length > 1 && (
+        <section className="px-6 md:px-8 lg:px-12 mb-12">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6"
+            >
               <div className="text-center">
                 <h3 className="text-white font-semibold mb-4 flex items-center justify-center">
                   <Filter size={16} className="mr-2 text-cyan-400" />
@@ -462,10 +433,10 @@ const Projects = () => {
                   Showing {totalFilteredProjects} of {projects.length} projects
                 </div>
               </div>
-            )}
+            </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Optimized Projects by Domain */}
       <section className="px-6 md:px-8 lg:px-12 pb-20">
@@ -505,14 +476,11 @@ const Projects = () => {
                 <p className="text-gray-400 mb-6">
                   {projects.length === 0 
                     ? "No projects available yet."
-                    : "No projects match your search criteria."
+                    : "No projects match your selected category."
                   }
                 </p>
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setActiveCategory('All');
-                  }}
+                  onClick={() => setActiveCategory('All')}
                   className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
                 >
                   Show All Projects
