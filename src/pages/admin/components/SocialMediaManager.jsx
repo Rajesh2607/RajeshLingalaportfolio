@@ -8,14 +8,32 @@ import {
   Youtube,
   Instagram,
   Facebook,
-  FileText
+  FileText,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  Link as LinkIcon,
+  Sparkles,
+  Globe
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SocialMediaManager = () => {
   const [socialLinks, setSocialLinks] = useState([]);
   const [newAccount, setNewAccount] = useState({ name: '', url: '' });
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const iconMap = {
+    github: Github,
+    linkedin: Linkedin,
+    twitter: Twitter,
+    youtube: Youtube,
+    instagram: Instagram,
+    facebook: Facebook,
+    default: FileText
+  };
 
   useEffect(() => {
     const fetchSocialLinks = async () => {
@@ -72,145 +90,217 @@ const SocialMediaManager = () => {
   };
 
   const handleDeleteAccount = async (id) => {
-    try {
-      await deleteDoc(doc(db, 'socialLinks', id));
-      setSocialLinks(socialLinks.filter((link) => link.id !== id));
-    } catch (error) {
-      console.error('Error deleting social media account:', error);
+    if (window.confirm('Are you sure you want to delete this social media account?')) {
+      try {
+        await deleteDoc(doc(db, 'socialLinks', id));
+        setSocialLinks(socialLinks.filter((link) => link.id !== id));
+      } catch (error) {
+        console.error('Error deleting social media account:', error);
+      }
     }
   };
 
   const getIcon = (name) => {
-    switch (name.toLowerCase()) {
-      case 'github':
-        return <Github className="w-8 h-8 text-purple-400" />;
-      case 'linkedin':
-        return <Linkedin className="w-8 h-8 text-purple-400" />;
-      case 'twitter':
-        return <Twitter className="w-8 h-8 text-purple-400" />;
-      case 'youtube':
-        return <Youtube className="w-8 h-8 text-purple-400" />;
-      case 'instagram':
-        return <Instagram className="w-8 h-8 text-purple-400" />;
-      case 'facebook':
-        return <Facebook className="w-8 h-8 text-purple-400" />;
-      default:
-        return <FileText className="w-8 h-8 text-purple-400" />;
-    }
+    const key = name.toLowerCase();
+    const IconComponent = iconMap[key] || iconMap.default;
+    return <IconComponent className="w-8 h-8 text-purple-400" />;
   };
 
   if (loading) {
-    return <div className="h-64 flex items-center justify-center text-white">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-400"></div>
+      </div>
+    );
   }
 
   return (
-    <section className="min-h-screen py-20 bg-midnight text-white overflow-x-hidden">
-      <div className="container mx-auto px-4 max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-          <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-            Manage Social Media Accounts
-          </span>
-        </h2>
+    <div className="space-y-8 p-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-xl"
+      >
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl flex items-center justify-center">
+            <Globe size={24} className="text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Sparkles size={20} className="text-purple-400" />
+              Social Media Management
+            </h2>
+            <p className="text-gray-300">Manage your social media presence</p>
+          </div>
+        </div>
+      </motion.div>
 
-        {/* Add New Account */}
+      {/* Add New Account */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50 backdrop-blur-xl"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
+          <Plus size={20} className="mr-2 text-green-400" />
+          Add New Account
+        </h3>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleAddAccount();
           }}
-          className="bg-navy p-6 rounded-xl mb-12 shadow-xl space-y-4"
+          className="space-y-6"
         >
-          <h3 className="text-2xl font-semibold mb-4">Add New Account</h3>
-          <input
-            type="text"
-            placeholder="Account Name (e.g., GitHub)"
-            value={newAccount.name}
-            onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-            className="w-full p-3 rounded-lg bg-gray-800 text-white"
-          />
-          <input
-            type="url"
-            placeholder="Account URL"
-            value={newAccount.url}
-            onChange={(e) => setNewAccount({ ...newAccount, url: e.target.value })}
-            className="w-full p-3 rounded-lg bg-gray-800 text-white"
-          />
-          <button
-            type="submit"
-            className="w-full p-3 bg-cyan-400 hover:bg-cyan-500 rounded-lg text-white"
-          >
-            Add Account
-          </button>
-        </form>
-
-        {/* Display Accounts */}
-        <div className="space-y-6">
-          {socialLinks.map((link) => (
-            <div
-              key={link.id}
-              className="flex flex-col md:flex-row items-start md:items-center justify-between bg-navy p-6 rounded-xl shadow-xl space-y-4 md:space-y-0"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-purple-400 bg-opacity-20 rounded-lg">
-                  {getIcon(link.name)}
-                </div>
-                <div>
-                  <h4 className="text-xl font-semibold">{link.name}</h4>
-                  <p className="text-gray-400 break-words">{link.url}</p>
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => setEditing(link)}
-                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteAccount(link.id)}
-                  className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                >
-                  Delete
-                </button>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">Account Name</label>
+              <input
+                type="text"
+                placeholder="Account Name (e.g., GitHub)"
+                value={newAccount.name}
+                onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm"
+                required
+              />
             </div>
-          ))}
-        </div>
-
-        {/* Edit Account Form */}
-        {editing && (
-          <div className="bg-navy p-6 rounded-xl shadow-xl mt-12 space-y-4">
-            <h3 className="text-2xl font-semibold mb-4">Edit Account</h3>
-            <input
-              type="text"
-              value={editing.name}
-              onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-              className="w-full p-3 rounded-lg bg-gray-800 text-white"
-            />
-            <input
-              type="url"
-              value={editing.url}
-              onChange={(e) => setEditing({ ...editing, url: e.target.value })}
-              className="w-full p-3 rounded-lg bg-gray-800 text-white"
-            />
-            <div className="flex space-x-4">
-              <button
-                onClick={handleEditAccount}
-                className="p-3 w-full bg-green-600 hover:bg-green-700 text-white rounded-lg"
-              >
-                Save Changes
-              </button>
-              <button
-                onClick={() => setEditing(null)}
-                className="p-3 w-full bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
-              >
-                Cancel
-              </button>
+            <div>
+              <label className="block text-white text-sm font-medium mb-2 flex items-center">
+                <LinkIcon size={16} className="mr-2 text-blue-400" />
+                Account URL
+              </label>
+              <input
+                type="url"
+                placeholder="Account URL"
+                value={newAccount.url}
+                onChange={(e) => setNewAccount({ ...newAccount, url: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm"
+                required
+              />
             </div>
           </div>
-        )}
+          
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-medium"
+            >
+              <Save className="mr-2" size={20} />
+              Add Account
+            </button>
+          </div>
+        </form>
+      </motion.div>
+
+      {/* Display Accounts */}
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold text-white">Existing Accounts</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AnimatePresence>
+            {socialLinks.map((link, index) => (
+              <motion.div
+                key={link.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 rounded-2xl border border-slate-700/50 backdrop-blur-xl"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-purple-500/20 rounded-xl border border-purple-400/30">
+                      {getIcon(link.name)}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white">{link.name}</h4>
+                      <p className="text-gray-400 text-sm break-all">{link.url}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setEditing(link)}
+                    className="flex items-center px-3 py-2 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-lg transition-colors"
+                  >
+                    <Edit size={16} className="mr-1" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteAccount(link.id)}
+                    className="flex items-center px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={16} className="mr-1" />
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       </div>
-    </section>
+
+      {/* Edit Account Form */}
+      <AnimatePresence>
+        {editing && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50 backdrop-blur-xl"
+          >
+            <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
+              <Edit size={20} className="mr-2 text-yellow-400" />
+              Edit Account
+            </h3>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">Account Name</label>
+                  <input
+                    type="text"
+                    value={editing.name}
+                    onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent backdrop-blur-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2 flex items-center">
+                    <LinkIcon size={16} className="mr-2 text-blue-400" />
+                    Account URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editing.url}
+                    onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleEditAccount}
+                  className="flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-medium"
+                >
+                  <Save className="mr-2" size={20} />
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => setEditing(null)}
+                  className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

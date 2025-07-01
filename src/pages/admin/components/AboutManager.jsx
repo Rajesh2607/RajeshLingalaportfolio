@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db, storage } from '../../../firebase/config';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { User, Upload, Save, X, Plus, AlertCircle, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { User, Upload, Save, X, Plus, AlertCircle, CheckCircle, Image as ImageIcon, Sparkles, FileText, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AboutManager = () => {
@@ -52,13 +52,11 @@ const AboutManager = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      // Validate file type
       if (!selectedFile.type.startsWith('image/')) {
         showNotification('error', 'Please select a valid image file');
         return;
       }
       
-      // Validate file size (max 5MB)
       if (selectedFile.size > 5 * 1024 * 1024) {
         showNotification('error', 'File size must be less than 5MB');
         return;
@@ -117,24 +115,24 @@ const AboutManager = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Notification */}
       <AnimatePresence>
         {notification.show && (
           <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center space-x-3 ${
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-2xl flex items-center space-x-3 backdrop-blur-xl border ${
               notification.type === 'success' 
-                ? 'bg-green-500/20 border border-green-500/50 text-green-400' 
-                : 'bg-red-500/20 border border-red-500/50 text-red-400'
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' 
+                : 'bg-red-500/20 border-red-500/50 text-red-300'
             }`}
           >
             {notification.type === 'success' ? (
@@ -142,23 +140,30 @@ const AboutManager = () => {
             ) : (
               <AlertCircle size={20} />
             )}
-            <span>{notification.message}</span>
+            <span className="font-medium">{notification.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#112240] to-[#1a2f4a] rounded-2xl p-6 border border-gray-700/50">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-purple-500/20 to-cyan-500/20 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-xl"
+      >
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-cyan-400 rounded-xl flex items-center justify-center">
             <User size={24} className="text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">About Section Management</h2>
-            <p className="text-gray-400">Manage your personal information and profile</p>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Sparkles size={20} className="text-purple-400" />
+              About Section Management
+            </h2>
+            <p className="text-gray-300">Manage your personal information and profile</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -166,7 +171,7 @@ const AboutManager = () => {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-xl p-6 border border-gray-700/50"
+          className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50 backdrop-blur-xl"
         >
           <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
             <ImageIcon size={20} className="mr-2 text-cyan-400" />
@@ -176,12 +181,12 @@ const AboutManager = () => {
           <div className="space-y-6">
             {/* Image Preview */}
             <div className="flex justify-center">
-              <div className="relative w-48 h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-dashed border-gray-600">
+              <div className="relative w-48 h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-dashed border-gray-600 group">
                 {previewUrl ? (
                   <img 
                     src={previewUrl} 
                     alt="Profile Preview" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
@@ -190,7 +195,7 @@ const AboutManager = () => {
                 )}
                 
                 {/* Upload Overlay */}
-                <label className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center">
+                <label className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center">
                   <div className="text-center text-white">
                     <Upload size={24} className="mx-auto mb-2" />
                     <span className="text-sm font-medium">Change Photo</span>
@@ -214,7 +219,7 @@ const AboutManager = () => {
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
                   <div 
-                    className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-purple-400 to-cyan-400 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
@@ -240,8 +245,11 @@ const AboutManager = () => {
           className="space-y-6"
         >
           {/* Titles Section */}
-          <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-xl p-6 border border-gray-700/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Professional Titles</h3>
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50 backdrop-blur-xl">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <Sparkles size={18} className="mr-2 text-purple-400" />
+              Professional Titles
+            </h3>
             
             {/* Add New Title */}
             <div className="flex space-x-2 mb-4">
@@ -250,14 +258,14 @@ const AboutManager = () => {
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddTitle()}
-                className="flex-1 px-4 py-2 bg-[#0a192f] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+                className="flex-1 px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent backdrop-blur-sm"
                 placeholder="Add new title (e.g., Full Stack Developer)"
               />
               <button
                 type="button"
                 onClick={handleAddTitle}
                 disabled={!newTitle.trim()}
-                className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="px-4 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
                 <Plus size={18} />
               </button>
@@ -272,7 +280,7 @@ const AboutManager = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
-                    className="flex items-center justify-between bg-[#0a192f] p-3 rounded-lg border border-gray-600"
+                    className="flex items-center justify-between bg-slate-900/50 p-3 rounded-xl border border-slate-600/50 backdrop-blur-sm"
                   >
                     <span className="text-white flex-1">{title}</span>
                     <button
@@ -289,13 +297,16 @@ const AboutManager = () => {
           </div>
 
           {/* Description */}
-          <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-xl p-6 border border-gray-700/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Description</h3>
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50 backdrop-blur-xl">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <FileText size={18} className="mr-2 text-cyan-400" />
+              Description
+            </h3>
             <textarea
               value={about.description}
               onChange={(e) => setAbout({ ...about, description: e.target.value })}
               rows={6}
-              className="w-full px-4 py-3 bg-[#0a192f] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent resize-none backdrop-blur-sm"
               placeholder="Write a compelling description about yourself..."
             />
             <div className="mt-2 text-right">
@@ -306,13 +317,16 @@ const AboutManager = () => {
           </div>
 
           {/* Resume URL */}
-          <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-xl p-6 border border-gray-700/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Resume URL</h3>
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50 backdrop-blur-xl">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <LinkIcon size={18} className="mr-2 text-emerald-400" />
+              Resume URL
+            </h3>
             <input
               type="url"
               value={about.resume}
               onChange={(e) => setAbout({ ...about, resume: e.target.value })}
-              className="w-full px-4 py-3 bg-[#0a192f] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
               placeholder="https://yourdomain.com/your-resume.pdf"
             />
           </div>
@@ -323,12 +337,12 @@ const AboutManager = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex justify-end"
+        className="flex justify-center"
       >
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-2xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg"
         >
           {saving ? (
             <>
