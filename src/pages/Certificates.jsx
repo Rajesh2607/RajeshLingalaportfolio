@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Award, Calendar, Shield, Star, Loader, AlertCircle, Filter, Trophy, Medal, BookOpen } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
+
+import SEOHead from '../components/SEO/SEOHead';
+import { certificateSchema, breadcrumbSchema } from '../components/SEO/StructuredData';
+import { generateBreadcrumbs, generateKeywords } from '../utils/seo';
 
 const Certificates = () => {
   const [certificates, setCertificates] = useState([]);
@@ -11,6 +16,7 @@ const Certificates = () => {
   const [selectedDomain, setSelectedDomain] = useState('All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchCertificates = async () => {
@@ -122,6 +128,25 @@ const Certificates = () => {
   const filteredGroupedCertificates = getFilteredGroupedCertificates();
   const totalCertificates = Object.values(filteredGroupedCertificates).flat().length;
 
+  // Generate SEO data
+  const breadcrumbs = generateBreadcrumbs(location.pathname);
+  const certificateDomains = [...new Set(certificates.flatMap(cert => cert.domain))];
+  const keywords = generateKeywords('', [
+    'Certificates',
+    'Professional Certifications',
+    'Achievements',
+    'Skills Validation',
+    ...certificateDomains.slice(0, 8)
+  ]);
+
+  const description = certificates.length > 0 
+    ? `View ${certificates.length} professional certificates earned by Rajesh Lingala across ${certificateDomains.length} domains including ${certificateDomains.slice(0, 3).join(', ')}. Verified credentials and achievements.`
+    : "Explore Rajesh Lingala's professional certificates and achievements showcasing expertise across various domains.";
+
+  const certificateSchemas = certificates.slice(0, 5).map(cert => certificateSchema(cert));
+  const breadcrumbSchemaData = breadcrumbSchema(breadcrumbs);
+  const combinedSchema = [breadcrumbSchemaData, ...certificateSchemas];
+
   // Certificate Card Component
   const CertificateCard = ({ cert, index }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -147,12 +172,13 @@ const Certificates = () => {
               )}
               <img
                 src={cert.image}
-                alt={cert.title}
+                alt={`${cert.title} certificate issued by ${cert.issuer}`}
                 className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
+                loading="lazy"
               />
             </>
           ) : (
@@ -174,6 +200,7 @@ const Certificates = () => {
                 className="p-4 bg-cyan-500/30 backdrop-blur-sm rounded-full text-cyan-300 hover:bg-cyan-500/50 transition-all duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                aria-label={`View ${cert.title} certificate`}
               >
                 <ExternalLink size={24} />
               </motion.a>
@@ -248,6 +275,7 @@ const Certificates = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-1 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
+                aria-label={`View ${cert.title} certificate`}
               >
                 <span>View</span>
                 <ExternalLink size={12} />
@@ -355,144 +383,162 @@ const Certificates = () => {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-6">
-          <AlertCircle size={64} className="text-red-400 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
-          <p className="text-gray-400 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
-          >
-            Try Again
-          </button>
+      <>
+        <SEOHead
+          title="Error Loading Certificates | Rajesh Lingala"
+          description="Error loading certificates from Rajesh Lingala's portfolio"
+          noindex={true}
+        />
+        <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f] flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto px-6">
+            <AlertCircle size={64} className="text-red-400 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
+            <p className="text-gray-400 mb-6">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f]">
-      {/* Hero Section */}
-      <section className="relative py-20 px-6 md:px-8 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-5xl mx-auto"
-        >
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
-              Professional Certificates
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
-            A comprehensive collection of my professional certifications and achievements, 
-            showcasing continuous learning and expertise across various domains
-          </p>
+    <>
+      <SEOHead
+        title="Professional Certificates | Rajesh Lingala - Frontend Developer"
+        description={description}
+        keywords={keywords}
+        url="https://rajeshlingala-portfolio.vercel.app/certificates"
+        structuredData={combinedSchema}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-[#0a192f] via-[#0f1419] to-[#0a192f]">
+        {/* Hero Section */}
+        <section className="relative py-20 px-6 md:px-8 lg:px-12">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center max-w-5xl mx-auto"
+          >
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text">
+                Professional Certificates
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
+              A comprehensive collection of my professional certifications and achievements, 
+              showcasing continuous learning and expertise across various domains
+            </p>
 
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 mb-16">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">{certificates.length}</div>
-              <div className="text-gray-400">Total Certificates</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400 mb-2">{Math.max(0, domains.length - 1)}</div>
-              <div className="text-gray-400">Domains</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">
-                {[...new Set(certificates.map(c => c.issuer))].length}
-              </div>
-              <div className="text-gray-400">Issuers</div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Domain Filter Only */}
-      {domains.length > 1 && (
-        <section className="px-6 md:px-8 lg:px-12 mb-16">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8"
-            >
+            {/* Stats */}
+            <div className="flex flex-wrap justify-center gap-8 mb-16">
               <div className="text-center">
-                <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
-                  <Filter size={18} className="mr-2 text-cyan-400" />
-                  Filter by Domain
-                </h3>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {domains.map((domain) => (
-                    <button
-                      key={domain}
-                      onClick={() => setSelectedDomain(domain)}
-                      className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                        selectedDomain === domain
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
-                          : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
-                      }`}
-                    >
-                      {domain}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-4 text-gray-400">
-                  Showing {totalCertificates} of {certificates.length} certificates
-                </div>
+                <div className="text-3xl font-bold text-cyan-400 mb-2">{certificates.length}</div>
+                <div className="text-gray-400">Total Certificates</div>
               </div>
-            </motion.div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-400 mb-2">{Math.max(0, domains.length - 1)}</div>
+                <div className="text-gray-400">Domains</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-400 mb-2">
+                  {[...new Set(certificates.map(c => c.issuer))].length}
+                </div>
+                <div className="text-gray-400">Issuers</div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Domain Filter Only */}
+        {domains.length > 1 && (
+          <section className="px-6 md:px-8 lg:px-12 mb-16">
+            <div className="max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-[#112240]/80 to-[#1a2f4a]/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8"
+              >
+                <div className="text-center">
+                  <h3 className="text-white font-semibold mb-6 flex items-center justify-center">
+                    <Filter size={18} className="mr-2 text-cyan-400" />
+                    Filter by Domain
+                  </h3>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {domains.map((domain) => (
+                      <button
+                        key={domain}
+                        onClick={() => setSelectedDomain(domain)}
+                        className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                          selectedDomain === domain
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                            : 'bg-gray-800/50 text-gray-300 border border-gray-700/50 hover:border-cyan-400/50 hover:text-cyan-300'
+                        }`}
+                        aria-label={`Filter certificates by ${domain} domain`}
+                      >
+                        {domain}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-gray-400">
+                    Showing {totalCertificates} of {certificates.length} certificates
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+        {/* Certificates by Domain */}
+        <section className="px-6 md:px-8 lg:px-12 pb-24">
+          <div className="max-w-7xl mx-auto">
+            {loading ? (
+              <div>
+                {Array(3).fill(null).map((_, i) => <DomainSkeleton key={i} />)}
+              </div>
+            ) : Object.keys(filteredGroupedCertificates).length > 0 ? (
+              Object.entries(filteredGroupedCertificates).map(([domain, domainCertificates], domainIndex) => (
+                <DomainSection
+                  key={domain}
+                  domain={domain}
+                  certificates={domainCertificates}
+                  domainIndex={domainIndex}
+                />
+              ))
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-24"
+              >
+                <div className="max-w-lg mx-auto">
+                  <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
+                    <Award size={32} className="text-gray-400" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-6">No certificates found</h3>
+                  <p className="text-gray-400 mb-8 text-lg leading-relaxed">
+                    {certificates.length === 0 
+                      ? "No certificates available in the database yet."
+                      : "No certificates match the selected domain."
+                    }
+                  </p>
+                  <button
+                    onClick={() => setSelectedDomain('All')}
+                    className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
+                  >
+                    Show All Certificates
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
         </section>
-      )}
-
-      {/* Certificates by Domain */}
-      <section className="px-6 md:px-8 lg:px-12 pb-24">
-        <div className="max-w-7xl mx-auto">
-          {loading ? (
-            <div>
-              {Array(3).fill(null).map((_, i) => <DomainSkeleton key={i} />)}
-            </div>
-          ) : Object.keys(filteredGroupedCertificates).length > 0 ? (
-            Object.entries(filteredGroupedCertificates).map(([domain, domainCertificates], domainIndex) => (
-              <DomainSection
-                key={domain}
-                domain={domain}
-                certificates={domainCertificates}
-                domainIndex={domainIndex}
-              />
-            ))
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-24"
-            >
-              <div className="max-w-lg mx-auto">
-                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-                  <Award size={32} className="text-gray-400" />
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-6">No certificates found</h3>
-                <p className="text-gray-400 mb-8 text-lg leading-relaxed">
-                  {certificates.length === 0 
-                    ? "No certificates available in the database yet."
-                    : "No certificates match the selected domain."
-                  }
-                </p>
-                <button
-                  onClick={() => setSelectedDomain('All')}
-                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 text-lg font-semibold"
-                >
-                  Show All Certificates
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </section>
-    </div>
+      </div>
+    </>
   );
 };
 

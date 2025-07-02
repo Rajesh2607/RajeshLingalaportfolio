@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -19,6 +20,7 @@
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.4",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0",
     "react-loading-skeleton": "^3.5.0",
