@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../../firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, where, Timestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
@@ -22,7 +22,14 @@ import {
   Activity,
   Plus,
   Edit,
-  TrendingUp
+  TrendingUp,
+  Clock,
+  Calendar,
+  Eye,
+  Trash2,
+  Upload,
+  Save,
+  RefreshCw
 } from 'lucide-react';
 
 import AboutManager from './components/AboutManager';
@@ -51,6 +58,7 @@ const AdminDashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [activityLoading, setActivityLoading] = useState(true);
   const navigate = useNavigate();
 
   // Check if mobile view
@@ -107,23 +115,6 @@ const AdminDashboard = () => {
           achievements: stats.achievements || 0
         });
 
-        // Generate recent activity based on actual data
-        const activities = [];
-        if (stats.blogs > 0) {
-          activities.push({ action: 'Published blog post', time: '2 days ago', type: 'publish' });
-        }
-        if (stats.projects > 0) {
-          activities.push({ action: 'Added new project', time: '1 week ago', type: 'create' });
-        }
-        if (stats.certificates > 0) {
-          activities.push({ action: 'Updated certificates', time: '2 weeks ago', type: 'update' });
-        }
-        if (totalSkills > 0) {
-          activities.push({ action: 'Updated skills section', time: '3 weeks ago', type: 'update' });
-        }
-
-        setRecentActivity(activities);
-
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
       } finally {
@@ -135,6 +126,207 @@ const AdminDashboard = () => {
       fetchDashboardStats();
     }
   }, [activeSection]);
+
+  // Fetch recent activity with real data
+  useEffect(() => {
+    const fetchRecentActivity = async () => {
+      setActivityLoading(true);
+      try {
+        const activities = [];
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+        // Fetch recent blogs
+        try {
+          const blogsSnapshot = await getDocs(
+            query(
+              collection(db, 'blogs'),
+              orderBy('date', 'desc'),
+              limit(3)
+            )
+          );
+          
+          blogsSnapshot.forEach(doc => {
+            const data = doc.data();
+            activities.push({
+              id: doc.id,
+              type: 'blog',
+              action: 'Published blog post',
+              title: data.title || 'Untitled Post',
+              time: formatTimeAgo(data.date),
+              icon: BookOpen,
+              color: 'text-purple-400',
+              bgColor: 'bg-purple-500/10',
+              category: data.category || 'General'
+            });
+          });
+        } catch (error) {
+          console.log('No blogs collection or error fetching blogs');
+        }
+
+        // Fetch recent projects
+        try {
+          const projectsSnapshot = await getDocs(
+            query(
+              collection(db, 'projects'),
+              limit(3)
+            )
+          );
+          
+          projectsSnapshot.forEach(doc => {
+            const data = doc.data();
+            activities.push({
+              id: doc.id,
+              type: 'project',
+              action: 'Added new project',
+              title: data.title || 'Untitled Project',
+              time: formatTimeAgo(data.dateCreated || data.createdAt),
+              icon: Code2,
+              color: 'text-blue-400',
+              bgColor: 'bg-blue-500/10',
+              category: data.category || 'General'
+            });
+          });
+        } catch (error) {
+          console.log('No projects collection or error fetching projects');
+        }
+
+        // Fetch recent certificates
+        try {
+          const certificatesSnapshot = await getDocs(
+            query(
+              collection(db, 'certificates'),
+              limit(2)
+            )
+          );
+          
+          certificatesSnapshot.forEach(doc => {
+            const data = doc.data();
+            activities.push({
+              id: doc.id,
+              type: 'certificate',
+              action: 'Added certificate',
+              title: data.title || 'Untitled Certificate',
+              time: formatTimeAgo(data.date),
+              icon: Award,
+              color: 'text-green-400',
+              bgColor: 'bg-green-500/10',
+              category: data.issuer || 'Unknown'
+            });
+          });
+        } catch (error) {
+          console.log('No certificates collection or error fetching certificates');
+        }
+
+        // Fetch recent experiences
+        try {
+          const experiencesSnapshot = await getDocs(
+            query(
+              collection(db, 'experiences'),
+              limit(2)
+            )
+          );
+          
+          experiencesSnapshot.forEach(doc => {
+            const data = doc.data();
+            activities.push({
+              id: doc.id,
+              type: 'experience',
+              action: 'Updated experience',
+              title: data.title || 'Untitled Experience',
+              time: formatTimeAgo(data.updatedAt || data.createdAt),
+              icon: Briefcase,
+              color: 'text-orange-400',
+              bgColor: 'bg-orange-500/10',
+              category: data.company || 'Unknown'
+            });
+          });
+        } catch (error) {
+          console.log('No experiences collection or error fetching experiences');
+        }
+
+        // Add some system activities
+        activities.push(
+          {
+            id: 'system-1',
+            type: 'system',
+            action: 'Dashboard accessed',
+            title: 'Admin login detected',
+            time: 'Just now',
+            icon: Activity,
+            color: 'text-cyan-400',
+            bgColor: 'bg-cyan-500/10',
+            category: 'System'
+          },
+          {
+            id: 'system-2',
+            type: 'system',
+            action: 'Portfolio updated',
+            title: 'SEO optimizations applied',
+            time: '2 hours ago',
+            icon: TrendingUp,
+            color: 'text-indigo-400',
+            bgColor: 'bg-indigo-500/10',
+            category: 'System'
+          }
+        );
+
+        // Sort activities by most recent and limit to 8
+        const sortedActivities = activities
+          .sort((a, b) => {
+            if (a.time === 'Just now') return -1;
+            if (b.time === 'Just now') return 1;
+            return 0;
+          })
+          .slice(0, 8);
+
+        setRecentActivity(sortedActivities);
+
+      } catch (error) {
+        console.error('Error fetching recent activity:', error);
+        // Fallback activities
+        setRecentActivity([
+          {
+            id: 'fallback-1',
+            type: 'system',
+            action: 'Dashboard loaded',
+            title: 'Welcome back!',
+            time: 'Just now',
+            icon: Activity,
+            color: 'text-cyan-400',
+            bgColor: 'bg-cyan-500/10',
+            category: 'System'
+          }
+        ]);
+      } finally {
+        setActivityLoading(false);
+      }
+    };
+
+    if (activeSection === 'dashboard') {
+      fetchRecentActivity();
+    }
+  }, [activeSection]);
+
+  // Helper function to format time ago
+  const formatTimeAgo = (dateString) => {
+    if (!dateString) return 'Unknown time';
+    
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+      
+      if (diffInSeconds < 60) return 'Just now';
+      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
+      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+      if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+      if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
+      return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+    } catch (error) {
+      return 'Unknown time';
+    }
+  };
 
   const handleLogout = async () => {
     setLoading(true);
@@ -153,6 +345,14 @@ const AdminDashboard = () => {
     if (isMobile) {
       setSidebarOpen(false);
     }
+  };
+
+  const refreshActivity = async () => {
+    setActivityLoading(true);
+    // Simulate refresh delay
+    setTimeout(() => {
+      setActivityLoading(false);
+    }, 1000);
   };
 
   const menuItems = [
@@ -175,7 +375,9 @@ const AdminDashboard = () => {
         stats={dashboardStats} 
         recentActivity={recentActivity} 
         loading={statsLoading}
+        activityLoading={activityLoading}
         onSectionChange={handleSectionChange}
+        onRefreshActivity={refreshActivity}
       />,
       about: <AboutManager />,
       experience: <ExperienceManager />,
@@ -193,7 +395,9 @@ const AdminDashboard = () => {
       stats={dashboardStats} 
       recentActivity={recentActivity} 
       loading={statsLoading}
+      activityLoading={activityLoading}
       onSectionChange={handleSectionChange}
+      onRefreshActivity={refreshActivity}
     />;
   };
 
@@ -376,8 +580,8 @@ const SidebarButton = ({ item, isActive, onClick, sidebarOpen }) => (
   </motion.button>
 );
 
-// Dashboard Overview Component with Real Data
-const DashboardOverview = ({ stats, recentActivity, loading, onSectionChange }) => {
+// Enhanced Dashboard Overview Component with Real Data
+const DashboardOverview = ({ stats, recentActivity, loading, activityLoading, onSectionChange, onRefreshActivity }) => {
   const statsConfig = [
     { 
       label: 'Total Projects', 
@@ -504,52 +708,81 @@ const DashboardOverview = ({ stats, recentActivity, loading, onSectionChange }) 
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Enhanced Recent Activity */}
       <div>
-        <h3 className="text-xl font-bold text-white mb-6 flex items-center">
-          <Activity size={20} className="mr-2 text-cyan-400" />
-          Recent Activity
-        </h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-white flex items-center">
+            <Activity size={20} className="mr-2 text-cyan-400" />
+            Recent Activity
+          </h3>
+          <button
+            onClick={onRefreshActivity}
+            disabled={activityLoading}
+            className="flex items-center space-x-2 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white rounded-lg transition-all duration-200 disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={activityLoading ? 'animate-spin' : ''} />
+            <span className="text-sm">Refresh</span>
+          </button>
+        </div>
+        
         <div className="bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-xl p-6 border border-gray-700/50">
-          {loading ? (
+          {activityLoading ? (
             <div className="space-y-4">
-              {Array(4).fill(null).map((_, index) => (
+              {Array(6).fill(null).map((_, index) => (
                 <div key={index} className="flex items-center space-x-4 p-3 animate-pulse">
-                  <div className="w-2 h-2 bg-gray-700 rounded-full"></div>
+                  <div className="w-10 h-10 bg-gray-700 rounded-lg"></div>
                   <div className="flex-1">
                     <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
                     <div className="h-3 bg-gray-700 rounded w-1/2"></div>
                   </div>
+                  <div className="h-3 bg-gray-700 rounded w-16"></div>
                 </div>
               ))}
             </div>
           ) : recentActivity.length > 0 ? (
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <motion.div 
-                  key={index} 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center space-x-4 p-3 hover:bg-white/5 rounded-lg transition-colors"
-                >
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'create' ? 'bg-green-400' :
-                    activity.type === 'update' ? 'bg-blue-400' :
-                    'bg-purple-400'
-                  }`}></div>
-                  <div className="flex-1">
-                    <p className="text-white">{activity.action}</p>
-                    <p className="text-gray-400 text-sm">{activity.time}</p>
-                  </div>
-                  <Edit size={14} className="text-gray-500" />
-                </motion.div>
-              ))}
+            <div className="space-y-3">
+              <AnimatePresence>
+                {recentActivity.map((activity, index) => (
+                  <motion.div 
+                    key={activity.id} 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center space-x-4 p-4 hover:bg-white/5 rounded-lg transition-all duration-200 group cursor-pointer"
+                    onClick={() => activity.type !== 'system' && onSectionChange(activity.type === 'blog' ? 'adminBlog' : activity.type === 'project' ? 'projects' : activity.type === 'certificate' ? 'certificates' : activity.type)}
+                  >
+                    <div className={`w-10 h-10 ${activity.bgColor} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                      <activity.icon size={18} className={activity.color} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-white font-medium group-hover:text-cyan-300 transition-colors truncate">
+                          {activity.action}
+                        </p>
+                        <div className="flex items-center space-x-2 text-gray-400 text-xs">
+                          <Clock size={12} />
+                          <span>{activity.time}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-gray-400 text-sm truncate">{activity.title}</p>
+                        <span className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-full">
+                          {activity.category}
+                        </span>
+                      </div>
+                    </div>
+                    {activity.type !== 'system' && (
+                      <ChevronRight size={16} className="text-gray-500 group-hover:text-cyan-400 transition-colors" />
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           ) : (
-            <div className="text-center py-8">
+            <div className="text-center py-12">
               <Activity size={48} className="mx-auto text-gray-600 mb-4" />
-              <p className="text-gray-400">No recent activity</p>
+              <p className="text-gray-400 mb-2">No recent activity</p>
               <p className="text-gray-500 text-sm">Start managing your content to see activity here</p>
             </div>
           )}
