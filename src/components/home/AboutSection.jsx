@@ -56,17 +56,13 @@ const AboutSection = ({ about }) => (
           viewport={{ once: true }}
           className="flex items-center mb-6"
         >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="relative mr-4"
-          >
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full flex items-center justify-center">
-              <User size={24} className="text-white" />
-            </div>
-            <div className="absolute inset-0 w-12 h-12 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-ping opacity-20"></div>
-          </motion.div>
-          
+
+          {/* Simple Header */}
+      <div className="flex flex-col items-center justify-center mb-4 sm:mb-4">
+        <div className="flex items-center">
+          <User size={50} className="text-[#17c0f8] mr-3" />
+        </div>
+      </div>
           <div className="text-center">
             <motion.h2
               initial={{ opacity: 0, x: -20 }}
@@ -80,17 +76,6 @@ const AboutSection = ({ about }) => (
               </span>
             </motion.h2>
             
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="flex items-center justify-center mt-3 space-x-2"
-            >
-              <Star size={16} className="text-yellow-400 fill-current" />
-              <span className="text-gray-400 text-sm font-medium">Get to know me better</span>
-              <Star size={16} className="text-yellow-400 fill-current" />
-            </motion.div>
           </div>
         </motion.div>
 
@@ -105,13 +90,18 @@ const AboutSection = ({ about }) => (
         >
           <div className="h-1 bg-gradient-to-r from-transparent via-purple-400 through-cyan-400 to-transparent rounded-full"></div>
           <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
-          <motion.div
-            animate={{ x: [-100, 400] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 left-0 w-8 h-1 bg-white rounded-full opacity-80"
-          />
         </motion.div>
-
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="flex items-center justify-center mt-3 space-x-2"
+            >
+              <Star size={16} className="text-yellow-400 fill-current" />
+              <span className="text-gray-400 text-sm font-medium">Get to know me better</span>
+              <Star size={16} className="text-yellow-400 fill-current" />
+            </motion.div>
         {/* Decorative elements */}
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
@@ -194,25 +184,14 @@ const AboutSection = ({ about }) => (
                 </div>
 
                 {/* Ripple effect */}
-                <div className="absolute inset-0 rounded-2xl bg-white opacity-0 group-hover:opacity-20 group-hover:animate-ping"></div>
-              </Link>
+                  </Link>
             </motion.div>
           </motion.div>
 
           {/* Decorative corner elements */}
-          <div className="absolute bottom-6 right-6 text-cyan-400/20">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            >
-              <Sparkles size={32} />
-            </motion.div>
-          </div>
-        </div>
 
-        {/* Hover glow effect */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-400/0 via-cyan-400/0 to-blue-400/0 group-hover:from-purple-400/10 group-hover:via-cyan-400/10 group-hover:to-blue-400/10 transition-all duration-500 pointer-events-none"></div>
-      </motion.article>
+        </div>
+</motion.article>
 
       {/* Bottom decorative section */}
       <motion.div
