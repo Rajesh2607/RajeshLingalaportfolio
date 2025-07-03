@@ -2,8 +2,6 @@
 
 A modern, responsive portfolio website built with React, showcasing professional projects, skills, certifications, and blog posts. Features a comprehensive admin panel for content management and SEO optimization.
 
-![Portfolio Preview](https://firebasestorage.googleapis.com/v0/b/myprofolio-34d7c.firebasestorage.app/o/profile%2FWhatsApp%20Image%202025-04-20%20at%2018.48.10_4a2d17cb.jpg?alt=media&token=5ac51520-47e7-4799-ab7a-439ef0a4efc2)
-
 ## 🌟 Features
 
 ### 🎨 **Frontend Features**
