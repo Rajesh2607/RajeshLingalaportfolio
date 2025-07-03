@@ -77,6 +77,29 @@ const WhoIAm = () => {
       
       <div className="overflow-x-hidden">
         <div className="min-h-screen bg-[#0a192f] text-white flex items-center justify-center px-6 py-12">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            opacity: [0, 1, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: 4 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -92,7 +115,32 @@ const WhoIAm = () => {
           </motion.div>
         </div>
     
-        <section className="bg-[#0a192f] py-20">
+        <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-[#0a192f] via-[#08162b] to-[#0a192f] text-white w-full relative overflow-hidden"
+> 
+    {/* Floating particles */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(300)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            opacity: [0, 1, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: 4 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
           <div className="container mx-auto px-6 space-y-20">
             <Hero />
             <Education />

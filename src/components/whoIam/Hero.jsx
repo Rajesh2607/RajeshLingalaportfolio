@@ -61,7 +61,29 @@ const Hero = () => {
         <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-purple-600 filter blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-blue-600 filter blur-3xl"></div>
       </div>
-
+<div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(150)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            opacity: [0, 1, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: 4 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="max-w-6xl mx-auto">
           {loading ? (

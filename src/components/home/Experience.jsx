@@ -106,21 +106,63 @@ const Experience = () => {
 
   return (
     <div className="overflow-x-hidden">
-      <section className="py-20 bg-[#112240] overflow-x-hidden">
+        <section
+    id="about"
+    className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-[#0a192f] via-[#112240] to-[#0a192f] text-white w-full relative overflow-hidden"
+  >
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full blur-3xl"></div>
+    </div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -100, 0],
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+              }}
+              transition={{
+                duration: 4 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Heading */}
           <div className="flex flex-col items-center justify-center mb-12">
-  <div className="flex items-center">
-    <Briefcase size={24} className="text-[#17c0f8] mr-2" />
-    <h2 className="text-3xl font-bold text-white">
-      <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
-        Experience
-      </span>
-    </h2>
-  </div>
-
-  {/* Gradient line below */}
-  <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
+          <div className="flex items-center">
+            <Briefcase size={24} className="text-[#17c0f8] mr-2" />
+            <h2 className="text-3xl font-bold text-white ">
+              <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                Experience
+              </span>
+            </h2>
+          </div>
+          <>
+          <br />
+          </>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "100%" }}
+          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="relative"
+          style={{ maxWidth: "160px" }}
+        >
+          <div className="h-1 bg-gradient-to-r from-transparent via-purple-400 through-cyan-400 to-transparent rounded-full"></div>
+          <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
+        </motion.div>
 </div>
 
 

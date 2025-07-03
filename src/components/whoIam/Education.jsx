@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GraduationCap, Calendar } from 'lucide-react';
 import { db } from '../../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
+import { motion } from 'framer-motion';
+
 
 const Education = () => {
   const sectionRef = useRef(null);
@@ -103,7 +105,20 @@ const Education = () => {
               </h2>
 
               {/* Gradient line below */}
-              <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
+           <>
+          <br />
+          </>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "100%" }}
+          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="relative"
+          style={{ maxWidth: "140px" }}
+        >
+          <div className="h-1 bg-gradient-to-r from-transparent via-purple-400 through-cyan-400 to-transparent rounded-full"></div>
+          <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
+        </motion.div>
             </div>
 
           <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-purple-400 before:via-cyan-400 before:to-blue-400 space-y-12">

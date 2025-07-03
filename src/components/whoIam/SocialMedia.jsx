@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Github, Linkedin, Twitter, Youtube, Instagram, Facebook, FileText, File } from 'lucide-react';
 import { db } from '../../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
+import { motion } from 'framer-motion'; 
 
 const SocialMedia = () => {
   const [socialLinks, setSocialLinks] = useState([]);
@@ -62,8 +63,21 @@ const SocialMedia = () => {
               </h2>
 
               {/* Gradient line below */}
-              <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
-            </div>
+          <>
+          <br />
+          </>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "100%" }}
+          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="relative"
+          style={{ maxWidth: "460px" }}
+        >
+          <div className="h-1 bg-gradient-to-r from-transparent via-purple-400 through-cyan-400 to-transparent rounded-full"></div>
+          <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
+        </motion.div>
+         </div>
 
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
@@ -100,8 +114,20 @@ const SocialMedia = () => {
             </h2>
 
             {/* Gradient line below */}
-            <div className="mt-2 h-1 w-48 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
-          </div>
+                      <>
+          <br />
+          </>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "100%" }}
+          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="relative"
+          style={{ maxWidth: "260px" }}
+        >
+          <div className="h-1 bg-gradient-to-r from-transparent via-purple-400 through-cyan-400 to-transparent rounded-full"></div>
+          <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
+        </motion.div></div>
 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Code, LineChart, Palette } from 'lucide-react';
-
+import { motion } from 'framer-motion';
 const About = () => {
   const sectionRef = useRef(null);
   const uxRef = useRef(null);
@@ -46,8 +46,20 @@ const About = () => {
         </h2>
 
         {/* Gradient line below */}
-        <div className="mt-2 h-1 w-52 bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 rounded-full" />
-      </div>
+                  <>
+          <br />
+          </>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "100%" }}
+          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="relative"
+          style={{ maxWidth: "180px" }}
+        >
+          <div className="h-1 bg-gradient-to-r from-transparent via-purple-400 through-cyan-400 to-transparent rounded-full"></div>
+          <div className="absolute inset-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full blur-sm opacity-60"></div>
+        </motion.div>   </div>
 
 
           {/* UX Design Section */}
