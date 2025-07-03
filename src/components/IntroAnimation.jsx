@@ -7,7 +7,7 @@ const IntroAnimation = ({ onFinish }) => {
   const [imageKey, setImageKey] = useState(0);
   
   // Use public path for images
-  const images = ["/images/Profile.jpg", "/images/icon1.jpg"];
+  const images = ["/images/Profile.jpg", "/images/icon.jpg"];
 
   useEffect(() => {
     const timer = setTimeout(() => {
