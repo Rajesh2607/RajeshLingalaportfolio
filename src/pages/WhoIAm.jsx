@@ -10,6 +10,7 @@ import Achievements from '../components/whoIam/Achievements';
 import Education from '../components/whoIam/Education';
 import SocialMedia from '../components/whoIam/SocialMedia';
 import About from '../components/whoIam/About';
+import WhoIAmIntro from '../components/whoIam/whoiamintro';
 import SkeletonLoaderForWhoIAm from '../components/skeleton/SkeletonLoaderForWhoIAm';
 
 const WhoIAm = () => {
@@ -65,7 +66,7 @@ const WhoIAm = () => {
     );
   }
 
-  return (
+return (
     <>
       <SEOHead
         title="About Me - Who I Am | Rajesh Lingala - Frontend Developer"
@@ -74,86 +75,45 @@ const WhoIAm = () => {
         url="https://rajeshlingala-portfolio.vercel.app/whoiam"
         structuredData={combinedSchema}
       />
-      
-      <div className="overflow-x-hidden">
-        <div className="min-h-screen bg-[#0a192f] text-white flex items-center justify-center px-6 py-12">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(30)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0],
-          }}
-          transition={{
-            duration: 4 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl text-center"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-[#17c0f8]">Who I Am</h1>
-            <p className="text-lg text-gray-300 leading-relaxed">
-              I'm a passionate developer focused on building full-stack solutions with modern web technologies.
-              With a keen eye for design and user experience, I bring ideas to life through clean and efficient code.
-              My mission is to create impactful digital experiences that solve real-world problems.
-            </p>
-          </motion.div>
+      <WhoIAmIntro />
+      <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-[#0a192f] via-[#08162b] to-[#0a192f] text-white w-full relative overflow-hidden"
+      > 
+        {/* Floating particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(300)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -100, 0],
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+              }}
+              transition={{
+                duration: 4 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
         </div>
-    
-        <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-[#0a192f] via-[#08162b] to-[#0a192f] text-white w-full relative overflow-hidden"
-> 
-    {/* Floating particles */}
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(300)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0],
-          }}
-          transition={{
-            duration: 4 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-          <div className="container mx-auto px-6 space-y-20">
-            <Hero />
-            <Education />
-            <About />
-            <Achievements />
-            <div id="connect">
-              <SocialMedia />
-            </div>
+        <div className="container mx-auto px-6 space-y-20">
+          <Hero />
+          <Education />
+          <About />
+          <Achievements />
+          <div id="connect">
+            <SocialMedia />
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </>
-  );
+);
 };
 
 export default WhoIAm;

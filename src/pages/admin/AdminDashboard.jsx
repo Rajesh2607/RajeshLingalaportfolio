@@ -35,6 +35,7 @@ import AchievementsManager from './components/AchievementsManager';
 import SocialMediaManager from './components/SocialMediaManager';
 import HeroManager from './components/HeroManager';
 import AdminBlogManager from './components/AdminBlogManager';
+import WhoIAmIntroManager from './components/whoiamintroManager';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -158,6 +159,7 @@ const AdminDashboard = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Activity, color: 'text-blue-400' },
     { id: 'about', label: 'About', icon: User, color: 'text-green-400' },
+    { id: 'whoiamintro', label: 'Who I Am Intro', icon: FileText, color: 'text-teal-400' },
     { id: 'hero', label: 'Hero Section', icon: FileText, color: 'text-purple-400' },
     { id: 'experience', label: 'Experience', icon: Briefcase, color: 'text-orange-400' },
     { id: 'education', label: 'Education', icon: BookOpen, color: 'text-indigo-400' },
@@ -178,6 +180,7 @@ const AdminDashboard = () => {
         onSectionChange={handleSectionChange}
       />,
       about: <AboutManager />,
+      whoiamintro: <WhoIAmIntroManager />,
       experience: <ExperienceManager />,
       certificates: <CertificatesManager />,
       projects: <ProjectsManager />,
