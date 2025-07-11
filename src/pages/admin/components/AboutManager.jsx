@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage } from '../../../firebase/config';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db, storage, auth } from '../../../firebase/config';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { onAuthStateChanged } from 'firebase/auth';
 import { User, Upload, Save, X, Plus, AlertCircle, CheckCircle, Image as ImageIcon, Sparkles, FileText, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,26 +20,62 @@ const AboutManager = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [notification, setNotification] = useState({ show: false, type: '', message: '' });
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    fetchAboutData();
+    // Check authentication state
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+      if (currentUser) {
+        fetchAboutData();
+      } else {
+        setLoading(false);
+        showNotification('error', 'Please log in to access this feature');
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const fetchAboutData = async () => {
     try {
       const docRef = doc(db, 'content', 'about');
       const docSnap = await getDoc(docRef);
+      
       if (docSnap.exists()) {
         const data = docSnap.data();
         setAbout({
-          ...data,
-          title: Array.isArray(data.title) ? data.title : [data.title],
+          title: Array.isArray(data.title) ? data.title : (data.title ? [data.title] : []),
+          description: data.description || '',
+          profilePic: data.profilePic || '',
+          resume: data.resume || '',
         });
-        setPreviewUrl(data.profilePic);
+        setPreviewUrl(data.profilePic || '');
+      } else {
+        // Initialize with empty data if document doesn't exist
+        console.log('Document does not exist, initializing with empty data');
+        setAbout({
+          title: [],
+          description: '',
+          profilePic: '',
+          resume: '',
+        });
+        setPreviewUrl('');
       }
     } catch (error) {
       console.error('Error fetching about data:', error);
-      showNotification('error', 'Failed to load data');
+      showNotification('error', `Failed to load data: ${error.message}`);
+      
+      // Initialize with empty data on error
+      setAbout({
+        title: [],
+        description: '',
+        profilePic: '',
+        resume: '',
+      });
+      setPreviewUrl('');
     } finally {
       setLoading(false);
     }
@@ -68,15 +105,22 @@ const AboutManager = () => {
   };
 
   const handleSave = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      showNotification('error', 'You must be logged in to save changes');
+      return;
+    }
+
     setSaving(true);
     setUploadProgress(0);
     
     try {
       let profilePicUrl = about.profilePic;
 
+      // Upload image if there's a new file
       if (file) {
         setUploadProgress(25);
-        const storageRef = ref(storage, `profile/${Date.now()}-${file.name}`);
+        const storageRef = ref(storage, `profile/${user.uid}-${Date.now()}-${file.name}`);
         await uploadBytes(storageRef, file);
         setUploadProgress(75);
         profilePicUrl = await getDownloadURL(storageRef);
@@ -84,16 +128,55 @@ const AboutManager = () => {
       }
 
       const docRef = doc(db, 'content', 'about');
-      await updateDoc(docRef, {
-        ...about,
-        profilePic: profilePicUrl,
-      });
+      
+      // Prepare the data to save
+      const dataToSave = {
+        title: about.title,
+        description: about.description || '',
+        profilePic: profilePicUrl || '',
+        resume: about.resume || '',
+        updatedAt: new Date().toISOString(),
+        updatedBy: user.uid
+      };
 
-      showNotification('success', 'About section updated successfully!');
+      console.log('Current user:', user.email);
+      console.log('Saving data:', dataToSave);
+      
+      // Try updateDoc first
+      try {
+        await updateDoc(docRef, dataToSave);
+        showNotification('success', 'About section updated successfully!');
+      } catch (updateError) {
+        if (updateError.code === 'not-found') {
+          // Document doesn't exist, create it
+          console.log('Document not found, creating new one...');
+          await setDoc(docRef, dataToSave);
+          showNotification('success', 'About section created successfully!');
+        } else {
+          throw updateError;
+        }
+      }
+
       setFile(null);
+      
+      // Refresh data to ensure consistency
+      await fetchAboutData();
+      
     } catch (error) {
       console.error('Error updating about section:', error);
-      showNotification('error', 'Failed to update about section');
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      // More specific error messages
+      if (error.code === 'permission-denied') {
+        showNotification('error', 'Permission denied. Please check if you have admin access or contact the administrator.');
+      } else if (error.code === 'unauthenticated') {
+        showNotification('error', 'Authentication required. Please log in again.');
+      } else if (error.code === 'unavailable') {
+        showNotification('error', 'Service temporarily unavailable. Please try again later.');
+      } else {
+        showNotification('error', `Failed to update: ${error.message}`);
+      }
     } finally {
       setSaving(false);
       setUploadProgress(0);
@@ -111,6 +194,26 @@ const AboutManager = () => {
     const updatedTitles = about.title.filter((_, i) => i !== index);
     setAbout({ ...about, title: updatedTitles });
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-400"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">Authentication Required</h3>
+          <p className="text-gray-400">Please log in to access the About Manager</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -329,6 +432,21 @@ const AboutManager = () => {
               className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent backdrop-blur-sm"
               placeholder="https://yourdomain.com/your-resume.pdf"
             />
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-xs text-gray-400">
+                Enter a valid URL to your resume (PDF, Google Drive, etc.)
+              </span>
+              {about.resume && (
+                <a
+                  href={about.resume}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-emerald-400 hover:text-emerald-300 underline"
+                >
+                  Test Link
+                </a>
+              )}
+            </div>
           </div>
         </motion.div>
       </div>
