@@ -36,6 +36,7 @@ import SocialMediaManager from './components/SocialMediaManager';
 import HeroManager from './components/HeroManager';
 import AdminBlogManager from './components/AdminBlogManager';
 import WhoIAmIntroManager from './components/whoiamintroManager';
+import AboutSectionsManager from './components/AboutSectionsManager';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -162,6 +163,7 @@ const AdminDashboard = () => {
     { id: 'whoiamintro', label: 'Who I Am Intro', icon: FileText, color: 'text-teal-400' },
     { id: 'hero', label: 'Hero Section', icon: FileText, color: 'text-purple-400' },
     { id: 'experience', label: 'Experience', icon: Briefcase, color: 'text-orange-400' },
+    { id: 'aboutSections', label: 'About Sections', icon: User, color: 'text-indigo-400' },
     { id: 'education', label: 'Education', icon: BookOpen, color: 'text-indigo-400' },
     { id: 'skills', label: 'Skills', icon: Wrench, color: 'text-yellow-400' },
     { id: 'projects', label: 'Projects', icon: Code2, color: 'text-cyan-400' },
@@ -182,6 +184,7 @@ const AdminDashboard = () => {
       about: <AboutManager />,
       whoiamintro: <WhoIAmIntroManager />,
       experience: <ExperienceManager />,
+      aboutSections: <AboutSectionsManager />,
       certificates: <CertificatesManager />,
       projects: <ProjectsManager />,
       education: <AdminEducationForm />,
