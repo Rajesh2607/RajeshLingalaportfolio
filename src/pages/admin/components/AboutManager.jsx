@@ -36,6 +36,7 @@ const AboutManager = () => {
       }
     });
 
+    
     return () => unsubscribe();
   }, []);
 
