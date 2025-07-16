@@ -16,6 +16,7 @@ import {
 } from 'firebase/storage';
 import { Trash, Code, Github, ExternalLink, Upload, Save, Plus, Edit, Sparkles, Tag, Globe, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { auth } from '../../../firebase/config';
 
 const ProjectManager = () => {
   const [title, setTitle] = useState('');
@@ -54,17 +55,30 @@ const ProjectManager = () => {
 
   const uploadMedia = async (file) => {
     try {
+      // Debug: Check authentication and storage
+      console.log('ProjectsManager - Current user:', auth.currentUser);
+      console.log('ProjectsManager - Storage bucket:', storage.app.options.storageBucket);
+      
       const ext = file.name.split('.').pop();
       // Sanitize filename to avoid issues
       const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const fileName = `${sanitizedName}_${Date.now()}.${ext}`;
       const mediaStoragePath = `project_media/${fileName}`;
       const mediaRef = ref(storage, mediaStoragePath);
+      
+      console.log('ProjectsManager - Attempting upload to:', mediaRef.fullPath);
+      console.log('ProjectsManager - File size:', file.size);
+      console.log('ProjectsManager - File type:', file.type);
+      
       await uploadBytes(mediaRef, file);
       const downloadUrl = await getDownloadURL(mediaRef);
+      
+      console.log('ProjectsManager - Upload successful! Download URL:', downloadUrl);
       return { downloadUrl, mediaStoragePath };
     } catch (error) {
-      console.error('Error uploading media:', error);
+      console.error('ProjectsManager - Error uploading media:', error);
+      console.error('ProjectsManager - Error code:', error.code);
+      console.error('ProjectsManager - Error message:', error.message);
       throw new Error(`Failed to upload media: ${error.message}`);
     }
   };

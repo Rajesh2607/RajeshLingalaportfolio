@@ -14,6 +14,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { BookOpen, Plus, Edit, Trash2, Save, Upload, Calendar, Tag, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { auth } from '../../../firebase/config';
+import { debugFirebaseSetup, testStoragePermissions, checkEnvironmentVars } from '../../../utils/firebaseDebug';
 
 const AdminBlogManager = () => {
   const [blogs, setBlogs] = useState([]);
@@ -22,6 +24,7 @@ const AdminBlogManager = () => {
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [debugResults, setDebugResults] = useState(null);
 
   const [blogData, setBlogData] = useState({
     title: '',
@@ -87,6 +90,11 @@ const AdminBlogManager = () => {
     setUploading(true);
 
     try {
+      // Debug: Check authentication status
+      console.log('Current user:', auth.currentUser);
+      console.log('User email:', auth.currentUser?.email);
+      console.log('Storage bucket:', storage.app.options.storageBucket);
+
       let imageUrl = blogData.image;
 
       if (imageFile) {
@@ -94,10 +102,19 @@ const AdminBlogManager = () => {
           // Sanitize filename to avoid issues
           const sanitizedName = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
           const imageRef = ref(storage, `BLOG_IMAGES/${Date.now()}_${sanitizedName}`);
+          
+          console.log('Attempting upload to:', imageRef.fullPath);
+          console.log('File size:', imageFile.size);
+          console.log('File type:', imageFile.type);
+          
           await uploadBytes(imageRef, imageFile);
           imageUrl = await getDownloadURL(imageRef);
+          
+          console.log('Upload successful! Download URL:', imageUrl);
         } catch (uploadError) {
           console.error('Error uploading blog image:', uploadError);
+          console.error('Error code:', uploadError.code);
+          console.error('Error message:', uploadError.message);
           throw new Error(`Failed to upload blog image: ${uploadError.message}`);
         }
       }
@@ -138,6 +155,25 @@ const AdminBlogManager = () => {
     }
   };
 
+  // Debug function to test Firebase setup
+  const handleDebugTest = async () => {
+    console.log('🚀 Starting Firebase Debug Test...');
+    
+    // Check environment variables first
+    const envCheck = checkEnvironmentVars();
+    console.log('Environment check:', envCheck);
+    
+    // Run full debug test
+    const result = await debugFirebaseSetup();
+    setDebugResults(result);
+    
+    if (result.success) {
+      alert('✅ Firebase Storage is working correctly! Check console for details.');
+    } else {
+      alert(`❌ Firebase Storage Issue: ${result.error}\nCheck console for details.`);
+    }
+  };
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -173,15 +209,22 @@ const AdminBlogManager = () => {
           </div>
           
           {mode === 'view' && (
-            <button
-              className="flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-medium"
-              onClick={() => {
-                setBlogData({
-                  title: '',
-                  date: '',
-                  readTime: '',
-                  category: '',
-                  image: '',
+            <div className="flex gap-3">
+              <button
+                onClick={handleDebugTest}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-3 py-2 rounded-xl font-medium transition-all duration-300 text-sm"
+              >
+                🔍 Test Storage
+              </button>
+              <button
+                className="flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-medium"
+                onClick={() => {
+                  setBlogData({
+                    title: '',
+                    date: '',
+                    readTime: '',
+                    category: '',
+                    image: '',
                   content: ''
                 });
                 setMode('add');
@@ -190,6 +233,7 @@ const AdminBlogManager = () => {
               <Plus size={18} className="mr-2" />
               Add Blog
             </button>
+            </div>
           )}
         </div>
       </motion.div>
