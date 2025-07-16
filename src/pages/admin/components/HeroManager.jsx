@@ -67,9 +67,16 @@ const HeroManager = () => {
       let finalImageUrl = imageUrl;
 
       if (newImage) {
-        const storageRef = ref(storage, `hero-images/${Date.now()}-${newImage.name}`);
-        await uploadBytes(storageRef, newImage);
-        finalImageUrl = await getDownloadURL(storageRef);
+        try {
+          // Sanitize filename to avoid issues
+          const sanitizedName = newImage.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const storageRef = ref(storage, `hero-images/${Date.now()}-${sanitizedName}`);
+          await uploadBytes(storageRef, newImage);
+          finalImageUrl = await getDownloadURL(storageRef);
+        } catch (uploadError) {
+          console.error('Error uploading hero image:', uploadError);
+          throw new Error(`Failed to upload image: ${uploadError.message}`);
+        }
       }
 
       const docRef = doc(db, 'hero', currentSection);

@@ -2,13 +2,6 @@
   "projects": {
     "default": "your-project-id"
   },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
   "hosting": {
     "public": "dist",
     "ignore": [

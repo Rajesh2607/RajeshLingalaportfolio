@@ -120,12 +120,19 @@ const AboutManager = () => {
 
       // Upload image if there's a new file
       if (file) {
-        setUploadProgress(25);
-        const storageRef = ref(storage, `profile/${user.uid}-${Date.now()}-${file.name}`);
-        await uploadBytes(storageRef, file);
-        setUploadProgress(75);
-        profilePicUrl = await getDownloadURL(storageRef);
-        setUploadProgress(100);
+        try {
+          setUploadProgress(25);
+          // Sanitize filename to avoid issues
+          const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const storageRef = ref(storage, `profile/${user.uid}-${Date.now()}-${sanitizedName}`);
+          await uploadBytes(storageRef, file);
+          setUploadProgress(75);
+          profilePicUrl = await getDownloadURL(storageRef);
+          setUploadProgress(100);
+        } catch (uploadError) {
+          console.error('Error uploading profile image:', uploadError);
+          throw new Error(`Failed to upload profile image: ${uploadError.message}`);
+        }
       }
 
       const docRef = doc(db, 'content', 'about');

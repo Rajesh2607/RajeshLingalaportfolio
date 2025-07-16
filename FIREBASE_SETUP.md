@@ -1,122 +1,114 @@
-# Firebase Security Rules Setup Guide
+# Firebase Console Setup Guide
 
-## The Problem
-You're getting "Permission denied" because your Firebase Security Rules are blocking write operations. This is a security feature that prevents unauthorized access to your database.
+## Overview
+All Firebase configuration is now managed through the Firebase Console. No local rule files are needed.
 
-## Solution Steps
+## Setup Steps
 
-### 1. Update Firebase Security Rules
+### 1. Firebase Console Configuration
 
-#### Option A: Quick Fix (Less Secure - for development only)
-Go to your Firebase Console → Firestore Database → Rules and temporarily use:
+#### Firestore Database Rules
+Go to Firebase Console → Firestore Database → Rules and use:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow read access to all documents for public content
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read: if true;
+    }
+    
+    // Allow authenticated users to write
+    match /{document=**} {
+      allow write: if request.auth != null;
     }
   }
 }
 ```
 
-#### Option B: Secure Fix (Recommended)
-Use the `firestore.rules` file I created, but **IMPORTANT**: Replace `"your-admin-email@gmail.com"` with your actual admin email address.
+#### Storage Rules
+Go to Firebase Console → Storage → Rules and use:
 
-### 2. Deploy Rules (if using Firebase CLI)
-
-```bash
-# Install Firebase CLI if you haven't
-npm install -g firebase-tools
-
-# Login to Firebase
-firebase login
-
-# Initialize Firebase (if not done)
-firebase init
-
-# Deploy rules
-firebase deploy --only firestore:rules
-firebase deploy --only storage:rules
-```
-
-### 3. Manual Rules Update (Alternative)
-
-If you prefer to update rules manually:
-
-1. Go to [Firebase Console](https://console.firebase.google.com)
-2. Select your project
-3. Go to Firestore Database → Rules
-4. Copy the content from `firestore.rules` file
-5. Replace `"your-admin-email@gmail.com"` with your email
-6. Click "Publish"
-
-Do the same for Storage → Rules with the content from `storage.rules`.
-
-### 4. Verify Your Admin Email
-
-Make sure you're logged in with the email address you added to the rules. Check in the browser console:
-
-```javascript
-// Open browser console and run:
-firebase.auth().currentUser?.email
-```
-
-### 5. Test the Fix
-
-1. Log out and log back into your admin panel
-2. Try updating the resume URL again
-3. Check the browser console for any remaining errors
-
-## Alternative Quick Fix for Development
-
-If you want to test immediately, you can temporarily use these permissive rules (NOT for production):
-
-**Firestore Rules:**
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true; // WARNING: This allows anyone to read/write
-    }
-  }
-}
-```
-
-**Storage Rules:**
 ```javascript
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Allow read access to all files
     match /{allPaths=**} {
-      allow read, write: if true; // WARNING: This allows anyone to read/write
+      allow read: if true;
+    }
+    
+    // Allow authenticated users to upload files
+    match /{allPaths=**} {
+      allow write: if request.auth != null;
     }
   }
 }
 ```
 
+### 2. Environment Variables Setup
+
+Create a `.env` file in your project root with your Firebase configuration:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+```
+
+### 3. Authentication Setup
+
+1. Go to Firebase Console → Authentication → Sign-in method
+2. Enable Email/Password authentication
+3. Add your admin email to the Users tab
+
+### 4. Storage Configuration
+
+1. Go to Firebase Console → Storage
+2. Click "Get started"
+3. Choose your storage location
+4. Apply the storage rules mentioned above
+
+### 5. Testing
+
+1. Deploy your application
+2. Test image uploads in the admin panel
+3. Check Firebase Console → Storage to verify uploads
+4. Monitor Firebase Console → Authentication for user sessions
+
 ## Important Notes
 
-- Never use the permissive rules (`if true`) in production
-- Always specify your actual admin email in the secure rules
-- Test thoroughly after updating rules
-- Monitor Firebase usage to ensure no unauthorized access
+- All configuration is managed through Firebase Console
+- No local rule files needed
+- Environment variables contain sensitive data - never commit `.env` to version control
+- Rules are configured for development - adjust for production security needs
 
 ## Troubleshooting
 
-If you still get permission errors:
+### Images Not Uploading
+1. Check Firebase Console → Storage rules are applied
+2. Verify authentication is working
+3. Check browser console for errors
+4. Ensure storage bucket exists and is properly configured
 
-1. Check that you're logged in with the correct admin email
-2. Verify the email in Firebase rules matches exactly
-3. Try logging out and back in
-4. Check Firebase Console → Authentication to see if your user exists
-5. Ensure your project ID is correct in the rules
+### Permission Errors
+1. Verify user is authenticated
+2. Check storage rules allow authenticated writes
+3. Ensure Firebase project ID is correct in environment variables
 
-## Need Help?
+### Environment Variables Not Working
+1. Restart development server after adding `.env`
+2. Verify all required variables are set
+3. Check variable names match exactly (including VITE_ prefix)
 
-If you're still having issues, please share:
-1. Your admin email address
-2. Any console error messages
-3. Your current Firebase rules (screenshot from console)
+## Getting Firebase Config Values
+
+1. Go to Firebase Console
+2. Click Project Settings (gear icon)
+3. Scroll down to "Your apps" section
+4. Copy the config values to your `.env` file

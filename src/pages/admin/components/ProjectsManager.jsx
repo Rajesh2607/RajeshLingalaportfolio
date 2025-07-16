@@ -53,13 +53,20 @@ const ProjectManager = () => {
   };
 
   const uploadMedia = async (file) => {
-    const ext = file.name.split('.').pop();
-    const fileName = `${file.name}_${Date.now()}.${ext}`;
-    const mediaStoragePath = `project_media/${fileName}`;
-    const mediaRef = ref(storage, mediaStoragePath);
-    await uploadBytes(mediaRef, file);
-    const downloadUrl = await getDownloadURL(mediaRef);
-    return { downloadUrl, mediaStoragePath };
+    try {
+      const ext = file.name.split('.').pop();
+      // Sanitize filename to avoid issues
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileName = `${sanitizedName}_${Date.now()}.${ext}`;
+      const mediaStoragePath = `project_media/${fileName}`;
+      const mediaRef = ref(storage, mediaStoragePath);
+      await uploadBytes(mediaRef, file);
+      const downloadUrl = await getDownloadURL(mediaRef);
+      return { downloadUrl, mediaStoragePath };
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw new Error(`Failed to upload media: ${error.message}`);
+    }
   };
 
   const handleMediaChange = (e) => {

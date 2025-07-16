@@ -90,13 +90,20 @@ const AdminBlogManager = () => {
       let imageUrl = blogData.image;
 
       if (imageFile) {
-        const imageRef = ref(storage, `BLOG_IMAGES/${imageFile.name}`);
-        await uploadBytes(imageRef, imageFile);
-        imageUrl = await getDownloadURL(imageRef);
+        try {
+          // Sanitize filename to avoid issues
+          const sanitizedName = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const imageRef = ref(storage, `BLOG_IMAGES/${Date.now()}_${sanitizedName}`);
+          await uploadBytes(imageRef, imageFile);
+          imageUrl = await getDownloadURL(imageRef);
+        } catch (uploadError) {
+          console.error('Error uploading blog image:', uploadError);
+          throw new Error(`Failed to upload blog image: ${uploadError.message}`);
+        }
       }
 
-      const avatarRef = ref(storage, 'https://firebasestorage.googleapis.com/v0/b/myprofolio-34d7c.firebasestorage.app/o/profile%2FWhatsApp%20Image%202025-04-20%20at%2018.48.10_4a2d17cb.jpg?alt=media&token=5ac51520-47e7-4799-ab7a-439ef0a4efc2');
-      const avatarUrl = await getDownloadURL(avatarRef);
+      // Use a default avatar or fetch from user profile instead of hardcoded URL
+      const avatarUrl = 'https://firebasestorage.googleapis.com/v0/b/myprofolio-34d7c.firebasestorage.app/o/profile%2FWhatsApp%20Image%202025-04-20%20at%2018.48.10_4a2d17cb.jpg?alt=media&token=5ac51520-47e7-4799-ab7a-439ef0a4efc2';
 
       const newBlogData = {
         ...blogData,
