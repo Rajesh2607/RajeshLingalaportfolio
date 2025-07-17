@@ -18,4 +18,6 @@ const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const storage = getStorage(app);
+
+// Configure storage with explicit bucket name to ensure correct URL format
+export const storage = getStorage(app, 'gs://myprofolio-34d7c.firebasestorage.app');
