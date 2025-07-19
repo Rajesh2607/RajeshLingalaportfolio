@@ -256,7 +256,7 @@ const Certificates = () => {
               <div className="flex items-center text-gray-400">
                 <Shield size={14} className="mr-2 text-green-400" />
                 <span className="text-xs font-mono bg-gray-800/50 px-2 py-1 rounded border border-gray-600/50">
-                  ID: {cert.credentialId}
+                  {cert.credentialId}
                 </span>
               </div>
             )}
