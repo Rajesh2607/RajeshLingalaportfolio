@@ -125,6 +125,8 @@ const Hero = () => {
                         src={personal.imageUrl}
                         alt="Personal"
                         className="rounded-xl w-full relative z-10"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </motion.div>
                   </div>
@@ -154,6 +156,8 @@ const Hero = () => {
                         src={professional.imageUrl}
                         alt="Professional"
                         className="rounded-xl w-full relative z-10"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </motion.div>
                     <motion.div

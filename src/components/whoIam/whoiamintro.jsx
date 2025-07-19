@@ -59,9 +59,48 @@ const WhoIAmIntro = () => {
                     className="max-w-3xl text-center z-10"
                 >
                     <h1 className="text-4xl md:text-5xl font-bold mb-6 text-[#17c0f8]">Who I Am</h1>
-                    <p className="text-lg text-gray-300 leading-relaxed">
-                        {loading ? "Loading..." : myself}
-                    </p>
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center space-y-4">
+                            <div className="flex space-x-2">
+                                {[...Array(3)].map((_, i) => (
+                                    <motion.div
+                                        key={i}
+                                        className="w-3 h-3 bg-[#17c0f8] rounded-full"
+                                        animate={{
+                                            scale: [1, 1.5, 1],
+                                            opacity: [0.5, 1, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 1.5,
+                                            repeat: Infinity,
+                                            delay: i * 0.2,
+                                            ease: "easeInOut",
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            <motion.p
+                                className="text-lg text-gray-400"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                }}
+                            >
+                                Loading my story...
+                            </motion.p>
+                        </div>
+                    ) : (
+                        <motion.p
+                            className="text-lg text-gray-300 leading-relaxed"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                        >
+                            {myself}
+                        </motion.p>
+                    )}
                 </motion.div>
             </div>
         </div>
