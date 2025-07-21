@@ -13,6 +13,8 @@ const CertificatesManager = () => {
   const [useImageUpload, setUseImageUpload] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [selectedDomains, setSelectedDomains] = useState([]);
+  const [customDomain, setCustomDomain] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     issuer: '',
@@ -22,6 +24,28 @@ const CertificatesManager = () => {
     link: '',
     domain: ''
   });
+
+  // Predefined CSE domains
+  const cseDomains = [
+    'Data Analytics',
+    'Complete Artificial Intelligence',
+    'Python Stack',
+    'Software Engineering',
+    'Mobile Application Development',
+    'Web Development',
+    'Cloud Computing',
+    'Cybersecurity',
+    'Blockchain',
+    'IoT (Internet of Things)',
+    'Computer Networks',
+    'Quality Assurance',
+    'Project Management',
+    'Agile/Scrum',
+    'Version Control',
+    'DevOps',
+    'quantum computing',
+    'UX Design'
+  ];
 
   useEffect(() => {
     fetchCertificates();
@@ -97,6 +121,8 @@ const CertificatesManager = () => {
     setPreviewUrl('');
     setUseImageUpload(false);
     setEditingId(null);
+    setSelectedDomains([]);
+    setCustomDomain('');
   };
 
   const handleSubmit = async (e) => {
@@ -115,15 +141,24 @@ const CertificatesManager = () => {
         return;
       }
 
-      const domainArray = formData.domain
-        .split(',')
-        .map(d => d.trim())
-        .filter(d => d.length > 0);
+      // Combine selected domains with custom domain if provided
+      let domainsToSave = [...selectedDomains];
+      if (customDomain.trim()) {
+        const customDomains = customDomain.split(',').map(d => d.trim()).filter(d => d);
+        domainsToSave = [...domainsToSave, ...customDomains];
+      }
+
+      // Validate that at least one domain is selected
+      if (domainsToSave.length === 0) {
+        alert('Please select at least one domain or add a custom domain');
+        setUploading(false);
+        return;
+      }
 
       const dataToSave = {
         ...formData,
         image: imageUrl,
-        domain: domainArray
+        domain: domainsToSave
       };
 
       if (editingId) {
@@ -159,10 +194,35 @@ const CertificatesManager = () => {
       ...certificate,
       domain: Array.isArray(certificate.domain) ? certificate.domain.join(', ') : certificate.domain || ''
     });
+    
+    // Set selected domains for checkboxes
+    if (Array.isArray(certificate.domain)) {
+      const predefinedDomains = certificate.domain.filter(d => cseDomains.includes(d));
+      const customDomains = certificate.domain.filter(d => !cseDomains.includes(d));
+      
+      setSelectedDomains(predefinedDomains);
+      setCustomDomain(customDomains.join(', '));
+    } else if (certificate.domain) {
+      const domains = certificate.domain.split(',').map(d => d.trim());
+      const predefinedDomains = domains.filter(d => cseDomains.includes(d));
+      const customDomains = domains.filter(d => !cseDomains.includes(d));
+      
+      setSelectedDomains(predefinedDomains);
+      setCustomDomain(customDomains.join(', '));
+    }
+    
     setEditingId(certificate.id);
     setUseImageUpload(false); // Default to URL input for editing
     setSelectedFile(null);
     setPreviewUrl('');
+  };
+
+  const handleDomainToggle = (domain) => {
+    setSelectedDomains(prev => 
+      prev.includes(domain) 
+        ? prev.filter(d => d !== domain)
+        : [...prev, domain]
+    );
   };
 
   if (loading) {
@@ -264,19 +324,73 @@ const CertificatesManager = () => {
                 required
               />
             </div>
+          </div>
+
+          {/* Domain Selection Section */}
+          <div className="space-y-4">
             <div>
-              <label className="text-white text-sm font-medium mb-2 flex items-center">
+              <label className="text-white text-sm font-medium mb-3 flex items-center">
                 <Tag size={16} className="mr-2 text-orange-400" />
-                Domain
+                Certificate Domain(s)
               </label>
-              <input
-                type="text"
-                value={formData.domain}
-                onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
-                placeholder="Separate multiple domains with commas"
-                required
-              />
+              
+              <div className="bg-slate-900/50 border border-slate-600/50 rounded-xl p-4 space-y-3">
+                <p className="text-gray-300 text-sm mb-3">Select one or more domains that apply to this certificate:</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                  {cseDomains.map(domain => (
+                    <label key={domain} className="flex items-center space-x-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedDomains.includes(domain)}
+                        onChange={() => handleDomainToggle(domain)}
+                        className="w-4 h-4 text-orange-400 bg-slate-800 border-slate-600 rounded focus:ring-orange-400 focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                        {domain}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                
+                {selectedDomains.length > 0 && (
+                  <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                    <p className="text-orange-400 text-sm font-medium mb-1">Selected domains:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDomains.map(domain => (
+                        <span key={domain} className="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs rounded-full">
+                          {domain}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-3 border-t border-slate-600/50">
+                  <label className="text-white text-sm font-medium mb-2 block">
+                    Additional Custom Domains (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={customDomain}
+                    onChange={(e) => setCustomDomain(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                    placeholder="e.g., Data Analytics, Cloud Architecture"
+                  />
+                  {customDomain.trim() && (
+                    <div className="mt-2 p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                      <p className="text-blue-400 text-sm font-medium mb-1">Custom domains:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {customDomain.split(',').map((domain, index) => domain.trim() && (
+                          <span key={index} className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">
+                            {domain.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
