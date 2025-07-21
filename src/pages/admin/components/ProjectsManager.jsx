@@ -25,6 +25,8 @@ const ProjectManager = () => {
   const [live, setLive] = useState('');
   const [category, setCategory] = useState('');
   const [domain, setDomain] = useState('');
+  const [selectedDomains, setSelectedDomains] = useState([]);
+  const [customDomain, setCustomDomain] = useState('');
   const [mediaFile, setMediaFile] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
   const [mediaType, setMediaType] = useState(null);
@@ -32,6 +34,22 @@ const ProjectManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [mediaPath, setMediaPath] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Predefined project domains
+  const projectDomains = [
+    'UI/UX Design',
+    'Web Development',
+    'Mobile App Development',
+    'Data Analysis',
+    'Cloud Computing',
+    'Cybersecurity',
+    'Game Development',
+    'DevOps',
+    'Low Level Design (LLD)',
+    'SaaS Platforms',
+    'AI/ML Applications',
+
+  ];
 
   useEffect(() => {
     fetchProjects();
@@ -84,6 +102,19 @@ const ProjectManager = () => {
         mediaStoragePath = upload.mediaStoragePath;
       }
 
+      // Combine selected domains with custom domain if provided
+      let domainsToSave = [...selectedDomains];
+      if (customDomain.trim()) {
+        const customDomains = customDomain.split(',').map(d => d.trim()).filter(d => d);
+        domainsToSave = [...domainsToSave, ...customDomains];
+      }
+
+      // Validate that at least one domain is selected
+      if (domainsToSave.length === 0) {
+        alert('Please select at least one domain or add a custom domain');
+        return;
+      }
+
       const projectData = {
         title,
         description,
@@ -91,7 +122,7 @@ const ProjectManager = () => {
         github,
         live,
         category,
-        domain,
+        domain: domainsToSave,
         media: mediaUrl || mediaPreview,
         mediaType,
         mediaPath: mediaStoragePath || mediaPath || '',
@@ -132,7 +163,24 @@ const ProjectManager = () => {
     setGithub(project.github);
     setLive(project.live);
     setCategory(project.category || '');
-    setDomain(project.domain || '');
+    setDomain(Array.isArray(project.domain) ? project.domain.join(', ') : project.domain || '');
+    
+    // Set selected domains for checkboxes
+    if (Array.isArray(project.domain)) {
+      const predefinedDomains = project.domain.filter(d => projectDomains.includes(d));
+      const customDomains = project.domain.filter(d => !projectDomains.includes(d));
+      
+      setSelectedDomains(predefinedDomains);
+      setCustomDomain(customDomains.join(', '));
+    } else if (project.domain) {
+      const domains = project.domain.split(',').map(d => d.trim());
+      const predefinedDomains = domains.filter(d => projectDomains.includes(d));
+      const customDomains = domains.filter(d => !projectDomains.includes(d));
+      
+      setSelectedDomains(predefinedDomains);
+      setCustomDomain(customDomains.join(', '));
+    }
+    
     setMediaPreview(project.media || '');
     setMediaType(project.mediaType || null);
     setEditingId(project.id);
@@ -147,11 +195,21 @@ const ProjectManager = () => {
     setLive('');
     setCategory('');
     setDomain('');
+    setSelectedDomains([]);
+    setCustomDomain('');
     setMediaFile(null);
     setMediaPreview(null);
     setMediaType(null);
     setEditingId(null);
     setMediaPath(null);
+  };
+
+  const handleDomainToggle = (domain) => {
+    setSelectedDomains(prev => 
+      prev.includes(domain) 
+        ? prev.filter(d => d !== domain)
+        : [...prev, domain]
+    );
   };
 
   if (loading) {
@@ -213,7 +271,7 @@ const ProjectManager = () => {
             </div>
 
             <div>
-              <label className="block text-white text-sm font-medium mb-2 flex items-center">
+              <label className="text-white text-sm font-medium mb-2 flex items-center">
                 <Tag size={16} className="mr-2 text-purple-400" />
                 Category
               </label>
@@ -226,36 +284,79 @@ const ProjectManager = () => {
                 required
               />
             </div>
+          </div>
 
+          {/* Domain Selection Section */}
+          <div className="space-y-4">
             <div>
-              <label className="block text-white text-sm font-medium mb-2 flex items-center">
+              <label className="text-white text-sm font-medium mb-3 flex items-center">
                 <Globe size={16} className="mr-2 text-green-400" />
-                Domain
+                Project Domain(s)
               </label>
-              <input
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent backdrop-blur-sm"
-                type="text"
-                placeholder="Domain (e.g., EdTech, HealthTech)"
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                required
-              />
+              
+              <div className="bg-slate-900/50 border border-slate-600/50 rounded-xl p-4 space-y-3">
+                <p className="text-gray-300 text-sm mb-3">Select one or more domains that apply to this project:</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                  {projectDomains.map(domain => (
+                    <label key={domain} className="flex items-center space-x-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedDomains.includes(domain)}
+                        onChange={() => handleDomainToggle(domain)}
+                        className="w-4 h-4 text-green-400 bg-slate-800 border-slate-600 rounded focus:ring-green-400 focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                        {domain}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                
+                {selectedDomains.length > 0 && (
+                  <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                    <p className="text-green-400 text-sm font-medium mb-1">Selected domains:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDomains.map(domain => (
+                        <span key={domain} className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded-full">
+                          {domain}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-3 border-t border-slate-600/50">
+                  <label className="text-white text-sm font-medium mb-2 block">
+                    Additional Custom Domains (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={customDomain}
+                    onChange={(e) => setCustomDomain(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent text-sm"
+                    placeholder="e.g., Custom Domain, Specialized Area"
+                  />
+                  {customDomain.trim() && (
+                    <div className="mt-2 p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                      <p className="text-blue-400 text-sm font-medium mb-1">Custom domains:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {customDomain.split(',').map((domain, index) => domain.trim() && (
+                          <span key={index} className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">
+                            {domain.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-white text-sm font-medium mb-2">Technologies</label>
-              <input
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
-                type="text"
-                placeholder="Technologies (comma separated)"
-                value={technologies}
-                onChange={(e) => setTechnologies(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-white text-sm font-medium mb-2 flex items-center">
+              <label className="text-white text-sm font-medium mb-2 flex items-center">
                 <Github size={16} className="mr-2 text-gray-400" />
                 GitHub Link
               </label>
@@ -269,7 +370,7 @@ const ProjectManager = () => {
             </div>
 
             <div>
-              <label className="block text-white text-sm font-medium mb-2 flex items-center">
+              <label className="text-white text-sm font-medium mb-2 flex items-center">
                 <ExternalLink size={16} className="mr-2 text-blue-400" />
                 Live Demo Link
               </label>
@@ -279,6 +380,18 @@ const ProjectManager = () => {
                 placeholder="Live Demo Link"
                 value={live}
                 onChange={(e) => setLive(e.target.value)}
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-white text-sm font-medium mb-2 block">Technologies</label>
+              <input
+                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
+                type="text"
+                placeholder="Technologies (comma separated)"
+                value={technologies}
+                onChange={(e) => setTechnologies(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -296,7 +409,7 @@ const ProjectManager = () => {
           </div>
 
           <div>
-            <label className="block text-white text-sm font-medium mb-2 flex items-center">
+            <label className="text-white text-sm font-medium mb-2 flex items-center">
               <ImageIcon size={16} className="mr-2 text-pink-400" />
               Project Media
             </label>
@@ -362,7 +475,13 @@ const ProjectManager = () => {
                           {project.category}
                         </span>
                       )}
-                      {project.domain && (
+                      {Array.isArray(project.domain) ? (
+                        project.domain.map((dom, i) => (
+                          <span key={i} className="px-3 py-1 bg-green-500/20 text-green-300 text-sm rounded-full border border-green-400/30">
+                            {dom}
+                          </span>
+                        ))
+                      ) : project.domain && (
                         <span className="px-3 py-1 bg-green-500/20 text-green-300 text-sm rounded-full border border-green-400/30">
                           {project.domain}
                         </span>
