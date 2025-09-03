@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github, ExternalLink, Code, Layers, Star, AlertCircle, Loader, Filter } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -9,6 +9,41 @@ import SEOHead from '../components/SEO/SEOHead';
 import { projectSchema, breadcrumbSchema } from '../components/SEO/StructuredData';
 import { generateBreadcrumbs, generateKeywords } from '../utils/seo';
 import ProjectDetailModal from '../components/ProjectDetailModal';
+
+// Error Boundary Component
+class ProjectErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Project component error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="text-center py-8">
+          <AlertCircle size={32} className="mx-auto mb-4 text-red-400" />
+          <p className="text-red-400">Something went wrong loading this project.</p>
+          <button 
+            onClick={() => this.setState({ hasError: false })}
+            className="mt-2 px-3 py-1 bg-red-500/20 text-red-400 rounded text-sm hover:bg-red-500/30 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -21,6 +56,9 @@ const Projects = () => {
   // Modal state
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Refs for cleanup
+  const timeoutRef = useRef(null);
   
   const location = useLocation();
 
@@ -84,13 +122,35 @@ const Projects = () => {
 
       } catch (err) {
         console.error('Error fetching projects:', err);
-        setError('Failed to load projects. Please try again later.');
+        
+        let errorMessage = 'Failed to load projects. Please try again later.';
+        
+        if (err.code === 'permission-denied') {
+          errorMessage = 'Access denied. Please check your permissions.';
+        } else if (err.code === 'unavailable') {
+          errorMessage = 'Service temporarily unavailable. Please try again later.';
+        } else if (!navigator.onLine) {
+          errorMessage = 'No internet connection. Please check your network.';
+        }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProjects();
+  }, []);
+
+  // Cleanup effect for body overflow and timeouts
+  useEffect(() => {
+    return () => {
+      // Cleanup on component unmount
+      document.body.style.overflow = 'unset';
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
   // Optimized modal functions with better performance
@@ -105,8 +165,17 @@ const Projects = () => {
     // Restore body scroll when modal closes
     document.body.style.overflow = 'unset';
     setIsModalOpen(false);
+    
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
     // Delay clearing selected project to prevent flash
-    setTimeout(() => setSelectedProject(null), 150);
+    timeoutRef.current = setTimeout(() => {
+      setSelectedProject(null);
+      timeoutRef.current = null;
+    }, 150);
   }, []);
 
   // Memoized filtered projects
@@ -151,6 +220,16 @@ const Projects = () => {
     const [imageError, setImageError] = useState(false);
     const [videoLoaded, setVideoLoaded] = useState(false);
 
+    // URL validation helper
+    const isValidUrl = (url) => {
+      try {
+        const urlObj = new URL(url);
+        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    };
+
     const handleCardClick = useCallback((e) => {
       e.preventDefault();
       onProjectClick(project);
@@ -158,7 +237,7 @@ const Projects = () => {
 
     const handleLinkClick = useCallback((e) => {
       e.stopPropagation();
-      e.preventDefault();
+      // Remove preventDefault to allow navigation
     }, []);
 
     const handleImageLoad = useCallback(() => {
@@ -200,6 +279,15 @@ const Projects = () => {
         transition={{ delay: index * 0.03 }}
         className="group bg-gradient-to-br from-[#112240] to-[#1a2f4a] rounded-2xl overflow-hidden border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-200 hover:shadow-lg cursor-pointer transform-gpu"
         onClick={handleCardClick}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${project.title}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCardClick(e);
+          }
+        }}
         style={{ 
           willChange: 'transform',
           backfaceVisibility: 'hidden',
@@ -275,7 +363,7 @@ const Projects = () => {
           {/* Simplified overlay with better performance */}
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
             <div className="flex space-x-2">
-              {project.github && (
+              {project.github && isValidUrl(project.github) && (
                 <a
                   href={project.github}
                   target="_blank"
@@ -287,7 +375,7 @@ const Projects = () => {
                   <Github size={16} />
                 </a>
               )}
-              {project.live && (
+              {project.live && isValidUrl(project.live) && (
                 <a
                   href={project.live}
                   target="_blank"
@@ -393,12 +481,13 @@ const Projects = () => {
         {/* Projects Grid with optimized layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
           {projects.map((project, index) => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              index={index} 
-              onProjectClick={openModal}
-            />
+            <ProjectErrorBoundary key={project.id}>
+              <ProjectCard 
+                project={project} 
+                index={index} 
+                onProjectClick={openModal}
+              />
+            </ProjectErrorBoundary>
           ))}
         </div>
       </motion.section>
